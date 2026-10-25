@@ -1,0 +1,45 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+
+config_version=5
+
+[application]
+
+config/name="Bleach: Blood War Fighters"
+run/main_scene="res://scenes/dev/test_arena.tscn"
+config/features=PackedStringArray("4.7", "GL Compatibility")
+
+[autoload]
+
+Events="*res://scripts/autoload/events.gd"
+InputBindings="*res://scripts/autoload/input_bindings.gd"
+GameSettings="*res://scripts/autoload/game_settings.gd"
+
+[display]
+
+window/size/viewport_width=480
+window/size/viewport_height=270
+window/size/window_width_override=1440
+window/size/window_height_override=810
+window/stretch/mode="viewport"
+window/stretch/scale_mode="integer"
+
+[layer_names]
+
+2d_physics/layer_1="solid_ground"
+2d_physics/layer_2="fighters"
+2d_physics/layer_3="soft_platforms"
+
+[physics]
+
+common/physics_ticks_per_second=60
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+2d/snap/snap_2d_transforms_to_pixel=true
+2d/snap/snap_2d_vertices_to_pixel=true
+environment/defaults/default_clear_color=Color(0.05, 0.04, 0.08, 1)
