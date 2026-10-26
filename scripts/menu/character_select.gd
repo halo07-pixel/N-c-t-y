@@ -16,6 +16,7 @@ const WEIGHT_MAX := 120.0
 var picking_opponent: bool = false
 var confirmed := {1: false, 2: false}
 var _bodies := {}
+var _holders := {}
 
 
 func _ready() -> void:
@@ -27,6 +28,7 @@ func _ready() -> void:
 		add_child(holder)
 		var body := PlaceholderBody.new()
 		holder.add_child(body)
+		_holders[player_id] = holder
 		_bodies[player_id] = body
 	_refresh_bodies()
 
@@ -114,7 +116,7 @@ func _refresh_bodies() -> void:
 			continue
 		body.setup(MatchConfig.character_for(player_id), player_id)
 		body.sync_to(&"Idle", 1 if player_id == 1 else -1, Vector2.ZERO)
-		var holder := body.get_parent() as Node2D
+		var holder: Node2D = _holders[player_id]
 		holder.position = Vector2(_panel_x(player_id) + PANEL_SIZE.x * 0.5, PANEL_TOP + 98.0)
 		holder.visible = player_id == 1 or not is_arcade()
 
