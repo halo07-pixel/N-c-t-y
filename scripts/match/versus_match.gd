@@ -43,22 +43,10 @@ func _physics_process(_delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _match_over and event.is_action_pressed("ui_accept"):
+	if event.is_action_pressed(&"ui_cancel"):
+		Events.screen_requested.emit(&"main_menu")
+	elif _match_over and event.is_action_pressed(&"ui_accept"):
 		get_tree().reload_current_scene()
-		return
-	var key_event := event as InputEventKey
-	if key_event == null or not key_event.pressed or key_event.echo:
-		return
-	match key_event.keycode:
-		KEY_BRACKETLEFT:
-			MatchConfig.cycle_character(1)
-		KEY_BRACKETRIGHT:
-			MatchConfig.cycle_character(2)
-		KEY_BACKSLASH:
-			MatchConfig.cycle_cpu()
-		_:
-			return
-	get_tree().reload_current_scene() # dev setup keys, replaced by menus in phase 4
 
 
 func _spawn_fighter(player_id: int) -> Fighter:

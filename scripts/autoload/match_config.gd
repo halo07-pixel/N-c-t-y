@@ -1,6 +1,6 @@
 extends Node
 ## Who is playing whom: the two chosen characters and the CPU level for player 2.
-## A temporary stand-in for the character-select menu that comes in phase 4.
+## Filled in by the character-select screen and read by the match.
 
 const ROSTER_PATHS: PackedStringArray = [
 	"res://resources/characters/swordsman.tres",
@@ -30,6 +30,18 @@ func cycle_character(player_id: int) -> void:
 		p1_index = (p1_index + 1) % roster_size()
 	else:
 		p2_index = (p2_index + 1) % roster_size()
+
+
+## Moves a player's pick through the roster (direction -1 or +1), wrapping around.
+func step_character(player_id: int, direction: int) -> void:
+	if player_id == 1:
+		p1_index = posmod(p1_index + direction, roster_size())
+	else:
+		p2_index = posmod(p2_index + direction, roster_size())
+
+
+func step_cpu(direction: int) -> void:
+	cpu_level = clampi(cpu_level + direction, 1, CPU_MAX_LEVEL)
 
 
 func cycle_cpu() -> void:

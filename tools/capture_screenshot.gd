@@ -4,6 +4,7 @@ extends SceneTree
 ##   godot --path . --rendering-driver opengl3 -s tools/capture_screenshot.gd -- \
 ##       out.png SCENARIO [P1_CHARACTER_INDEX] [P2_CHARACTER_INDEX]
 ## Scenarios: idle | hit | ko | end | special | bankai | ultimate
+## Menu screens: title | menu | select | select_cpu | settings | controls
 ## Character indexes follow MatchConfig.ROSTER_PATHS (0 swordsman, 1 archer, 2 noble).
 ##
 ## Game classes are deliberately not named in this file: a SceneTree script is
@@ -12,6 +13,14 @@ extends SceneTree
 const MATCH_PATH := "res://scenes/match/versus_match.tscn"
 const SCRIPTED_INPUT_PATH := "res://scripts/fighter/scripted_input.gd"
 const HITBOX_PATH := "res://scripts/combat/hitbox.gd"
+const SCREEN_SCENES := {
+	"title": "res://scenes/ui/title_screen.tscn",
+	"menu": "res://scenes/ui/main_menu.tscn",
+	"select": "res://scenes/ui/character_select.tscn",
+	"select_cpu": "res://scenes/ui/character_select.tscn",
+	"settings": "res://scenes/ui/settings_menu.tscn",
+	"controls": "res://scenes/ui/settings_menu.tscn",
+}
 const UPSCALE := 3
 const MAX_FRAMES := 1500
 const ATTACK_RANGE := 46.0
@@ -31,6 +40,9 @@ func _run() -> void:
 	var args := OS.get_cmdline_user_args()
 	var output_path: String = args[0] if args.size() > 0 else "screenshot.png"
 	var scenario: String = args[1] if args.size() > 1 else "hit"
+	if SCREEN_SCENES.has(scenario):
+		await _capture_screen(output_path, scenario)
+		return
 	var config := root.get_node("MatchConfig")
 	config.p1_index = int(args[2]) if args.size() > 2 else 0
 	config.p2_index = int(args[3]) if args.size() > 3 else 1
@@ -42,6 +54,30 @@ func _run() -> void:
 	await physics_frame
 	_setup_fighters()
 	await _play_scenario(scenario)
+	await _save(output_path)
+
+
+func _capture_screen(output_path: String, scenario: String) -> void:
+	root.get_node("ScreenRouter").enabled = false
+	root.get_node("MatchConfig").cpu_level = 2 if scenario == "select_cpu" else 0
+	var screen: Node = (load(SCREEN_SCENES[scenario]) as PackedScene).instantiate()
+	root.add_child(screen)
+	await _frames(5)
+	if scenario == "select":
+		screen.handle_player_action(1, &"confirm")
+		screen.handle_player_action(2, &"right")
+	elif scenario == "select_cpu":
+		screen.handle_player_action(1, &"confirm")
+		screen.handle_player_action(1, &"right")
+	elif scenario == "settings":
+		screen.handle_action(&"down")
+	elif scenario == "controls":
+		screen.handle_action(&"down")
+		screen.handle_action(&"down")
+		screen.handle_action(&"down")
+		screen.handle_action(&"down")
+		screen.handle_action(&"confirm")
+	await _frames(3)
 	await _save(output_path)
 
 

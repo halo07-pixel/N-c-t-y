@@ -42,6 +42,11 @@ signal sudden_death_started
 @warning_ignore("unused_signal")
 signal match_ended(winner_id: int)
 
+# --- Screens ----------------------------------------------------------------
+## A menu or match asks to move to another screen (see ScreenRouter for the names).
+@warning_ignore("unused_signal")
+signal screen_requested(screen: StringName)
+
 # --- Settings ---------------------------------------------------------------
 @warning_ignore("unused_signal")
 signal settings_changed

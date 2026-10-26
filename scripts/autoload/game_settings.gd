@@ -14,8 +14,15 @@ const MIN_TIME_MINUTES := 1
 const MAX_TIME_MINUTES := 20
 const DEFAULT_TIME_MINUTES := 5
 
+const MAX_VOLUME := 10
+const DEFAULT_VOLUME := 8
+const AUDIO_SECTION := "audio"
+
 var stocks: int = DEFAULT_STOCKS
 var time_minutes: int = DEFAULT_TIME_MINUTES
+## 0 to 10. Applied to the audio buses when sound arrives.
+var music_volume: int = DEFAULT_VOLUME
+var sfx_volume: int = DEFAULT_VOLUME
 
 
 static func clamp_stocks(value: int) -> int:
@@ -42,6 +49,28 @@ func set_time_minutes(value: int) -> void:
 	Events.settings_changed.emit()
 
 
+## Steps the time limit through 1..20 minutes and then Unlimited, wrapping around.
+func step_time_minutes(direction: int) -> void:
+	var slots := MAX_TIME_MINUTES - MIN_TIME_MINUTES + 2 # every minute plus unlimited
+	var slot := slots - 1 if time_minutes == TIME_UNLIMITED else time_minutes - MIN_TIME_MINUTES
+	slot = posmod(slot + direction, slots)
+	set_time_minutes(TIME_UNLIMITED if slot == slots - 1 else slot + MIN_TIME_MINUTES)
+
+
+func step_stocks(direction: int) -> void:
+	set_stocks(stocks + direction)
+
+
+func step_music_volume(direction: int) -> void:
+	music_volume = clampi(music_volume + direction, 0, MAX_VOLUME)
+	Events.settings_changed.emit()
+
+
+func step_sfx_volume(direction: int) -> void:
+	sfx_volume = clampi(sfx_volume + direction, 0, MAX_VOLUME)
+	Events.settings_changed.emit()
+
+
 func is_time_unlimited() -> bool:
 	return time_minutes == TIME_UNLIMITED
 
@@ -54,6 +83,8 @@ func save_settings() -> Error:
 	var config := ConfigFile.new()
 	config.set_value(SECTION, "stocks", stocks)
 	config.set_value(SECTION, "time_minutes", time_minutes)
+	config.set_value(AUDIO_SECTION, "music", music_volume)
+	config.set_value(AUDIO_SECTION, "sfx", sfx_volume)
 	return config.save(SETTINGS_PATH)
 
 
@@ -65,3 +96,5 @@ func load_settings() -> void:
 	time_minutes = clamp_time_minutes(
 		int(config.get_value(SECTION, "time_minutes", DEFAULT_TIME_MINUTES))
 	)
+	music_volume = clampi(int(config.get_value(AUDIO_SECTION, "music", DEFAULT_VOLUME)), 0, MAX_VOLUME)
+	sfx_volume = clampi(int(config.get_value(AUDIO_SECTION, "sfx", DEFAULT_VOLUME)), 0, MAX_VOLUME)
