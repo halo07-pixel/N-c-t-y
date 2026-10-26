@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CharacterData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_data.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/movesets/archer_moveset.tres" id="2"]
+[ext_resource type="Resource" path="res://resources/specials/archer_specials.tres" id="3"]
+[ext_resource type="Resource" path="res://resources/specials/archer_bankai_specials.tres" id="4"]
+[ext_resource type="Resource" path="res://resources/specials/archer_ultimate.tres" id="5"]
+
+[resource]
+script = ExtResource("1")
+display_name = "Uryu"
+weight = 90.0
+run_speed = 125.0
+moveset = ExtResource("2")
+specials = ExtResource("3")
+bankai_specials = ExtResource("4")
+ultimate = ExtResource("5")
+body_color = Color(0.9, 0.9, 0.95, 1)
+accent_color = Color(0.2, 0.55, 0.95, 1)
+weapon_style = &"bow"
+weapon_color = Color(0.75, 0.55, 0.3, 1)

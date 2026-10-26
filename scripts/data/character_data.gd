@@ -29,7 +29,14 @@ extends Resource
 
 @export_group("Combat")
 @export var moveset: MoveSet
+@export var specials: SpecialSet
+## Replaces `specials` while Bankai is active.
+@export var bankai_specials: SpecialSet
+@export var ultimate: SpecialData
 
 @export_group("Placeholder look")
+## "sword" or "bow": only changes how the placeholder weapon is drawn.
+@export var weapon_style: StringName = &"sword"
+@export var weapon_color: Color = Color(0.8, 0.85, 0.9)
 @export var body_color: Color = Color(0.85, 0.85, 0.9)
 @export var accent_color: Color = Color(0.9, 0.5, 0.15)

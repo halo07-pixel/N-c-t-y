@@ -2,10 +2,13 @@ class_name Fighter
 extends CharacterBody2D
 ## A fighter on the stage. It owns its data, its input and the shared movement
 ## helpers. What the fighter is doing at the moment lives in the child states.
-## Combat: the Hurtbox reports hits with a signal, the Hitbox reports landed
-## hits with a signal; this class turns them into damage, launch and hitlag.
+## Combat: the Hurtbox reports hits with a signal, the Hitbox and projectiles
+## report landed hits with a signal; this class turns them into damage, launch,
+## hitlag and Reiatsu.
 
 signal state_changed(state_name: StringName)
+## A special move fired a projectile; whoever owns the scene adds it to the tree.
+signal projectile_spawned(projectile: Projectile)
 
 const SOFT_PLATFORM_LAYER_VALUE := 4 # physics layer 3
 const DROP_THROUGH_FRAMES := 20
@@ -26,9 +29,15 @@ var percent: float = 0.0
 var hitstun_frames_left: int = 0
 var hitlag_left: int = 0
 var invincible_left: int = 0
+var reiatsu: float = 0.0
+var bankai_frames_left: int = 0
+var damage_multiplier: float = 1.0
+var speed_scale: float = 1.0
 
 var _input_source: InputSource
 var _drop_through_frames_left: int = 0
+var _invincible_blinks: bool = false
+var _queued_move: MoveData
 
 @onready var hitbox: Hitbox = $Hitbox
 @onready var hurtbox: Hurtbox = $Hurtbox
@@ -48,10 +57,12 @@ func _ready() -> void:
 	hitbox.setup(player_id)
 	hurtbox.hit_received.connect(_on_hit_received)
 	hitbox.hit_landed.connect(_on_hit_landed)
+	Events.ultimate_started.connect(_on_ultimate_started)
 	air_jumps_left = data.max_air_jumps
 	_state_machine.state_changed.connect(_on_state_changed)
 	_state_machine.setup(self, &"Fall")
 	Events.fighter_percent_changed.emit(player_id, percent)
+	Events.fighter_reiatsu_changed.emit(player_id, reiatsu)
 
 
 func _physics_process(delta: float) -> void:
@@ -60,6 +71,7 @@ func _physics_process(delta: float) -> void:
 		hitlag_left -= 1
 		_body.sync_to(_state_machine.current_name, facing, velocity)
 		return
+	_tick_bankai()
 	if _input_source != null:
 		input = _input_source.get_frame()
 	_tick_drop_through()
@@ -96,6 +108,7 @@ func set_percent(value: float) -> void:
 
 func _on_hit_received(info: HitInfo) -> void:
 	set_percent(percent + info.damage)
+	add_reiatsu(info.damage * Reiatsu.GAIN_TAKEN)
 	var launch_speed := Knockback.magnitude(
 		info.base_knockback, info.knockback_growth, percent, data.weight
 	)
@@ -111,6 +124,117 @@ func _on_hit_received(info: HitInfo) -> void:
 
 func _on_hit_landed(info: HitInfo) -> void:
 	hitlag_left = Knockback.hitlag_frames(info.damage)
+	add_reiatsu(info.damage * Reiatsu.GAIN_DEALT)
+
+
+## A projectile we fired connected: gain Reiatsu, but no hitlag (we may be doing something else).
+func _on_projectile_hit(info: HitInfo) -> void:
+	add_reiatsu(info.damage * Reiatsu.GAIN_DEALT)
+
+
+# --- Reiatsu, Bankai and ultimates ---------------------------------------------
+
+func add_reiatsu(amount: float) -> void:
+	set_reiatsu(reiatsu + amount)
+
+
+func spend_reiatsu(amount: float) -> void:
+	set_reiatsu(reiatsu - amount)
+
+
+func set_reiatsu(value: float) -> void:
+	reiatsu = clampf(value, 0.0, Reiatsu.MAX)
+	Events.fighter_reiatsu_changed.emit(player_id, reiatsu)
+
+
+func is_bankai() -> bool:
+	return bankai_frames_left > 0
+
+
+func can_bankai() -> bool:
+	return not is_bankai() and reiatsu >= Reiatsu.BANKAI_COST
+
+
+func can_ultimate() -> bool:
+	return data.ultimate != null and reiatsu >= Reiatsu.ULTIMATE_COST
+
+
+## What pressing the charge key does right now. Returns the state to enter.
+func charge_press_state() -> StringName:
+	if can_ultimate():
+		spend_reiatsu(Reiatsu.ULTIMATE_COST)
+		_queued_move = data.ultimate
+		var safe_frames := data.ultimate.startup_frames + data.ultimate.active_frames
+		grant_invincibility(safe_frames + Reiatsu.ULTIMATE_SAFE_FRAMES)
+		return &"Attack"
+	if can_bankai():
+		return &"Transform"
+	return &"Charge"
+
+
+func start_bankai() -> void:
+	spend_reiatsu(Reiatsu.BANKAI_COST)
+	bankai_frames_left = Reiatsu.BANKAI_FRAMES
+	damage_multiplier = Reiatsu.BANKAI_DAMAGE_SCALE
+	speed_scale = Reiatsu.BANKAI_SPEED_SCALE
+	_body.set_bankai(true)
+	Events.fighter_bankai_changed.emit(player_id, true)
+
+
+func end_bankai() -> void:
+	if bankai_frames_left == 0 and damage_multiplier == 1.0:
+		return
+	bankai_frames_left = 0
+	damage_multiplier = 1.0
+	speed_scale = 1.0
+	_body.set_bankai(false)
+	Events.fighter_bankai_changed.emit(player_id, false)
+
+
+func _tick_bankai() -> void:
+	if bankai_frames_left <= 0:
+		return
+	bankai_frames_left -= 1
+	if bankai_frames_left == 0:
+		end_bankai()
+
+
+func _on_ultimate_started(attacker_id: int, freeze_frames: int, _title: String) -> void:
+	if attacker_id != player_id:
+		hitlag_left = maxi(hitlag_left, freeze_frames)
+
+
+# --- Attacks and specials ------------------------------------------------------
+
+func wants_attack() -> bool:
+	return input.attack_just_pressed or input.special_just_pressed
+
+
+func current_specials() -> SpecialSet:
+	if is_bankai() and data.bankai_specials != null:
+		return data.bankai_specials
+	return data.specials
+
+
+## The move for the button just pressed and the direction held.
+func pick_move(aerial: bool) -> MoveData:
+	if input.special_just_pressed:
+		return current_specials().select(input.move)
+	return data.moveset.select(aerial, input.move)
+
+
+## An ultimate queued by charge_press_state(); consumed once by the attack state.
+func take_queued_move() -> MoveData:
+	var move := _queued_move
+	_queued_move = null
+	return move
+
+
+func spawn_projectile(projectile_data: ProjectileData, move: MoveData) -> void:
+	var projectile := Projectile.new()
+	projectile.launch(projectile_data, move, player_id, facing, damage_multiplier, global_position)
+	projectile.hit_landed.connect(_on_projectile_hit)
+	projectile_spawned.emit(projectile)
 
 
 # --- Knock-out and respawn -----------------------------------------------------
@@ -120,6 +244,8 @@ func enter_ko() -> void:
 	hurtbox.set_active(false)
 	hitlag_left = 0
 	invincible_left = 0
+	_queued_move = null
+	end_bankai()
 	_body.modulate.a = 1.0
 	velocity = Vector2.ZERO
 	_state_machine.transition_to(&"Ko")
@@ -136,17 +262,24 @@ func respawn_at(spawn_position: Vector2) -> void:
 	hitstun_frames_left = 0
 	refill_jumps()
 	_end_drop_through()
-	invincible_left = RESPAWN_INVINCIBLE_FRAMES
-	hurtbox.set_active(false)
+	grant_invincibility(RESPAWN_INVINCIBLE_FRAMES, true)
 	_state_machine.transition_to(&"Fall")
+
+
+## No damage for a while. `blink` makes the body flicker (used after a respawn).
+func grant_invincibility(frames: int, blink: bool = false) -> void:
+	invincible_left = maxi(invincible_left, frames)
+	_invincible_blinks = blink
+	hurtbox.set_active(false)
 
 
 func _tick_invincibility() -> void:
 	if invincible_left <= 0:
 		return
 	invincible_left -= 1
-	var blink_phase := floori(float(invincible_left) / BLINK_PERIOD_FRAMES)
-	_body.modulate.a = 0.35 if blink_phase % 2 == 0 else 1.0
+	if _invincible_blinks:
+		var blink_phase := floori(float(invincible_left) / BLINK_PERIOD_FRAMES)
+		_body.modulate.a = 0.35 if blink_phase % 2 == 0 else 1.0
 	if invincible_left == 0:
 		_body.modulate.a = 1.0
 		hurtbox.set_active(true)
@@ -165,7 +298,7 @@ func apply_horizontal(
 	delta: float, direction: float, max_speed: float, accel: float, friction: float
 ) -> void:
 	if direction != 0.0:
-		velocity.x = move_toward(velocity.x, direction * max_speed, accel * delta)
+		velocity.x = move_toward(velocity.x, direction * max_speed * speed_scale, accel * delta)
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
 

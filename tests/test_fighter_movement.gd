@@ -3,7 +3,7 @@ extends TestCase
 
 const STAGE_SCENE: PackedScene = preload("res://scenes/stages/test_stage.tscn")
 const FIGHTER_SCENE: PackedScene = preload("res://scenes/fighter/fighter.tscn")
-const CHARACTER: CharacterData = preload("res://resources/characters/placeholder_a.tres")
+const CHARACTER: CharacterData = preload("res://resources/characters/swordsman.tres")
 
 const MAIN_FLOOR_Y := 60.0
 const LEFT_SOFT_PLATFORM_Y := 18.0

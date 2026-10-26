@@ -1,9 +1,10 @@
 extends CanvasLayer
-## Tiny developer overlay: key help and the current state of each fighter.
+## Tiny developer overlay: key help, who is playing and the state of each fighter.
 ## Listens to the Events bus only. F1 hides it, F2 shows hitboxes.
+## [ and ] change the characters, \ cycles the CPU level (restarts the match).
 
 const FONT_SIZE := 8
-const HELP_TEXT := "F1: hide   F2: hitboxes"
+const HELP_TEXT := "F1 hide  F2 hitboxes  [ ] characters  \\ CPU"
 
 var _label: Label
 var _states: Dictionary = {}
@@ -37,7 +38,7 @@ func _on_fighter_state_changed(player_id: int, state_name: StringName) -> void:
 
 
 func _refresh() -> void:
-	var lines := PackedStringArray([HELP_TEXT])
+	var lines := PackedStringArray([HELP_TEXT, MatchConfig.describe()])
 	var player_ids := _states.keys()
 	player_ids.sort()
 	for player_id in player_ids:

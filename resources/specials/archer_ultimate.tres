@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="SpecialData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/special_data.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/data/projectile_data.gd" id="3"]
+
+[sub_resource type="Resource" id="P_archeru_0"]
+script = ExtResource("3")
+offset = Vector2(20, -18)
+velocity = Vector2(520, 0)
+lifetime_frames = 70
+size = Vector2(80, 14)
+pierce = true
+color = Color(1.0, 0.85, 0.35, 1)
+
+[resource]
+script = ExtResource("2")
+display_name = "Piercing Light"
+direction = &"forward"
+damage = 22.0
+base_knockback = 300.0
+knockback_growth = 200.0
+angle_degrees = 25.0
+startup_frames = 70
+active_frames = 3
+recovery_frames = 28
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 60
+title = "Piercing Light"
+projectiles = Array[ExtResource("3")]([SubResource("P_archeru_0")])

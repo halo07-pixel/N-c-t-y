@@ -1,13 +1,9 @@
 extends Node2D
-## A two-player match on the test stage. Spawns the fighters, applies the
-## settings, detects blast-zone KOs and respawns; the rules themselves live in
+## A two-player match on the test stage. Spawns the fighters from MatchConfig,
+## applies the settings, detects blast-zone KOs and respawns; the rules live in
 ## MatchManager and everything on screen listens through the Events bus.
 
 const FIGHTER_SCENE: PackedScene = preload("res://scenes/fighter/fighter.tscn")
-const ROSTER: Dictionary = {
-	1: preload("res://resources/characters/placeholder_a.tres"),
-	2: preload("res://resources/characters/placeholder_b.tres"),
-}
 
 var _fighters: Dictionary = {}
 var _match_over: bool = false
@@ -20,11 +16,12 @@ var _match_over: bool = false
 func _ready() -> void:
 	var ids: Array[int] = []
 	var targets: Array[Node2D] = []
-	for player_id: int in ROSTER:
+	for player_id in [1, 2]:
 		var fighter := _spawn_fighter(player_id)
 		_fighters[player_id] = fighter
 		ids.append(player_id)
 		targets.append(fighter)
+	_setup_inputs()
 	_camera.bounds = _stage.camera_bounds
 	_camera.set_targets(targets)
 
@@ -48,19 +45,54 @@ func _physics_process(_delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if _match_over and event.is_action_pressed("ui_accept"):
 		get_tree().reload_current_scene()
+		return
+	var key_event := event as InputEventKey
+	if key_event == null or not key_event.pressed or key_event.echo:
+		return
+	match key_event.keycode:
+		KEY_BRACKETLEFT:
+			MatchConfig.cycle_character(1)
+		KEY_BRACKETRIGHT:
+			MatchConfig.cycle_character(2)
+		KEY_BACKSLASH:
+			MatchConfig.cycle_cpu()
+		_:
+			return
+	get_tree().reload_current_scene() # dev setup keys, replaced by menus in phase 4
 
 
 func _spawn_fighter(player_id: int) -> Fighter:
 	var fighter := FIGHTER_SCENE.instantiate() as Fighter
 	fighter.player_id = player_id
-	fighter.data = ROSTER[player_id]
+	fighter.data = MatchConfig.character_for(player_id)
 	fighter.position = _stage.get_spawn_position(player_id)
 	fighter.facing = 1 if player_id == 1 else -1
+	fighter.projectile_spawned.connect(_on_projectile_spawned)
 	add_child(fighter)
+	return fighter
+
+
+## Player 1 is always on the keyboard; player 2 is on the keyboard or the CPU.
+func _setup_inputs() -> void:
+	var first: Fighter = _fighters[1]
+	var second: Fighter = _fighters[2]
+	first.set_input_source(_keyboard_input(1))
+	if MatchConfig.cpu_level == MatchConfig.CPU_OFF:
+		second.set_input_source(_keyboard_input(2))
+		return
+	var cpu := AIInput.new()
+	cpu.bind(second, first, MatchConfig.cpu_level)
+	second.set_input_source(cpu)
+
+
+func _keyboard_input(player_id: int) -> PlayerInput:
 	var source := PlayerInput.new()
 	source.player_id = player_id
-	fighter.set_input_source(source)
-	return fighter
+	return source
+
+
+func _on_projectile_spawned(projectile: Projectile) -> void:
+	add_child(projectile)
 
 
 func _on_respawn_due(player_id: int) -> void:

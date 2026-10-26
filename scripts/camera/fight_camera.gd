@@ -9,12 +9,23 @@ extends Camera2D
 @export var follow_speed: float = 6.0
 @export var bounds: Rect2 = Rect2(-420.0, -300.0, 840.0, 600.0)
 
+const CINEMATIC_ZOOM := 2.2
+const CINEMATIC_FOLLOW_SPEED := 10.0
+
 var _targets: Array[Node2D] = []
+var _cinematic_frames_left: int = 0
+var _cinematic_player_id: int = 0
 
 
 func _ready() -> void:
 	process_callback = Camera2D.CAMERA2D_PROCESS_PHYSICS
 	position_smoothing_enabled = false
+	Events.ultimate_started.connect(_on_ultimate_started)
+
+
+func _on_ultimate_started(player_id: int, freeze_frames: int, _title: String) -> void:
+	_cinematic_player_id = player_id
+	_cinematic_frames_left = freeze_frames
 
 
 func set_targets(targets: Array[Node2D]) -> void:
@@ -24,7 +35,11 @@ func set_targets(targets: Array[Node2D]) -> void:
 
 func _physics_process(delta: float) -> void:
 	var framing := _current_framing()
-	var weight := 1.0 - exp(-follow_speed * delta)
+	var speed := follow_speed
+	if _cinematic_frames_left > 0:
+		_cinematic_frames_left -= 1
+		speed = CINEMATIC_FOLLOW_SPEED
+	var weight := 1.0 - exp(-speed * delta)
 	var new_zoom := lerpf(zoom.x, framing["zoom"], weight)
 	var new_center := position.lerp(framing["center"], weight)
 	zoom = Vector2(new_zoom, new_zoom)
@@ -72,6 +87,10 @@ static func clamp_center(
 
 
 func _current_framing() -> Dictionary:
+	if _cinematic_frames_left > 0:
+		for target in _targets:
+			if is_instance_valid(target) and target.get("player_id") == _cinematic_player_id:
+				return {"center": target.global_position + Vector2(0.0, -15.0), "zoom": CINEMATIC_ZOOM}
 	var points := PackedVector2Array()
 	for target in _targets:
 		if is_instance_valid(target) and target.visible:

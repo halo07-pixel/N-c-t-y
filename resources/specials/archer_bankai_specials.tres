@@ -1,0 +1,145 @@
+[gd_resource type="Resource" script_class="SpecialSet" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/special_set.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/data/special_data.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/data/projectile_data.gd" id="3"]
+
+[sub_resource type="Resource" id="P_archerb_neutral_0"]
+script = ExtResource("3")
+offset = Vector2(14, -20)
+velocity = Vector2(494, 0)
+lifetime_frames = 78
+size = Vector2(22, 8)
+pierce = true
+color = Color(0.55, 0.9, 1.0, 1)
+
+[sub_resource type="Resource" id="S_archerb_neutral"]
+script = ExtResource("2")
+display_name = "Spirit Arrow +"
+direction = &"neutral"
+damage = 7.0
+base_knockback = 140.0
+knockback_growth = 60.0
+angle_degrees = 20.0
+startup_frames = 7
+active_frames = 2
+recovery_frames = 14
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+projectiles = Array[ExtResource("3")]([SubResource("P_archerb_neutral_0")])
+
+[sub_resource type="Resource" id="P_archerb_forward_0"]
+script = ExtResource("3")
+offset = Vector2(14, -20)
+velocity = Vector2(442, 0)
+lifetime_frames = 58
+size = Vector2(22, 8)
+pierce = true
+color = Color(0.55, 0.9, 1.0, 1)
+
+[sub_resource type="Resource" id="P_archerb_forward_1"]
+script = ExtResource("3")
+offset = Vector2(14, -20)
+velocity = Vector2(429, -91)
+lifetime_frames = 58
+size = Vector2(22, 8)
+pierce = true
+color = Color(0.55, 0.9, 1.0, 1)
+
+[sub_resource type="Resource" id="P_archerb_forward_2"]
+script = ExtResource("3")
+offset = Vector2(14, -20)
+velocity = Vector2(429, 91)
+lifetime_frames = 58
+size = Vector2(22, 8)
+pierce = true
+color = Color(0.55, 0.9, 1.0, 1)
+
+[sub_resource type="Resource" id="S_archerb_forward"]
+script = ExtResource("2")
+display_name = "Triple Shot +"
+direction = &"forward"
+damage = 5.0
+base_knockback = 120.0
+knockback_growth = 40.0
+angle_degrees = 25.0
+startup_frames = 10
+active_frames = 2
+recovery_frames = 22
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+projectiles = Array[ExtResource("3")]([SubResource("P_archerb_forward_0"), SubResource("P_archerb_forward_1"), SubResource("P_archerb_forward_2")])
+
+[sub_resource type="Resource" id="S_archerb_up"]
+script = ExtResource("2")
+display_name = "Sky Step +"
+direction = &"up"
+damage = 0.0
+base_knockback = 0.0
+knockback_growth = 0.0
+angle_degrees = 85.0
+startup_frames = 3
+active_frames = 2
+recovery_frames = 18
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(112, -440)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+
+[sub_resource type="Resource" id="P_archerb_down_0"]
+script = ExtResource("3")
+offset = Vector2(14, -20)
+velocity = Vector2(286, 312)
+lifetime_frames = 65
+size = Vector2(20, 8)
+pierce = true
+color = Color(0.55, 0.9, 1.0, 1)
+
+[sub_resource type="Resource" id="P_archerb_down_1"]
+script = ExtResource("3")
+offset = Vector2(14, -20)
+velocity = Vector2(156, 390)
+lifetime_frames = 65
+size = Vector2(20, 8)
+pierce = true
+color = Color(0.55, 0.9, 1.0, 1)
+
+[sub_resource type="Resource" id="S_archerb_down"]
+script = ExtResource("2")
+display_name = "Arrow Rain +"
+direction = &"down"
+damage = 6.0
+base_knockback = 150.0
+knockback_growth = 60.0
+angle_degrees = -20.0
+startup_frames = 8
+active_frames = 2
+recovery_frames = 20
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+projectiles = Array[ExtResource("3")]([SubResource("P_archerb_down_0"), SubResource("P_archerb_down_1")])
+
+[resource]
+script = ExtResource("1")
+neutral = SubResource("S_archerb_neutral")
+forward = SubResource("S_archerb_forward")
+up = SubResource("S_archerb_up")
+down = SubResource("S_archerb_down")

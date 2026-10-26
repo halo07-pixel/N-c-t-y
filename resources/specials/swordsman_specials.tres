@@ -1,0 +1,98 @@
+[gd_resource type="Resource" script_class="SpecialSet" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/special_set.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/data/special_data.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/data/projectile_data.gd" id="3"]
+
+[sub_resource type="Resource" id="P_swordsman_neutral_0"]
+script = ExtResource("3")
+offset = Vector2(16, -18)
+velocity = Vector2(260, 0)
+lifetime_frames = 70
+size = Vector2(22, 14)
+pierce = false
+color = Color(0.55, 0.9, 1.0, 1)
+
+[sub_resource type="Resource" id="S_swordsman_neutral"]
+script = ExtResource("2")
+display_name = "Crescent Wave"
+direction = &"neutral"
+damage = 9.0
+base_knockback = 180.0
+knockback_growth = 80.0
+angle_degrees = 30.0
+startup_frames = 10
+active_frames = 2
+recovery_frames = 18
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+projectiles = Array[ExtResource("3")]([SubResource("P_swordsman_neutral_0")])
+
+[sub_resource type="Resource" id="S_swordsman_forward"]
+script = ExtResource("2")
+display_name = "Dash Slash"
+direction = &"forward"
+damage = 10.0
+base_knockback = 200.0
+knockback_growth = 120.0
+angle_degrees = 40.0
+startup_frames = 6
+active_frames = 4
+recovery_frames = 20
+hitbox_size = Vector2(30, 18)
+hitbox_offset = Vector2(22, -16)
+self_velocity = Vector2(320, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = true
+cinematic_frames = 0
+title = ""
+
+[sub_resource type="Resource" id="S_swordsman_up"]
+script = ExtResource("2")
+display_name = "Rising Cut"
+direction = &"up"
+damage = 8.0
+base_knockback = 200.0
+knockback_growth = 110.0
+angle_degrees = 85.0
+startup_frames = 5
+active_frames = 4
+recovery_frames = 22
+hitbox_size = Vector2(26, 34)
+hitbox_offset = Vector2(4, -40)
+self_velocity = Vector2(40, -380)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+
+[sub_resource type="Resource" id="S_swordsman_down"]
+script = ExtResource("2")
+display_name = "Spin Cleave"
+direction = &"down"
+damage = 7.0
+base_knockback = 190.0
+knockback_growth = 100.0
+angle_degrees = 80.0
+startup_frames = 7
+active_frames = 4
+recovery_frames = 20
+hitbox_size = Vector2(56, 24)
+hitbox_offset = Vector2(0, -14)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+
+[resource]
+script = ExtResource("1")
+neutral = SubResource("S_swordsman_neutral")
+forward = SubResource("S_swordsman_forward")
+up = SubResource("S_swordsman_up")
+down = SubResource("S_swordsman_down")

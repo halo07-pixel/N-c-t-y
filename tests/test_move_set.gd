@@ -1,6 +1,6 @@
 extends TestCase
 
-const MOVESET: MoveSet = preload("res://resources/movesets/default_moveset.tres")
+const MOVESET: MoveSet = preload("res://resources/movesets/swordsman_moveset.tres")
 
 
 func test_direction_kind_maps_input_to_four_directions() -> void:

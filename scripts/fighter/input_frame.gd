@@ -12,3 +12,4 @@ var special_just_pressed: bool = false
 var guard_just_pressed: bool = false
 var guard_held: bool = false
 var charge_held: bool = false
+var charge_just_pressed: bool = false

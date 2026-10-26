@@ -3,9 +3,9 @@ extends TestCase
 
 const STAGE_SCENE: PackedScene = preload("res://scenes/stages/test_stage.tscn")
 const FIGHTER_SCENE: PackedScene = preload("res://scenes/fighter/fighter.tscn")
-const CHARACTER_A: CharacterData = preload("res://resources/characters/placeholder_a.tres")
-const CHARACTER_B: CharacterData = preload("res://resources/characters/placeholder_b.tres")
-const MOVESET: MoveSet = preload("res://resources/movesets/default_moveset.tres")
+const CHARACTER_A: CharacterData = preload("res://resources/characters/swordsman.tres")
+const CHARACTER_B: CharacterData = preload("res://resources/characters/swordsman.tres")
+const MOVESET: MoveSet = preload("res://resources/movesets/swordsman_moveset.tres")
 
 const MAX_WAIT_FRAMES := 60
 

@@ -37,6 +37,12 @@ var _attack_kind: StringName = &""
 var _attack_phase: StringName = &""
 var _spin: float = 0.0
 var _spin_direction: float = 1.0
+var _bankai: bool = false
+
+
+func set_bankai(active: bool) -> void:
+	_bankai = active
+	queue_redraw()
 
 
 func setup(character: CharacterData, player_id: int) -> void:
@@ -68,6 +74,8 @@ func sync_to(pose: StringName, facing: int, velocity: Vector2) -> void:
 
 func _process(delta: float) -> void:
 	_update_spin(delta)
+	if _bankai or _pose == &"Charge" or _pose == &"Transform":
+		queue_redraw() # the aura pulses every frame
 	if _pose != &"Run":
 		return
 	var step_before := _run_step()
@@ -100,6 +108,7 @@ func _draw() -> void:
 	var head_y := torso_y - HEAD_SIZE
 
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(float(_facing), 1.0))
+	_draw_aura(torso_y)
 	_box(parts["left_leg"], _character.body_color.darkened(0.25))
 	_box(parts["right_leg"], _character.body_color.darkened(0.25))
 	_box(Rect2(-7.0 + lean, torso_y, 14.0, TORSO_HEIGHT), _character.body_color)
@@ -120,7 +129,34 @@ func _draw_sword(parts: Dictionary, offset: Vector2) -> void:
 		var trail_from: Vector2 = SWORD_TIPS[_attack_kind][&"startup"]
 		draw_colored_polygon(PackedVector2Array([sword_from, trail_from, sword_to]), SLASH_COLOR)
 	draw_line(sword_from, sword_to, OUTLINE_COLOR, 4.0)
-	draw_line(sword_from, sword_to, STEEL_COLOR, 2.0)
+	draw_line(sword_from, sword_to, _character.weapon_color, 2.0)
+	if _character.weapon_style == &"bow":
+		_draw_bow_string(sword_from, sword_to)
+
+
+## A curved bow drawn around the weapon line, so the archer reads as an archer.
+func _draw_bow_string(from: Vector2, to: Vector2) -> void:
+	var middle := (from + to) * 0.5
+	var radius := from.distance_to(to) * 0.5
+	var bulge := (to - from).angle()
+	draw_arc(middle, radius, bulge - 1.2, bulge + 1.2, 8, OUTLINE_COLOR, 3.0)
+	draw_arc(middle, radius, bulge - 1.2, bulge + 1.2, 8, _character.weapon_color, 1.0)
+
+
+## Glow around the body while charging, transforming or in Bankai.
+func _draw_aura(torso_y: float) -> void:
+	if not (_bankai or _pose == &"Charge" or _pose == &"Transform"):
+		return
+	var pulse := 0.5 + 0.5 * sin(float(Engine.get_physics_frames()) * 0.3)
+	var color: Color = _character.accent_color
+	var spread := 3.0 + 3.0 * pulse
+	if _pose == &"Transform":
+		spread += 4.0
+		color = color.lightened(0.5)
+	var height := LEG_HEIGHT + TORSO_HEIGHT + HEAD_SIZE
+	var glow := Rect2(-9.0 - spread, torso_y - HEAD_SIZE - spread, 18.0 + spread * 2.0, height + spread * 2.0)
+	draw_rect(glow, Color(color.r, color.g, color.b, 0.25 + 0.15 * pulse))
+	draw_rect(glow.grow(3.0), Color(color.r, color.g, color.b, 0.12))
 
 
 ## Where the limbs go for the current pose, in "facing right" coordinates.
@@ -150,6 +186,11 @@ func _pose_parts() -> Dictionary:
 			parts["sword_to"] = Vector2(10.0, -8.0)
 		&"Attack":
 			_pose_attack(parts)
+		&"Charge", &"Transform":
+			parts["left_leg"] = Rect2(-8.0, -LEG_HEIGHT, 5.0, LEG_HEIGHT)
+			parts["right_leg"] = Rect2(3.0, -LEG_HEIGHT, 5.0, LEG_HEIGHT)
+			parts["sword_from"] = Vector2(9.0, -14.0)
+			parts["sword_to"] = Vector2(13.0, -36.0) # weapon raised
 	return parts
 
 

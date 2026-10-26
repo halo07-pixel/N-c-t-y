@@ -3,126 +3,126 @@
 [ext_resource type="Script" path="res://scripts/data/move_set.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/data/move_data.gd" id="2"]
 
-[sub_resource type="Resource" id="Resource_g_neutral"]
+[sub_resource type="Resource" id="M_ground_neutral"]
 script = ExtResource("2")
 display_name = "Jab"
 direction = &"neutral"
-damage = 4.0
+damage = 3.4
 base_knockback = 120.0
-knockback_growth = 20.0
+knockback_growth = 18.0
 angle_degrees = 40.0
-startup_frames = 3
+startup_frames = 2
 active_frames = 2
 recovery_frames = 9
-hitbox_size = Vector2(22, 16)
+hitbox_size = Vector2(19, 14)
 hitbox_offset = Vector2(18, -16)
 
-[sub_resource type="Resource" id="Resource_g_forward"]
+[sub_resource type="Resource" id="M_ground_forward"]
 script = ExtResource("2")
 display_name = "Forward Slash"
 direction = &"forward"
-damage = 11.0
+damage = 9.3
 base_knockback = 200.0
-knockback_growth = 170.0
+knockback_growth = 153.0
 angle_degrees = 38.0
-startup_frames = 8
+startup_frames = 7
 active_frames = 3
 recovery_frames = 18
-hitbox_size = Vector2(32, 18)
+hitbox_size = Vector2(27, 15)
 hitbox_offset = Vector2(23, -16)
 lunge_speed = 170.0
 
-[sub_resource type="Resource" id="Resource_g_up"]
+[sub_resource type="Resource" id="M_ground_up"]
 script = ExtResource("2")
 display_name = "Rising Slash"
 direction = &"up"
-damage = 9.0
+damage = 7.6
 base_knockback = 210.0
-knockback_growth = 140.0
+knockback_growth = 126.0
 angle_degrees = 88.0
-startup_frames = 6
+startup_frames = 5
 active_frames = 3
 recovery_frames = 16
-hitbox_size = Vector2(26, 32)
+hitbox_size = Vector2(22, 27)
 hitbox_offset = Vector2(4, -40)
 
-[sub_resource type="Resource" id="Resource_g_down"]
+[sub_resource type="Resource" id="M_ground_down"]
 script = ExtResource("2")
 display_name = "Low Sweep"
 direction = &"down"
-damage = 8.0
+damage = 6.8
 base_knockback = 170.0
-knockback_growth = 110.0
+knockback_growth = 99.0
 angle_degrees = 30.0
-startup_frames = 5
+startup_frames = 4
 active_frames = 3
 recovery_frames = 15
-hitbox_size = Vector2(36, 10)
+hitbox_size = Vector2(31, 8)
 hitbox_offset = Vector2(21, -6)
 
-[sub_resource type="Resource" id="Resource_a_neutral"]
+[sub_resource type="Resource" id="M_air_neutral"]
 script = ExtResource("2")
 display_name = "Air Slash"
 direction = &"neutral"
-damage = 6.0
+damage = 5.1
 base_knockback = 150.0
-knockback_growth = 60.0
+knockback_growth = 54.0
 angle_degrees = 45.0
-startup_frames = 5
+startup_frames = 4
 active_frames = 4
 recovery_frames = 10
-hitbox_size = Vector2(28, 22)
+hitbox_size = Vector2(24, 19)
 hitbox_offset = Vector2(15, -16)
 
-[sub_resource type="Resource" id="Resource_a_forward"]
+[sub_resource type="Resource" id="M_air_forward"]
 script = ExtResource("2")
 display_name = "Air Forward"
 direction = &"forward"
-damage = 12.0
+damage = 10.2
 base_knockback = 220.0
-knockback_growth = 170.0
+knockback_growth = 153.0
 angle_degrees = 35.0
-startup_frames = 9
+startup_frames = 8
 active_frames = 3
 recovery_frames = 16
-hitbox_size = Vector2(34, 20)
+hitbox_size = Vector2(29, 17)
 hitbox_offset = Vector2(23, -16)
 
-[sub_resource type="Resource" id="Resource_a_up"]
+[sub_resource type="Resource" id="M_air_up"]
 script = ExtResource("2")
 display_name = "Air Upper"
 direction = &"up"
-damage = 9.0
+damage = 7.6
 base_knockback = 200.0
-knockback_growth = 130.0
+knockback_growth = 117.0
 angle_degrees = 85.0
-startup_frames = 6
+startup_frames = 5
 active_frames = 3
 recovery_frames = 12
-hitbox_size = Vector2(28, 28)
+hitbox_size = Vector2(24, 24)
 hitbox_offset = Vector2(2, -42)
 
-[sub_resource type="Resource" id="Resource_a_down"]
+[sub_resource type="Resource" id="M_air_down"]
 script = ExtResource("2")
 display_name = "Air Spike"
 direction = &"down"
-damage = 11.0
+damage = 9.3
 base_knockback = 180.0
-knockback_growth = 120.0
+knockback_growth = 108.0
 angle_degrees = -70.0
-startup_frames = 12
+startup_frames = 11
 active_frames = 4
 recovery_frames = 18
-hitbox_size = Vector2(18, 22)
+hitbox_size = Vector2(15, 19)
 hitbox_offset = Vector2(8, 2)
 
 [resource]
 script = ExtResource("1")
-ground_neutral = SubResource("Resource_g_neutral")
-ground_forward = SubResource("Resource_g_forward")
-ground_up = SubResource("Resource_g_up")
-ground_down = SubResource("Resource_g_down")
-air_neutral = SubResource("Resource_a_neutral")
-air_forward = SubResource("Resource_a_forward")
-air_up = SubResource("Resource_a_up")
-air_down = SubResource("Resource_a_down")
+ground_neutral = SubResource("M_ground_neutral")
+ground_forward = SubResource("M_ground_forward")
+ground_up = SubResource("M_ground_up")
+ground_down = SubResource("M_ground_down")
+air_neutral = SubResource("M_air_neutral")
+air_forward = SubResource("M_air_forward")
+air_up = SubResource("M_air_up")
+air_down = SubResource("M_air_down")

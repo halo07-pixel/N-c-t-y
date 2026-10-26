@@ -16,6 +16,7 @@ var is_active: bool = false
 
 var _move: MoveData
 var _facing: int = 1
+var _damage_scale: float = 1.0
 var _already_hit: Array[Hurtbox] = []
 ## Physics frame of the last deactivate(). A fighter hit in the same tick as it
 ## swings still lands its own hit, so simultaneous hits trade instead of one being lost.
@@ -32,9 +33,10 @@ func setup(id: int) -> void:
 	fighter_id = id
 
 
-func activate(move: MoveData, facing: int) -> void:
+func activate(move: MoveData, facing: int, damage_scale: float = 1.0) -> void:
 	_move = move
 	_facing = facing
+	_damage_scale = damage_scale
 	_already_hit.clear()
 	var rectangle := RectangleShape2D.new()
 	rectangle.size = move.hitbox_size
@@ -77,7 +79,7 @@ func _on_area_entered(area: Area2D) -> void:
 	_already_hit.append(hurtbox)
 	var info := HitInfo.new()
 	info.attacker_id = fighter_id
-	info.damage = _move.damage
+	info.damage = _move.damage * _damage_scale
 	info.base_knockback = _move.base_knockback
 	info.knockback_growth = _move.knockback_growth
 	info.direction = Knockback.direction(_move.angle_degrees, _facing)

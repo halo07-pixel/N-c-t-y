@@ -1,8 +1,10 @@
 extends SceneTree
 ## Developer tool: plays the versus match with a simple bot and saves a PNG.
 ## Usage (needs a display, e.g. xvfb-run):
-##   godot --path . --rendering-driver opengl3 -s tools/capture_screenshot.gd -- out.png SCENARIO
-## Scenarios: idle | hit | ko | end
+##   godot --path . --rendering-driver opengl3 -s tools/capture_screenshot.gd -- \
+##       out.png SCENARIO [P1_CHARACTER_INDEX] [P2_CHARACTER_INDEX]
+## Scenarios: idle | hit | ko | end | special | bankai | ultimate
+## Character indexes follow MatchConfig.ROSTER_PATHS (0 swordsman, 1 archer, 2 noble).
 ##
 ## Game classes are deliberately not named in this file: a SceneTree script is
 ## compiled before the autoloads exist, so naming them would break compilation.
@@ -29,14 +31,21 @@ func _run() -> void:
 	var args := OS.get_cmdline_user_args()
 	var output_path: String = args[0] if args.size() > 0 else "screenshot.png"
 	var scenario: String = args[1] if args.size() > 1 else "hit"
-
+	var config := root.get_node("MatchConfig")
+	config.p1_index = int(args[2]) if args.size() > 2 else 0
+	config.p2_index = int(args[3]) if args.size() > 3 else 1
 	if scenario == "end":
 		root.get_node("GameSettings").stocks = 1
+
 	_match = (load(MATCH_PATH) as PackedScene).instantiate()
 	root.add_child(_match)
 	await physics_frame
 	_setup_fighters()
+	await _play_scenario(scenario)
+	await _save(output_path)
 
+
+func _play_scenario(scenario: String) -> void:
 	match scenario:
 		"hit":
 			load(HITBOX_PATH).show_debug = true
@@ -50,9 +59,23 @@ func _run() -> void:
 			_fighters[1].set_percent(180.0)
 			await _play_until(func() -> bool: return _match._match_over)
 			await _frames(10)
+		"special":
+			await _frames(30)
+			_bot_input.tap_special()
+			await _until(func() -> bool: return _count_projectiles() > 0)
+			await _frames(14)
+		"bankai":
+			_fighters[0].set_reiatsu(250.0)
+			await _frames(30)
+			_bot_input.tap_charge()
+			await _frames(30)
+		"ultimate":
+			_fighters[0].set_reiatsu(300.0)
+			await _frames(30)
+			_bot_input.tap_charge()
+			await _frames(28)
 		_:
 			await _frames(45)
-	await _save(output_path)
 
 
 func _setup_fighters() -> void:
@@ -65,11 +88,26 @@ func _setup_fighters() -> void:
 	_fighters[1].set_input_source(input_script.new())
 
 
+func _count_projectiles() -> int:
+	var count := 0
+	for child in _match.get_children():
+		if child.has_method("launch"):
+			count += 1
+	return count
+
+
 ## Runs the bot (player 1 chases and attacks player 2) until `done` or the frame cap.
 func _play_until(done: Callable) -> void:
 	await _frames(30)
 	for _i in MAX_FRAMES:
 		_drive_bot()
+		await physics_frame
+		if done.call():
+			return
+
+
+func _until(done: Callable) -> void:
+	for _i in MAX_FRAMES:
 		await physics_frame
 		if done.call():
 			return

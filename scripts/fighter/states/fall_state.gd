@@ -11,7 +11,7 @@ func physics_update(delta: float) -> StringName:
 		fighter.is_fast_falling = true
 	fighter.apply_gravity(delta, fighter.is_fast_falling)
 
-	if fighter.input.attack_just_pressed:
+	if fighter.wants_attack():
 		return &"Attack"
 	if fighter.input.up_just_pressed and fighter.can_air_jump():
 		fighter.start_air_jump()

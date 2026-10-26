@@ -1,0 +1,69 @@
+[gd_resource type="Resource" script_class="SpecialData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/special_data.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/data/projectile_data.gd" id="3"]
+
+[sub_resource type="Resource" id="P_nobleu_0"]
+script = ExtResource("3")
+offset = Vector2(20, -18)
+velocity = Vector2(300, -60)
+lifetime_frames = 80
+size = Vector2(28, 20)
+pierce = true
+color = Color(1.0, 0.6, 0.8, 1)
+
+[sub_resource type="Resource" id="P_nobleu_1"]
+script = ExtResource("3")
+offset = Vector2(20, -18)
+velocity = Vector2(340, -20)
+lifetime_frames = 80
+size = Vector2(28, 20)
+pierce = true
+color = Color(1.0, 0.6, 0.8, 1)
+
+[sub_resource type="Resource" id="P_nobleu_2"]
+script = ExtResource("3")
+offset = Vector2(20, -18)
+velocity = Vector2(360, 0)
+lifetime_frames = 80
+size = Vector2(28, 20)
+pierce = true
+color = Color(1.0, 0.6, 0.8, 1)
+
+[sub_resource type="Resource" id="P_nobleu_3"]
+script = ExtResource("3")
+offset = Vector2(20, -18)
+velocity = Vector2(340, 20)
+lifetime_frames = 80
+size = Vector2(28, 20)
+pierce = true
+color = Color(1.0, 0.6, 0.8, 1)
+
+[sub_resource type="Resource" id="P_nobleu_4"]
+script = ExtResource("3")
+offset = Vector2(20, -18)
+velocity = Vector2(300, 60)
+lifetime_frames = 80
+size = Vector2(28, 20)
+pierce = true
+color = Color(1.0, 0.6, 0.8, 1)
+
+[resource]
+script = ExtResource("2")
+display_name = "Petal Storm"
+direction = &"forward"
+damage = 20.0
+base_knockback = 280.0
+knockback_growth = 190.0
+angle_degrees = 40.0
+startup_frames = 70
+active_frames = 3
+recovery_frames = 28
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 60
+title = "Petal Storm"
+projectiles = Array[ExtResource("3")]([SubResource("P_nobleu_0"), SubResource("P_nobleu_1"), SubResource("P_nobleu_2"), SubResource("P_nobleu_3"), SubResource("P_nobleu_4")])

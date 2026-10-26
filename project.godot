@@ -15,6 +15,7 @@ config/features=PackedStringArray("4.7", "GL Compatibility")
 Events="*res://scripts/autoload/events.gd"
 InputBindings="*res://scripts/autoload/input_bindings.gd"
 GameSettings="*res://scripts/autoload/game_settings.gd"
+MatchConfig="*res://scripts/autoload/match_config.gd"
 
 [display]
 

@@ -20,6 +20,13 @@ signal fighter_hit(attacker_id: int, victim_id: int, damage: float)
 signal fighter_left_blast_zone(player_id: int)
 @warning_ignore("unused_signal")
 signal fighter_respawn_due(player_id: int)
+@warning_ignore("unused_signal")
+signal fighter_reiatsu_changed(player_id: int, reiatsu: float)
+@warning_ignore("unused_signal")
+signal fighter_bankai_changed(player_id: int, active: bool)
+## An ultimate begins: everyone else freezes for freeze_frames and the camera zooms in.
+@warning_ignore("unused_signal")
+signal ultimate_started(player_id: int, freeze_frames: int, title: String)
 
 # --- Match ------------------------------------------------------------------
 @warning_ignore("unused_signal")

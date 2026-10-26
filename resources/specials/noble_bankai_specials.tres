@@ -1,0 +1,108 @@
+[gd_resource type="Resource" script_class="SpecialSet" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/special_set.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/data/special_data.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/data/projectile_data.gd" id="3"]
+
+[sub_resource type="Resource" id="P_nobleb_neutral_0"]
+script = ExtResource("3")
+offset = Vector2(16, -18)
+velocity = Vector2(195, 0)
+lifetime_frames = 130
+size = Vector2(42, 34)
+pierce = true
+color = Color(1.0, 0.6, 0.8, 1)
+
+[sub_resource type="Resource" id="S_nobleb_neutral"]
+script = ExtResource("2")
+display_name = "Petal Drift +"
+direction = &"neutral"
+damage = 6.0
+base_knockback = 130.0
+knockback_growth = 50.0
+angle_degrees = 35.0
+startup_frames = 10
+active_frames = 2
+recovery_frames = 16
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+projectiles = Array[ExtResource("3")]([SubResource("P_nobleb_neutral_0")])
+
+[sub_resource type="Resource" id="S_nobleb_forward"]
+script = ExtResource("2")
+display_name = "Flash Step +"
+direction = &"forward"
+damage = 9.0
+base_knockback = 190.0
+knockback_growth = 120.0
+angle_degrees = 40.0
+startup_frames = 4
+active_frames = 3
+recovery_frames = 18
+hitbox_size = Vector2(39, 23)
+hitbox_offset = Vector2(24, -16)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(112, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+
+[sub_resource type="Resource" id="S_nobleb_up"]
+script = ExtResource("2")
+display_name = "Sky Flash +"
+direction = &"up"
+damage = 0.0
+base_knockback = 0.0
+knockback_growth = 0.0
+angle_degrees = 85.0
+startup_frames = 3
+active_frames = 2
+recovery_frames = 16
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(38, -121)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+
+[sub_resource type="Resource" id="P_nobleb_down_0"]
+script = ExtResource("3")
+offset = Vector2(26, -8)
+velocity = Vector2(0, 0)
+lifetime_frames = 312
+size = Vector2(36, 22)
+pierce = false
+color = Color(1.0, 0.6, 0.8, 1)
+
+[sub_resource type="Resource" id="S_nobleb_down"]
+script = ExtResource("2")
+display_name = "Petal Trap +"
+direction = &"down"
+damage = 7.0
+base_knockback = 160.0
+knockback_growth = 70.0
+angle_degrees = 70.0
+startup_frames = 8
+active_frames = 2
+recovery_frames = 18
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+projectiles = Array[ExtResource("3")]([SubResource("P_nobleb_down_0")])
+
+[resource]
+script = ExtResource("1")
+neutral = SubResource("S_nobleb_neutral")
+forward = SubResource("S_nobleb_forward")
+up = SubResource("S_nobleb_up")
+down = SubResource("S_nobleb_down")
