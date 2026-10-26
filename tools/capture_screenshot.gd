@@ -1,0 +1,100 @@
+extends SceneTree
+## Developer tool: plays the versus match with a simple bot and saves a PNG.
+## Usage (needs a display, e.g. xvfb-run):
+##   godot --path . --rendering-driver opengl3 -s tools/capture_screenshot.gd -- out.png SCENARIO
+## Scenarios: idle | hit | ko | end
+##
+## Game classes are deliberately not named in this file: a SceneTree script is
+## compiled before the autoloads exist, so naming them would break compilation.
+
+const MATCH_PATH := "res://scenes/match/versus_match.tscn"
+const SCRIPTED_INPUT_PATH := "res://scripts/fighter/scripted_input.gd"
+const HITBOX_PATH := "res://scripts/combat/hitbox.gd"
+const UPSCALE := 3
+const MAX_FRAMES := 1500
+const ATTACK_RANGE := 46.0
+const ATTACK_COOLDOWN := 40
+
+var _match: Node
+var _fighters: Array[Node] = []
+var _bot_input: Object
+var _cooldown: int = 0
+
+
+func _initialize() -> void:
+	_run.call_deferred()
+
+
+func _run() -> void:
+	var args := OS.get_cmdline_user_args()
+	var output_path: String = args[0] if args.size() > 0 else "screenshot.png"
+	var scenario: String = args[1] if args.size() > 1 else "hit"
+
+	if scenario == "end":
+		root.get_node("GameSettings").stocks = 1
+	_match = (load(MATCH_PATH) as PackedScene).instantiate()
+	root.add_child(_match)
+	await physics_frame
+	_setup_fighters()
+
+	match scenario:
+		"hit":
+			load(HITBOX_PATH).show_debug = true
+			await _play_until(func() -> bool: return _fighters[1].get_state_name() == &"Hitstun")
+			await _frames(1)
+		"ko":
+			_fighters[1].set_percent(180.0)
+			await _play_until(func() -> bool: return _fighters[1].is_ko())
+			await _frames(20)
+		"end":
+			_fighters[1].set_percent(180.0)
+			await _play_until(func() -> bool: return _match._match_over)
+			await _frames(10)
+		_:
+			await _frames(45)
+	await _save(output_path)
+
+
+func _setup_fighters() -> void:
+	for child in _match.get_children():
+		if child.has_method("set_input_source"):
+			_fighters.append(child)
+	var input_script: GDScript = load(SCRIPTED_INPUT_PATH)
+	_bot_input = input_script.new()
+	_fighters[0].set_input_source(_bot_input)
+	_fighters[1].set_input_source(input_script.new())
+
+
+## Runs the bot (player 1 chases and attacks player 2) until `done` or the frame cap.
+func _play_until(done: Callable) -> void:
+	await _frames(30)
+	for _i in MAX_FRAMES:
+		_drive_bot()
+		await physics_frame
+		if done.call():
+			return
+
+
+func _drive_bot() -> void:
+	var gap: float = _fighters[1].global_position.x - _fighters[0].global_position.x
+	var toward := signf(gap)
+	_bot_input.held_move = Vector2(toward if absf(gap) > 24.0 else 0.0, 0.0)
+	_cooldown -= 1
+	if absf(gap) <= ATTACK_RANGE and _cooldown <= 0 and not _fighters[1].is_ko():
+		_bot_input.held_move = Vector2(toward, 0.0)
+		_bot_input.tap_attack()
+		_cooldown = ATTACK_COOLDOWN
+
+
+func _save(output_path: String) -> void:
+	await RenderingServer.frame_post_draw
+	var image := root.get_texture().get_image()
+	image.resize(image.get_width() * UPSCALE, image.get_height() * UPSCALE, Image.INTERPOLATE_NEAREST)
+	var error := image.save_png(output_path)
+	print("Saved %s (%dx%d), error code %d" % [output_path, image.get_width(), image.get_height(), error])
+	quit(0 if error == OK else 1)
+
+
+func _frames(count: int) -> void:
+	for _i in count:
+		await physics_frame

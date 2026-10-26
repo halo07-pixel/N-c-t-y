@@ -1,0 +1,15 @@
+# Godot 4 generated files
+.godot/
+.import/
+*.translation
+
+# Exports and credentials
+export.cfg
+export_credentials.cfg
+/builds/
+/android/
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+*.tmp
