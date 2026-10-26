@@ -33,6 +33,7 @@ func _end() -> void:
 	MatchConfig.cpu_level = _saved_cpu
 	MatchConfig.p1_index = 0
 	MatchConfig.p2_index = 1
+	MatchConfig.arcade = false
 	GameSettings.stocks = _saved_stocks
 	GameSettings.time_minutes = _saved_time
 
@@ -118,7 +119,7 @@ func test_settings_screen_edits_and_leaves_to_the_main_menu() -> void:
 func test_main_menu_modes_set_the_cpu_and_open_character_select() -> void:
 	_begin()
 	var menu := MAIN_MENU_SCENE.instantiate() as MainMenu
-	check_eq(menu.cursor.index, 1, "arcade is locked, so the cursor starts on versus")
+	menu.handle_action(&"down")
 	menu.handle_action(&"confirm")
 	check_eq(MatchConfig.cpu_level, 0, "2-player versus has no CPU")
 	menu.handle_action(&"down")

@@ -5,6 +5,7 @@ extends SceneTree
 ##       out.png SCENARIO [P1_CHARACTER_INDEX] [P2_CHARACTER_INDEX]
 ## Scenarios: idle | hit | ko | end | special | bankai | ultimate
 ## Menu screens: title | menu | select | select_cpu | settings | controls
+## Arcade: select_arcade | story | story_boss | continue | clear | boss | boss_ult (match vs the boss)
 ## Character indexes follow MatchConfig.ROSTER_PATHS (0 swordsman, 1 archer, 2 noble).
 ##
 ## Game classes are deliberately not named in this file: a SceneTree script is
@@ -20,6 +21,11 @@ const SCREEN_SCENES := {
 	"select_cpu": "res://scenes/ui/character_select.tscn",
 	"settings": "res://scenes/ui/settings_menu.tscn",
 	"controls": "res://scenes/ui/settings_menu.tscn",
+	"select_arcade": "res://scenes/ui/character_select.tscn",
+	"story": "res://scenes/ui/arcade_story.tscn",
+	"story_boss": "res://scenes/ui/arcade_story.tscn",
+	"continue": "res://scenes/ui/arcade_continue.tscn",
+	"clear": "res://scenes/ui/arcade_clear.tscn",
 }
 const UPSCALE := 3
 const MAX_FRAMES := 1500
@@ -29,6 +35,7 @@ const ATTACK_COOLDOWN := 40
 var _match: Node
 var _fighters: Array[Node] = []
 var _bot_input: Object
+var _boss_input: Object
 var _cooldown: int = 0
 
 
@@ -44,6 +51,8 @@ func _run() -> void:
 		await _capture_screen(output_path, scenario)
 		return
 	var config := root.get_node("MatchConfig")
+	if scenario.begins_with("boss"):
+		_start_arcade(true)
 	config.p1_index = int(args[2]) if args.size() > 2 else 0
 	config.p2_index = int(args[3]) if args.size() > 3 else 1
 	if scenario == "end":
@@ -59,7 +68,10 @@ func _run() -> void:
 
 func _capture_screen(output_path: String, scenario: String) -> void:
 	root.get_node("ScreenRouter").enabled = false
-	root.get_node("MatchConfig").cpu_level = 2 if scenario == "select_cpu" else 0
+	root.get_node("MatchConfig").cpu_level = 2 if scenario.begins_with("select") else 0
+	root.get_node("MatchConfig").arcade = scenario == "select_arcade"
+	if scenario in ["story", "story_boss", "continue", "clear"]:
+		_start_arcade(scenario == "story_boss" or scenario == "clear")
 	var screen: Node = (load(SCREEN_SCENES[scenario]) as PackedScene).instantiate()
 	root.add_child(screen)
 	await _frames(5)
@@ -79,6 +91,15 @@ func _capture_screen(output_path: String, scenario: String) -> void:
 		screen.handle_action(&"confirm")
 	await _frames(3)
 	await _save(output_path)
+
+
+func _start_arcade(boss_fight: bool) -> void:
+	var run := root.get_node("ArcadeRun")
+	run.start(0)
+	if boss_fight:
+		run.fight_index = run.FIGHT_COUNT - 1
+		run._apply_fight()
+	run.continues_used = 2
 
 
 func _play_scenario(scenario: String) -> void:
@@ -105,6 +126,13 @@ func _play_scenario(scenario: String) -> void:
 			await _frames(30)
 			_bot_input.tap_charge()
 			await _frames(30)
+		"boss":
+			await _frames(60)
+		"boss_ult":
+			_fighters[1].set_reiatsu(300.0)
+			await _frames(30)
+			_boss_input.tap_charge()
+			await _frames(28)
 		"ultimate":
 			_fighters[0].set_reiatsu(300.0)
 			await _frames(30)
@@ -121,7 +149,8 @@ func _setup_fighters() -> void:
 	var input_script: GDScript = load(SCRIPTED_INPUT_PATH)
 	_bot_input = input_script.new()
 	_fighters[0].set_input_source(_bot_input)
-	_fighters[1].set_input_source(input_script.new())
+	_boss_input = input_script.new()
+	_fighters[1].set_input_source(_boss_input)
 
 
 func _count_projectiles() -> int:

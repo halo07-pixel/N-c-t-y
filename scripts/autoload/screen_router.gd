@@ -7,6 +7,9 @@ const SCREENS := {
 	&"main_menu": "res://scenes/ui/main_menu.tscn",
 	&"character_select": "res://scenes/ui/character_select.tscn",
 	&"settings": "res://scenes/ui/settings_menu.tscn",
+	&"arcade_story": "res://scenes/ui/arcade_story.tscn",
+	&"arcade_continue": "res://scenes/ui/arcade_continue.tscn",
+	&"arcade_clear": "res://scenes/ui/arcade_clear.tscn",
 	&"versus_match": "res://scenes/match/versus_match.tscn",
 }
 

@@ -1,10 +1,10 @@
 class_name MainMenu
 extends MenuScreen
-## Mode list. Arcade is listed but locked until it is built.
+## Mode list: Arcade, Versus 2 Players, Versus CPU, Settings, Quit.
 
 const ITEMS: Array[StringName] = [&"arcade", &"versus", &"versus_cpu", &"settings", &"quit"]
 const LABELS := {
-	&"arcade": "ARCADE  (coming soon)",
+	&"arcade": "ARCADE",
 	&"versus": "VERSUS  2 PLAYERS",
 	&"versus_cpu": "VERSUS  CPU",
 	&"settings": "SETTINGS",
@@ -13,7 +13,7 @@ const LABELS := {
 const DEFAULT_CPU_LEVEL := 2
 const ROW_HEIGHT := 24.0
 
-var cursor := MenuCursor.new(ITEMS.size(), [0] as Array[int])
+var cursor := MenuCursor.new(ITEMS.size())
 
 
 func handle_action(action: StringName) -> void:
@@ -30,12 +30,16 @@ func handle_action(action: StringName) -> void:
 
 
 func activate(item: StringName) -> void:
+	ArcadeRun.quit_run() # every mode starts clean; Arcade sets itself up below
 	match item:
+		&"arcade":
+			MatchConfig.arcade = true
+			MatchConfig.cpu_level = DEFAULT_CPU_LEVEL
+			go_to(&"character_select")
 		&"versus":
-			MatchConfig.cpu_level = MatchConfig.CPU_OFF
 			go_to(&"character_select")
 		&"versus_cpu":
-			MatchConfig.cpu_level = maxi(MatchConfig.cpu_level, DEFAULT_CPU_LEVEL)
+			MatchConfig.cpu_level = DEFAULT_CPU_LEVEL
 			go_to(&"character_select")
 		&"settings":
 			go_to(&"settings")

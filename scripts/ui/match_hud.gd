@@ -174,9 +174,12 @@ func _draw_cinematic() -> void:
 func _draw_result() -> void:
 	_canvas.draw_rect(Rect2(Vector2.ZERO, SCREEN), Color(0.0, 0.0, 0.0, 0.5))
 	var headline := "DRAW" if _winner_id == 0 else "PLAYER %d WINS!" % _winner_id
+	if ArcadeRun.active:
+		headline = "YOU WIN!" if _winner_id == 1 else "YOU LOSE"
 	var headline_color: Color = PLAYER_COLORS.get(_winner_id, WHITE)
 	_text(headline, Vector2(SCREEN.x * 0.5, 130.0), 26, headline_color)
-	_text("Enter: play again     Esc: menu", Vector2(SCREEN.x * 0.5, 156.0), 10, WHITE)
+	var hint := "Enter: continue     Esc: quit Arcade" if ArcadeRun.active else "Enter: play again     Esc: menu"
+	_text(hint, Vector2(SCREEN.x * 0.5, 156.0), 10, WHITE)
 
 
 ## Centered outlined text. `position` is the middle of the baseline.

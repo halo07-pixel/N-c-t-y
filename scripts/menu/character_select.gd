@@ -2,10 +2,12 @@ class_name CharacterSelect
 extends MenuScreen
 ## Pick fighters. Two players: each picks with their own keys and confirms.
 ## Versus CPU: player 1 picks their fighter, then the opponent and CPU level.
+## Arcade: player 1 picks their fighter and the run starts.
 
 const PANEL_SIZE := Vector2(190.0, 150.0)
 const PANEL_TOP := 62.0
 const PANEL_X := {1: 30.0, 2: 260.0}
+const ARCADE_PANEL_X := 145.0
 const PREVIEW_SCALE := 1.8
 const SPEED_MAX := 160.0
 const WEIGHT_MAX := 120.0
@@ -21,13 +23,20 @@ func _ready() -> void:
 	for player_id in [1, 2]:
 		# The body repositions itself every frame, so a holder carries the place and scale.
 		var holder := Node2D.new()
-		holder.position = Vector2(PANEL_X[player_id] + PANEL_SIZE.x * 0.5, PANEL_TOP + 98.0)
 		holder.scale = Vector2.ONE * PREVIEW_SCALE
 		add_child(holder)
 		var body := PlaceholderBody.new()
 		holder.add_child(body)
 		_bodies[player_id] = body
 	_refresh_bodies()
+
+
+func is_arcade() -> bool:
+	return MatchConfig.arcade
+
+
+func _panel_x(player_id: int) -> float:
+	return ARCADE_PANEL_X if is_arcade() else PANEL_X[player_id]
 
 
 func is_cpu_mode() -> bool:
@@ -84,7 +93,10 @@ func _handle_cpu_mode(player_id: int, action: StringName) -> void:
 			if picking_opponent:
 				MatchConfig.step_cpu(1 if action == &"up" else -1)
 		&"confirm":
-			if picking_opponent:
+			if is_arcade():
+				ArcadeRun.start(MatchConfig.p1_index)
+				go_to(ArcadeRun.SCREEN_STORY)
+			elif picking_opponent:
 				go_to(&"versus_match")
 			else:
 				picking_opponent = true
@@ -102,16 +114,23 @@ func _refresh_bodies() -> void:
 			continue
 		body.setup(MatchConfig.character_for(player_id), player_id)
 		body.sync_to(&"Idle", 1 if player_id == 1 else -1, Vector2.ZERO)
+		var holder := body.get_parent() as Node2D
+		holder.position = Vector2(_panel_x(player_id) + PANEL_SIZE.x * 0.5, PANEL_TOP + 98.0)
+		holder.visible = player_id == 1 or not is_arcade()
 
 
 func _draw_content() -> void:
-	draw_centered("CHOOSE YOUR FIGHTER", Vector2(SCREEN.x * 0.5, 40.0), 18, WHITE)
+	var title := "ARCADE - CHOOSE YOUR FIGHTER" if is_arcade() else "CHOOSE YOUR FIGHTER"
+	draw_centered(title, Vector2(SCREEN.x * 0.5, 40.0), 18, WHITE)
 	for player_id in [1, 2]:
-		_draw_panel(player_id)
+		if player_id == 1 or not is_arcade():
+			_draw_panel(player_id)
 	draw_centered(_hint(), Vector2(SCREEN.x * 0.5, 256.0), 8, DIM)
 
 
 func _hint() -> String:
+	if is_arcade():
+		return "Left / Right: choose    Attack: start Arcade (4 fights)    Guard: back"
 	if is_cpu_mode():
 		if picking_opponent:
 			return "Left / Right: opponent    Up / Down: CPU level    Attack: fight    Guard: back"
@@ -122,7 +141,7 @@ func _hint() -> String:
 func _draw_panel(player_id: int) -> void:
 	var character := MatchConfig.character_for(player_id)
 	var color := RED if player_id == 1 else BLUE
-	var origin := Vector2(PANEL_X[player_id], PANEL_TOP)
+	var origin := Vector2(_panel_x(player_id), PANEL_TOP)
 	var active := _is_active(player_id)
 	draw_rect(Rect2(origin, PANEL_SIZE), Color(0.0, 0.0, 0.0, 0.4))
 	draw_rect(Rect2(origin, PANEL_SIZE), color if active else DIM, false, 2.0 if active else 1.0)
@@ -141,6 +160,8 @@ func _panel_title(player_id: int) -> String:
 
 
 func _is_active(player_id: int) -> bool:
+	if is_arcade():
+		return true
 	if is_cpu_mode():
 		return (player_id == 2) == picking_opponent
 	return not confirmed[player_id]

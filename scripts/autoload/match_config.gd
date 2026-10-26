@@ -14,6 +14,10 @@ var p1_index: int = 0
 var p2_index: int = 1
 ## 0 = player 2 is human, 1 to 3 = CPU difficulty.
 var cpu_level: int = CPU_OFF
+## True during an Arcade run (see ArcadeRun).
+var arcade: bool = false
+## Replaces player 2's roster pick, e.g. the Arcade boss, who is not in the roster.
+var opponent_override: CharacterData
 
 
 func roster_size() -> int:
@@ -21,6 +25,8 @@ func roster_size() -> int:
 
 
 func character_for(player_id: int) -> CharacterData:
+	if player_id == 2 and opponent_override != null:
+		return opponent_override
 	var index := p1_index if player_id == 1 else p2_index
 	return load(ROSTER_PATHS[index]) as CharacterData
 

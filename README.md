@@ -13,14 +13,15 @@ fighters are original placeholders drawn in code until real sprites are supplied
   KOs, stocks, respawn, timer, sudden death, HUD, 2-player versus.
 - Phase 3 — specials (done): Reiatsu meter, 4 specials per character, Bankai, cinematic
   ultimates, projectiles, 3 characters, CPU opponent.
-- Phase 4a — `feature/menus-and-settings` (this branch): title, main menu, character
-  select, settings screen.
-- Next: Arcade mode with a boss, music and sound, balance.
+- Phase 4a — menus (done): title, main menu, character select, settings screen.
+- Phase 4b — `feature/arcade-and-boss` (this branch): Arcade mode (4 fights, story text,
+  continues, ending) and the boss Yhwach.
+- Next: music and sound, balance and polish.
 
 ## Run it
 
 1. Open the folder in Godot 4.7 (`project.godot`).
-2. Press F5. Title screen, then the main menu: Versus 2 Players, Versus CPU, Settings.
+2. Press F5. Title screen, then the main menu: Arcade, Versus 2 Players, Versus CPU, Settings.
 3. Pick fighters (Left/Right, Attack to confirm, Guard to go back).
 4. In a match, **Esc** returns to the menu; when it ends, **Enter** plays again.
 
@@ -54,6 +55,12 @@ it, or stand still and hold the charge key. Press the charge key on the ground:
 sky step), Byakuya (fast, teleports, petal traps). In Versus CPU, player 1 picks their
 fighter, then the opponent and the CPU level (Up/Down, 1 to 3).
 
+**Arcade:** pick a fighter, then win four CPU fights of rising difficulty: the two other
+fighters, a rival with your own fighter, and the boss Yhwach (CPU level 4). Each fight
+starts with a short story screen. If you lose you can continue the same fight (the
+ending shows how many continues you used). Esc quits the run. Match rules (stocks,
+time) come from the Settings screen.
+
 `F1` hides the debug overlay, `F2` shows hitboxes.
 
 ## Rules (Smash-style)
@@ -84,12 +91,13 @@ Everything is data, no code changes needed:
 ## Project layout
 
 ```
-scripts/autoload/   Events (signal bus), InputBindings, GameSettings, MatchConfig, ScreenRouter
+scripts/autoload/   Events (signal bus), InputBindings, GameSettings, MatchConfig,
+                    ScreenRouter, ArcadeRun (Arcade state and story text)
 scripts/fighter/    Fighter, state machine, states, input sources
 scripts/ai/         CPU opponent (AIInput)
 scripts/combat/     Hitbox, Hurtbox, Projectile, HitInfo, Knockback, Reiatsu
 scripts/match/      MatchManager (rules) and the versus match scene script
-scripts/menu/       Menu screens (title, main menu, character select, settings)
+scripts/menu/       Menu screens (title, main menu, character select, settings, Arcade)
 scripts/ui/         Match HUD
 scripts/stage/      Stage rules and backdrop
 scripts/camera/     Dynamic two-fighter camera

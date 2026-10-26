@@ -3,13 +3,15 @@ extends InputSource
 ## A CPU opponent. It produces the same InputFrame a keyboard would, so the
 ## fighter cannot tell the difference. Behaviours: recover when off the stage,
 ## otherwise approach, attack, shoot from range, retreat, and manage Reiatsu.
-## Difficulty (level 1 to 3) changes reaction time, aggression and mistakes.
+## Difficulty (level 1 to 3, 4 for the Arcade boss) changes reaction time, aggression and mistakes.
 
 const LEVELS := {
 	1: {"reaction": 22, "attack": 0.35, "special": 0.15, "mistake": 0.25, "reiatsu": false},
 	2: {"reaction": 11, "attack": 0.60, "special": 0.30, "mistake": 0.10, "reiatsu": true},
 	3: {"reaction": 5, "attack": 0.85, "special": 0.40, "mistake": 0.03, "reiatsu": true},
+	4: {"reaction": 3, "attack": 0.95, "special": 0.50, "mistake": 0.01, "reiatsu": true}, # boss
 }
+const MAX_LEVEL := 4
 const STAGE_SAFE_HALF_WIDTH := 150.0
 const FLOOR_Y := 60.0
 const MELEE_RANGE := 38.0
@@ -35,7 +37,7 @@ var _recover_cooldown: int = 0
 func bind(self_fighter: Fighter, target_fighter: Fighter, ai_level: int, rng_seed: int = -1) -> void:
 	fighter = self_fighter
 	target = target_fighter
-	level = clampi(ai_level, 1, 3)
+	level = clampi(ai_level, 1, MAX_LEVEL)
 	if rng_seed >= 0:
 		_rng.seed = rng_seed
 	else:

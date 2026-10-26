@@ -1,10 +1,9 @@
 extends CanvasLayer
 ## Tiny developer overlay: key help, who is playing and the state of each fighter.
 ## Listens to the Events bus only. F1 hides it, F2 shows hitboxes.
-## [ and ] change the characters, \ cycles the CPU level (restarts the match).
 
 const FONT_SIZE := 8
-const HELP_TEXT := "F1 hide  F2 hitboxes  [ ] characters  \\ CPU"
+const HELP_TEXT := "F1 hide  F2 hitboxes  Esc menu"
 
 var _label: Label
 var _states: Dictionary = {}

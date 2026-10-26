@@ -7,6 +7,7 @@ const FIGHTER_SCENE: PackedScene = preload("res://scenes/fighter/fighter.tscn")
 
 var _fighters: Dictionary = {}
 var _match_over: bool = false
+var _winner_id: int = 0
 
 @onready var _stage: Stage = $Stage
 @onready var _camera: FightCamera = $FightCamera
@@ -44,9 +45,13 @@ func _physics_process(_delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"ui_cancel"):
+		ArcadeRun.quit_run()
 		Events.screen_requested.emit(&"main_menu")
 	elif _match_over and event.is_action_pressed(&"ui_accept"):
-		get_tree().reload_current_scene()
+		if ArcadeRun.active:
+			Events.screen_requested.emit(ArcadeRun.finish_match(_winner_id == 1))
+		else:
+			get_tree().reload_current_scene()
 
 
 func _spawn_fighter(player_id: int) -> Fighter:
@@ -94,8 +99,9 @@ func _on_sudden_death_started() -> void:
 		fighter.set_percent(MatchManager.SUDDEN_DEATH_PERCENT)
 
 
-func _on_match_ended(_winner_id: int) -> void:
+func _on_match_ended(winner_id: int) -> void:
 	_match_over = true
+	_winner_id = winner_id
 	for player_id: int in _fighters:
 		var fighter: Fighter = _fighters[player_id]
 		fighter.set_input_source(InputSource.new())

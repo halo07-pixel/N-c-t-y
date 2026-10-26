@@ -1,0 +1,98 @@
+[gd_resource type="Resource" script_class="SpecialSet" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/special_set.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/data/special_data.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/data/projectile_data.gd" id="3"]
+
+[sub_resource type="Resource" id="P_emperor_neutral_0"]
+script = ExtResource("3")
+offset = Vector2(18, -20)
+velocity = Vector2(170, 0)
+lifetime_frames = 120
+size = Vector2(40, 40)
+pierce = true
+color = Color(0.75, 0.4, 1.0, 1)
+
+[sub_resource type="Resource" id="S_emperor_neutral"]
+script = ExtResource("2")
+display_name = "Void Sphere"
+direction = &"neutral"
+damage = 10.0
+base_knockback = 170.0
+knockback_growth = 90.0
+angle_degrees = 30.0
+startup_frames = 14
+active_frames = 2
+recovery_frames = 20
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+projectiles = Array[ExtResource("3")]([SubResource("P_emperor_neutral_0")])
+
+[sub_resource type="Resource" id="S_emperor_forward"]
+script = ExtResource("2")
+display_name = "Blood Rush"
+direction = &"forward"
+damage = 12.0
+base_knockback = 220.0
+knockback_growth = 140.0
+angle_degrees = 38.0
+startup_frames = 7
+active_frames = 4
+recovery_frames = 20
+hitbox_size = Vector2(34, 22)
+hitbox_offset = Vector2(24, -16)
+self_velocity = Vector2(340, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = true
+cinematic_frames = 0
+title = ""
+
+[sub_resource type="Resource" id="S_emperor_up"]
+script = ExtResource("2")
+display_name = "Ascension"
+direction = &"up"
+damage = 9.0
+base_knockback = 210.0
+knockback_growth = 120.0
+angle_degrees = 85.0
+startup_frames = 6
+active_frames = 4
+recovery_frames = 22
+hitbox_size = Vector2(30, 36)
+hitbox_offset = Vector2(4, -42)
+self_velocity = Vector2(30, -400)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+
+[sub_resource type="Resource" id="S_emperor_down"]
+script = ExtResource("2")
+display_name = "Shadow Pillar"
+direction = &"down"
+damage = 9.0
+base_knockback = 190.0
+knockback_growth = 110.0
+angle_degrees = 80.0
+startup_frames = 8
+active_frames = 4
+recovery_frames = 22
+hitbox_size = Vector2(64, 34)
+hitbox_offset = Vector2(0, -18)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+
+[resource]
+script = ExtResource("1")
+neutral = SubResource("S_emperor_neutral")
+forward = SubResource("S_emperor_forward")
+up = SubResource("S_emperor_up")
+down = SubResource("S_emperor_down")
