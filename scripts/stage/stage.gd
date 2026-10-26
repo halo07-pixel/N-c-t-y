@@ -17,5 +17,13 @@ func get_spawn_position(player_id: int) -> Vector2:
 	return marker.global_position
 
 
+## Where a fighter reappears after a KO: above the middle of the stage, side by side.
+func get_respawn_position(player_id: int) -> Vector2:
+	var marker := get_node_or_null("Spawns/Respawn") as Marker2D
+	var center := marker.global_position if marker != null else global_position
+	var side := -1.0 if player_id == 1 else 1.0
+	return center + Vector2(24.0 * side, 0.0)
+
+
 func is_inside_blast_zone(point: Vector2) -> bool:
 	return blast_zone.has_point(to_local(point))

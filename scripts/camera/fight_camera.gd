@@ -74,7 +74,7 @@ static func clamp_center(
 func _current_framing() -> Dictionary:
 	var points := PackedVector2Array()
 	for target in _targets:
-		if is_instance_valid(target):
+		if is_instance_valid(target) and target.visible:
 			points.append(target.global_position + Vector2(0.0, -15.0))
 	return compute_framing(points, get_viewport_rect().size, margin, min_zoom, max_zoom)
 

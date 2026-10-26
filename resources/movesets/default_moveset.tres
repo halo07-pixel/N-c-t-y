@@ -1,0 +1,128 @@
+[gd_resource type="Resource" script_class="MoveSet" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/move_set.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/data/move_data.gd" id="2"]
+
+[sub_resource type="Resource" id="Resource_g_neutral"]
+script = ExtResource("2")
+display_name = "Jab"
+direction = &"neutral"
+damage = 4.0
+base_knockback = 120.0
+knockback_growth = 20.0
+angle_degrees = 40.0
+startup_frames = 3
+active_frames = 2
+recovery_frames = 9
+hitbox_size = Vector2(22, 16)
+hitbox_offset = Vector2(18, -16)
+
+[sub_resource type="Resource" id="Resource_g_forward"]
+script = ExtResource("2")
+display_name = "Forward Slash"
+direction = &"forward"
+damage = 11.0
+base_knockback = 200.0
+knockback_growth = 170.0
+angle_degrees = 38.0
+startup_frames = 8
+active_frames = 3
+recovery_frames = 18
+hitbox_size = Vector2(32, 18)
+hitbox_offset = Vector2(23, -16)
+lunge_speed = 170.0
+
+[sub_resource type="Resource" id="Resource_g_up"]
+script = ExtResource("2")
+display_name = "Rising Slash"
+direction = &"up"
+damage = 9.0
+base_knockback = 210.0
+knockback_growth = 140.0
+angle_degrees = 88.0
+startup_frames = 6
+active_frames = 3
+recovery_frames = 16
+hitbox_size = Vector2(26, 32)
+hitbox_offset = Vector2(4, -40)
+
+[sub_resource type="Resource" id="Resource_g_down"]
+script = ExtResource("2")
+display_name = "Low Sweep"
+direction = &"down"
+damage = 8.0
+base_knockback = 170.0
+knockback_growth = 110.0
+angle_degrees = 30.0
+startup_frames = 5
+active_frames = 3
+recovery_frames = 15
+hitbox_size = Vector2(36, 10)
+hitbox_offset = Vector2(21, -6)
+
+[sub_resource type="Resource" id="Resource_a_neutral"]
+script = ExtResource("2")
+display_name = "Air Slash"
+direction = &"neutral"
+damage = 6.0
+base_knockback = 150.0
+knockback_growth = 60.0
+angle_degrees = 45.0
+startup_frames = 5
+active_frames = 4
+recovery_frames = 10
+hitbox_size = Vector2(28, 22)
+hitbox_offset = Vector2(15, -16)
+
+[sub_resource type="Resource" id="Resource_a_forward"]
+script = ExtResource("2")
+display_name = "Air Forward"
+direction = &"forward"
+damage = 12.0
+base_knockback = 220.0
+knockback_growth = 170.0
+angle_degrees = 35.0
+startup_frames = 9
+active_frames = 3
+recovery_frames = 16
+hitbox_size = Vector2(34, 20)
+hitbox_offset = Vector2(23, -16)
+
+[sub_resource type="Resource" id="Resource_a_up"]
+script = ExtResource("2")
+display_name = "Air Upper"
+direction = &"up"
+damage = 9.0
+base_knockback = 200.0
+knockback_growth = 130.0
+angle_degrees = 85.0
+startup_frames = 6
+active_frames = 3
+recovery_frames = 12
+hitbox_size = Vector2(28, 28)
+hitbox_offset = Vector2(2, -42)
+
+[sub_resource type="Resource" id="Resource_a_down"]
+script = ExtResource("2")
+display_name = "Air Spike"
+direction = &"down"
+damage = 11.0
+base_knockback = 180.0
+knockback_growth = 120.0
+angle_degrees = -70.0
+startup_frames = 12
+active_frames = 4
+recovery_frames = 18
+hitbox_size = Vector2(18, 22)
+hitbox_offset = Vector2(8, 2)
+
+[resource]
+script = ExtResource("1")
+ground_neutral = SubResource("Resource_g_neutral")
+ground_forward = SubResource("Resource_g_forward")
+ground_up = SubResource("Resource_g_up")
+ground_down = SubResource("Resource_g_down")
+air_neutral = SubResource("Resource_a_neutral")
+air_forward = SubResource("Resource_a_forward")
+air_up = SubResource("Resource_a_up")
+air_down = SubResource("Resource_a_down")

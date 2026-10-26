@@ -27,6 +27,9 @@ extends Resource
 @export var air_jump_velocity: float = 290.0
 @export var max_air_jumps: int = 1
 
+@export_group("Combat")
+@export var moveset: MoveSet
+
 @export_group("Placeholder look")
 @export var body_color: Color = Color(0.85, 0.85, 0.9)
 @export var accent_color: Color = Color(0.9, 0.5, 0.15)

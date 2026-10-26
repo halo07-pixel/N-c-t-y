@@ -11,6 +11,8 @@ func physics_update(delta: float) -> StringName:
 
 	if not fighter.is_on_floor():
 		return &"Fall"
+	if fighter.input.attack_just_pressed:
+		return &"Attack"
 	if fighter.input.up_just_pressed:
 		fighter.start_jump()
 		return &"Jump"

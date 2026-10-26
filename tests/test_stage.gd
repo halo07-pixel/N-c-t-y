@@ -13,6 +13,17 @@ func test_blast_zone_contains_the_center_and_rejects_far_points() -> void:
 	stage.free()
 
 
+func test_respawn_points_are_inside_the_stage_and_apart() -> void:
+	var stage := STAGE_SCENE.instantiate() as Stage
+	tree.root.add_child(stage)
+	var first := stage.get_respawn_position(1)
+	var second := stage.get_respawn_position(2)
+	check(first.x < second.x, "player 1 respawns on the left")
+	check(stage.is_inside_blast_zone(first) and stage.is_inside_blast_zone(second), "inside")
+	check(first.y < stage.get_spawn_position(1).y, "respawn is above the spawn point")
+	stage.free()
+
+
 func test_both_players_have_distinct_spawn_points() -> void:
 	var stage := STAGE_SCENE.instantiate() as Stage
 	tree.root.add_child(stage)
