@@ -19,3 +19,5 @@ body_color = Color(0.9, 0.9, 0.95, 1)
 accent_color = Color(0.2, 0.55, 0.95, 1)
 weapon_style = &"bow"
 weapon_color = Color(0.75, 0.55, 0.3, 1)
+sprite_dir = "res://assets/local/uryu/"
+sprite_id = "uryu"

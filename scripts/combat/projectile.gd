@@ -8,6 +8,7 @@ signal hit_landed(info: HitInfo)
 const HURTBOX_LAYER_VALUE := 16 # physics layer 5
 const OFFSCREEN_LIMIT := 1600.0
 const CORE_SCALE := 0.55
+const MIN_ART_SCALE := 0.35
 
 var owner_id: int = 0
 
@@ -19,6 +20,7 @@ var _velocity: Vector2 = Vector2.ZERO
 var _frames_left: int = 0
 var _freeze_left: int = 0
 var _already_hit: Array[Hurtbox] = []
+var _art: Texture2D
 
 
 ## Sets everything up; call before adding to the scene tree.
@@ -44,6 +46,12 @@ func launch(
 	add_child(shape)
 
 
+## An effect sprite to draw instead of the plain diamond; null keeps the diamond.
+func set_art(texture: Texture2D) -> void:
+	_art = texture
+	queue_redraw()
+
+
 func _ready() -> void:
 	area_entered.connect(_on_area_entered)
 	Events.ultimate_started.connect(_on_ultimate_started)
@@ -62,6 +70,9 @@ func _physics_process(delta: float) -> void:
 func _draw() -> void:
 	if _data == null:
 		return
+	if _art != null:
+		_draw_art()
+		return
 	var half := _data.size * 0.5
 	var outer := PackedVector2Array([
 		Vector2(-half.x, 0.0), Vector2(0.0, -half.y), Vector2(half.x, 0.0), Vector2(0.0, half.y)
@@ -71,6 +82,19 @@ func _draw() -> void:
 	for point in outer:
 		inner.append(point * CORE_SCALE)
 	draw_colored_polygon(inner, Color.WHITE)
+
+
+## The effect sprite, shrunk to fit the hitbox (never stretched out of shape),
+## turned along the flight direction and mirrored when flying left.
+func _draw_art() -> void:
+	var texture_size := _art.get_size()
+	var fit := minf(_data.size.x / texture_size.x, _data.size.y / texture_size.y)
+	var drawn := texture_size * maxf(fit, MIN_ART_SCALE)
+	var angle := _velocity.angle() if _velocity != Vector2.ZERO else (0.0 if _facing > 0 else PI)
+	var flip := -1.0 if absf(angle) > PI * 0.5 else 1.0
+	draw_set_transform(Vector2.ZERO, angle, Vector2(1.0, flip))
+	draw_texture_rect(_art, Rect2(-drawn * 0.5, drawn), false)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 func _on_ultimate_started(player_id: int, freeze_frames: int, _title: String) -> void:

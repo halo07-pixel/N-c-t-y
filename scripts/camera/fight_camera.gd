@@ -4,12 +4,12 @@ extends Camera2D
 ## they move apart, without ever showing anything outside the stage bounds.
 
 @export var margin: Vector2 = Vector2(90.0, 60.0)
-@export var min_zoom: float = 0.6
-@export var max_zoom: float = 1.4
+@export var min_zoom: float = 0.6 * RenderScale.FACTOR
+@export var max_zoom: float = 1.4 * RenderScale.FACTOR
 @export var follow_speed: float = 6.0
 @export var bounds: Rect2 = Rect2(-420.0, -300.0, 840.0, 600.0)
 
-const CINEMATIC_ZOOM := 2.2
+const CINEMATIC_ZOOM := 2.2 * RenderScale.FACTOR
 const CINEMATIC_FOLLOW_SPEED := 10.0
 
 var _targets: Array[Node2D] = []

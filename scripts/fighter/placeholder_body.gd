@@ -1,5 +1,5 @@
 class_name PlaceholderBody
-extends Node2D
+extends FighterBody
 ## Original stand-in body drawn with rectangles so gameplay can be built and
 ## tuned before any real sprites exist. Replace it with an animated sprite
 ## later; hitboxes come from data, not from this drawing.
@@ -56,7 +56,7 @@ func set_pose(pose: StringName) -> void:
 	queue_redraw()
 
 
-func set_attack_visual(kind: StringName, phase: StringName) -> void:
+func set_attack_visual(kind: StringName, phase: StringName, _aerial: bool = false, _special: bool = false) -> void:
 	if kind != _attack_kind or phase != _attack_phase:
 		_attack_kind = kind
 		_attack_phase = phase

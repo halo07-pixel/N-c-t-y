@@ -34,6 +34,7 @@ var _canvas: Control
 
 func _ready() -> void:
 	layer = 50
+	scale = RenderScale.ui() # laid out in 480x270, shown on the 720x405 screen
 	_canvas = Control.new()
 	_canvas.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_canvas.mouse_filter = Control.MOUSE_FILTER_IGNORE

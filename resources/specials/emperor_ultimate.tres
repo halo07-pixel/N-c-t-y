@@ -11,6 +11,7 @@ lifetime_frames = 90
 size = Vector2(48, 34)
 pierce = true
 color = Color(0.75, 0.4, 1.0, 1)
+art = &"slash_big"
 
 [sub_resource type="Resource" id="P_emperoru_1"]
 script = ExtResource("3")
@@ -20,6 +21,7 @@ lifetime_frames = 90
 size = Vector2(60, 40)
 pierce = true
 color = Color(0.75, 0.4, 1.0, 1)
+art = &"slash_big"
 
 [sub_resource type="Resource" id="P_emperoru_2"]
 script = ExtResource("3")
@@ -29,6 +31,7 @@ lifetime_frames = 90
 size = Vector2(48, 34)
 pierce = true
 color = Color(0.75, 0.4, 1.0, 1)
+art = &"slash_big"
 
 [resource]
 script = ExtResource("2")

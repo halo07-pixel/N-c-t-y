@@ -14,9 +14,10 @@ fighters are original placeholders drawn in code until real sprites are supplied
 - Phase 3 — specials (done): Reiatsu meter, 4 specials per character, Bankai, cinematic
   ultimates, projectiles, 3 characters, CPU opponent.
 - Phase 4a — menus (done): title, main menu, character select, settings screen.
-- Phase 4b — `feature/arcade-and-boss` (this branch): Arcade mode (4 fights, story text,
-  continues, ending) and the boss Yhwach.
-- Next: music and sound, balance and polish.
+- Phase 4b — Arcade (done): 4 fights, story text, continues, ending, the boss Yhwach.
+- Phase 5a — `feature/sprite-art` (this branch): real sprites for the four fighters,
+  effect art for projectiles, screen drawn at 720x405.
+- Next: original art for Ichigo and Uryu, music and sound, balance and polish.
 
 ## Run it
 
@@ -63,6 +64,28 @@ time) come from the Settings screen.
 
 `F1` hides the debug overlay, `F2` shows hitboxes.
 
+## Art
+
+Fighters are drawn from sprite sets (`<id>_atlas.png` + `<id>_frames.json`). A fighter
+without its files falls back to the code-drawn placeholder, so the game always runs.
+
+| Fighter | Art folder | In the repository |
+|---|---|---|
+| Byakuya slot ("noble") | `assets/original/noble/` | yes, original design |
+| Yhwach slot ("sovereign") | `assets/original/sovereign/` | yes, original design |
+| Ichigo | `assets/local/ichigo/` | **no**, kept on the owner's computer |
+| Uryu | `assets/local/uryu/` | **no**, kept on the owner's computer |
+
+`assets/local/` is in `.gitignore` because those two sets are ripped from other works and
+must not go into a public repository. To see them, copy the `ichigo` and `uryu` folders
+(`*_atlas.png`, `*_effects.png`, `*_frames.json`) from the art package into
+`assets/local/` in your clone and open the project in Godot once so it imports them.
+
+The world is simulated at 480x270 units and drawn at 720x405 pixels (`RenderScale`), so one
+unit is 1.5 screen pixels and a 1:1 sprite fits a 30-unit-tall body. Physics, move data and
+stages did not change. The camera still zooms with the fighters' distance, so sprites are
+only pixel-perfect at the camera's base zoom.
+
 ## Rules (Smash-style)
 
 Damage is a percentage; the higher it is, the farther a hit launches you. Leave
@@ -93,14 +116,15 @@ Everything is data, no code changes needed:
 ```
 scripts/autoload/   Events (signal bus), InputBindings, GameSettings, MatchConfig,
                     ScreenRouter, ArcadeRun (Arcade state and story text)
-scripts/fighter/    Fighter, state machine, states, input sources
+scripts/fighter/    Fighter, state machine, states, input sources, bodies (SpriteBody, PlaceholderBody)
 scripts/ai/         CPU opponent (AIInput)
 scripts/combat/     Hitbox, Hurtbox, Projectile, HitInfo, Knockback, Reiatsu
 scripts/match/      MatchManager (rules) and the versus match scene script
 scripts/menu/       Menu screens (title, main menu, character select, settings, Arcade)
 scripts/ui/         Match HUD
 scripts/stage/      Stage rules and backdrop
-scripts/camera/     Dynamic two-fighter camera
+scripts/camera/     Dynamic two-fighter camera, RenderScale
+scripts/sprites/    Sprite set loader and the body factory (sprites or placeholder)
 scripts/data/       CharacterData, MoveSet/MoveData, SpecialSet/SpecialData, ProjectileData
 scenes/ resources/  Fighter, stage and match scenes; character and move data
 tests/              Headless test suite

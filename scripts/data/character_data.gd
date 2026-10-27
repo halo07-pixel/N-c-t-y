@@ -40,3 +40,9 @@ extends Resource
 @export var weapon_color: Color = Color(0.8, 0.85, 0.9)
 @export var body_color: Color = Color(0.85, 0.85, 0.9)
 @export var accent_color: Color = Color(0.9, 0.5, 0.15)
+
+@export_group("Sprites")
+## Folder (res://...) and file prefix of the sprite set, e.g. "res://assets/original/noble/" and
+## "noble". When the files are missing the fighter is drawn with the placeholder body.
+@export var sprite_dir: String = ""
+@export var sprite_id: String = ""

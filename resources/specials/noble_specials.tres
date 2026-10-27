@@ -12,6 +12,7 @@ lifetime_frames = 100
 size = Vector2(30, 24)
 pierce = true
 color = Color(1.0, 0.6, 0.8, 1)
+art = &"petal_hi"
 
 [sub_resource type="Resource" id="S_noble_neutral"]
 script = ExtResource("2")
@@ -79,6 +80,7 @@ lifetime_frames = 240
 size = Vector2(26, 16)
 pierce = false
 color = Color(1.0, 0.6, 0.8, 1)
+art = &"petal2"
 
 [sub_resource type="Resource" id="S_noble_down"]
 script = ExtResource("2")

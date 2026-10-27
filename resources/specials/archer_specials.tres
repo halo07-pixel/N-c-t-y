@@ -12,6 +12,7 @@ lifetime_frames = 60
 size = Vector2(16, 6)
 pierce = false
 color = Color(0.55, 0.9, 1.0, 1)
+art = &"24"
 
 [sub_resource type="Resource" id="S_archer_neutral"]
 script = ExtResource("2")
@@ -41,6 +42,7 @@ lifetime_frames = 45
 size = Vector2(16, 6)
 pierce = false
 color = Color(0.55, 0.9, 1.0, 1)
+art = &"24"
 
 [sub_resource type="Resource" id="P_archer_forward_1"]
 script = ExtResource("3")
@@ -50,6 +52,7 @@ lifetime_frames = 45
 size = Vector2(16, 6)
 pierce = false
 color = Color(0.55, 0.9, 1.0, 1)
+art = &"24"
 
 [sub_resource type="Resource" id="P_archer_forward_2"]
 script = ExtResource("3")
@@ -59,6 +62,7 @@ lifetime_frames = 45
 size = Vector2(16, 6)
 pierce = false
 color = Color(0.55, 0.9, 1.0, 1)
+art = &"24"
 
 [sub_resource type="Resource" id="S_archer_forward"]
 script = ExtResource("2")
@@ -107,6 +111,7 @@ lifetime_frames = 50
 size = Vector2(14, 6)
 pierce = false
 color = Color(0.55, 0.9, 1.0, 1)
+art = &"24"
 
 [sub_resource type="Resource" id="P_archer_down_1"]
 script = ExtResource("3")
@@ -116,6 +121,7 @@ lifetime_frames = 50
 size = Vector2(14, 6)
 pierce = false
 color = Color(0.55, 0.9, 1.0, 1)
+art = &"24"
 
 [sub_resource type="Resource" id="S_archer_down"]
 script = ExtResource("2")

@@ -11,6 +11,7 @@ lifetime_frames = 70
 size = Vector2(80, 14)
 pierce = true
 color = Color(1.0, 0.85, 0.35, 1)
+art = &"24"
 
 [resource]
 script = ExtResource("2")

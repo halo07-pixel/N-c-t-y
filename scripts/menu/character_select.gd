@@ -8,7 +8,7 @@ const PANEL_SIZE := Vector2(190.0, 150.0)
 const PANEL_TOP := 62.0
 const PANEL_X := {1: 30.0, 2: 260.0}
 const ARCADE_PANEL_X := 145.0
-const PREVIEW_SCALE := 1.8
+const PREVIEW_SCALE := 2.0
 const SPEED_MAX := 160.0
 const WEIGHT_MAX := 120.0
 
@@ -16,6 +16,7 @@ const WEIGHT_MAX := 120.0
 var picking_opponent: bool = false
 var confirmed := {1: false, 2: false}
 var _bodies := {}
+var _shown := {}
 var _holders := {}
 
 
@@ -26,10 +27,7 @@ func _ready() -> void:
 		var holder := Node2D.new()
 		holder.scale = Vector2.ONE * PREVIEW_SCALE
 		add_child(holder)
-		var body := PlaceholderBody.new()
-		holder.add_child(body)
 		_holders[player_id] = holder
-		_bodies[player_id] = body
 	_refresh_bodies()
 
 
@@ -111,14 +109,26 @@ func _handle_cpu_mode(player_id: int, action: StringName) -> void:
 
 func _refresh_bodies() -> void:
 	for player_id in [1, 2]:
-		var body: PlaceholderBody = _bodies.get(player_id)
-		if body == null:
+		var holder: Node2D = _holders.get(player_id)
+		if holder == null:
 			continue
-		body.setup(MatchConfig.character_for(player_id), player_id)
-		body.sync_to(&"Idle", 1 if player_id == 1 else -1, Vector2.ZERO)
-		var holder: Node2D = _holders[player_id]
+		_show_character(player_id, holder)
 		holder.position = Vector2(_panel_x(player_id) + PANEL_SIZE.x * 0.5, PANEL_TOP + 98.0)
 		holder.visible = player_id == 1 or not is_arcade()
+
+
+## Shows the chosen fighter standing in its holder (sprites when they exist).
+func _show_character(player_id: int, holder: Node2D) -> void:
+	var character := MatchConfig.character_for(player_id)
+	if _bodies.get(player_id) != null and _shown[player_id] == character:
+		return
+	if _bodies.get(player_id) != null:
+		_bodies[player_id].queue_free()
+	var body := BodyFactory.create(character, player_id)
+	holder.add_child(body)
+	body.sync_to(&"Idle", 1 if player_id == 1 else -1, Vector2.ZERO)
+	_bodies[player_id] = body
+	_shown[player_id] = character
 
 
 func _draw_content() -> void:

@@ -12,6 +12,7 @@ lifetime_frames = 70
 size = Vector2(22, 14)
 pierce = false
 color = Color(0.55, 0.9, 1.0, 1)
+art = &"wave_a"
 
 [sub_resource type="Resource" id="S_swordsman_neutral"]
 script = ExtResource("2")

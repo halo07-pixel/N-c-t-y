@@ -27,7 +27,7 @@ const SCREEN_SCENES := {
 	"continue": "res://scenes/ui/arcade_continue.tscn",
 	"clear": "res://scenes/ui/arcade_clear.tscn",
 }
-const UPSCALE := 3
+const UPSCALE := 2
 const MAX_FRAMES := 1500
 const ATTACK_RANGE := 46.0
 const ATTACK_COOLDOWN := 40

@@ -18,7 +18,11 @@ const BACKDROP_BANDS := 18
 
 
 func _ready() -> void:
-	set_anchors_preset(Control.PRESET_FULL_RECT)
+	# Menus are laid out in 480x270 and scaled up to the 720x405 screen.
+	set_anchors_preset(Control.PRESET_TOP_LEFT)
+	position = Vector2.ZERO
+	size = SCREEN
+	scale = RenderScale.ui()
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 

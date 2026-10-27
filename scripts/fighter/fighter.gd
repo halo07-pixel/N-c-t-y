@@ -42,7 +42,7 @@ var _queued_move: MoveData
 @onready var hitbox: Hitbox = $Hitbox
 @onready var hurtbox: Hurtbox = $Hurtbox
 @onready var _shape: CollisionShape2D = $CollisionShape2D
-@onready var _body: PlaceholderBody = $PlaceholderBody
+var _body: FighterBody
 @onready var _state_machine: FighterStateMachine = $StateMachine
 
 
@@ -52,7 +52,9 @@ func _ready() -> void:
 	rectangle.size = data.body_size
 	_shape.shape = rectangle
 	_shape.position = Vector2(0.0, -data.body_size.y * 0.5) # origin sits at the feet
-	_body.setup(data, player_id)
+	_body = BodyFactory.create(data, player_id)
+	add_child(_body)
+	move_child(_body, 1) # drawn behind the hit areas, right after the collision shape
 	hurtbox.setup(player_id, data.body_size)
 	hitbox.setup(player_id)
 	hurtbox.hit_received.connect(_on_hit_received)
@@ -95,8 +97,8 @@ func is_ko() -> bool:
 	return _state_machine.current_name == &"Ko"
 
 
-func set_attack_visual(kind: StringName, phase: StringName) -> void:
-	_body.set_attack_visual(kind, phase)
+func set_attack_visual(kind: StringName, phase: StringName, aerial: bool = false, special: bool = false) -> void:
+	_body.set_attack_visual(kind, phase, aerial, special)
 
 
 # --- Damage ------------------------------------------------------------------
@@ -233,6 +235,7 @@ func take_queued_move() -> MoveData:
 func spawn_projectile(projectile_data: ProjectileData, move: MoveData) -> void:
 	var projectile := Projectile.new()
 	projectile.launch(projectile_data, move, player_id, facing, damage_multiplier, global_position)
+	projectile.set_art(_body.effect_texture(projectile_data.art))
 	projectile.hit_landed.connect(_on_projectile_hit)
 	projectile_spawned.emit(projectile)
 

@@ -64,7 +64,7 @@ func _advance_move() -> void:
 		fighter.hitbox.deactivate()
 	if _special != null and _frame >= active_start and _frame < active_end:
 		_hold_special_motion()
-	fighter.set_attack_visual(_move.direction, _phase(active_start, active_end))
+	fighter.set_attack_visual(_move.direction, _phase(active_start, active_end), _aerial, _special != null)
 	_frame += 1
 
 

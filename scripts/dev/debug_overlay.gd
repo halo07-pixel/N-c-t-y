@@ -11,6 +11,7 @@ var _states: Dictionary = {}
 
 func _ready() -> void:
 	layer = 100
+	scale = RenderScale.ui()
 	_label = Label.new()
 	_label.position = Vector2(4.0, 3.0)
 	_label.add_theme_font_size_override("font_size", FONT_SIZE)
