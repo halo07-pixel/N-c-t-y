@@ -8,10 +8,10 @@ not affiliated with or endorsed by them.
 
 - `assets/original/noble/` and `assets/original/sovereign/`: original character designs
   drawn by code for this project (supplied in the owner's art package).
-- Ichigo and Uryu sprites are used only on the project owner's computer (`assets/local/`)
-  and are not distributed with this repository. Ichigo comes from a fan sprite sheet
-  (author to be credited once known); Uryu from the game *Bleach: The 3rd Phantom*.
-  Both are scheduled to be replaced by original art.
+- `assets/local/ichigo/` and `assets/local/uryu/`: supplied by the project owner and not
+  made by this project. Ichigo comes from a fan sprite sheet (author to be credited once
+  known); Uryu from the game *Bleach: The 3rd Phantom*. They are placeholders until
+  original art replaces them. They must not be redistributed or sold.
 - All other visuals (stage, menus, placeholder bodies) are drawn in code.
 
 ## Audio

@@ -14,5 +14,3 @@ export_credentials.cfg
 Thumbs.db
 *.tmp
 
-# Ripped sprites supplied by the project owner: kept on their own computer, never pushed
-/assets/local/

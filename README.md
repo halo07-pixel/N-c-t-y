@@ -69,17 +69,17 @@ time) come from the Settings screen.
 Fighters are drawn from sprite sets (`<id>_atlas.png` + `<id>_frames.json`). A fighter
 without its files falls back to the code-drawn placeholder, so the game always runs.
 
-| Fighter | Art folder | In the repository |
+| Fighter | Art folder | Origin |
 |---|---|---|
-| Byakuya slot ("noble") | `assets/original/noble/` | yes, original design |
-| Yhwach slot ("sovereign") | `assets/original/sovereign/` | yes, original design |
-| Ichigo | `assets/local/ichigo/` | **no**, kept on the owner's computer |
-| Uryu | `assets/local/uryu/` | **no**, kept on the owner's computer |
+| Ichigo | `assets/local/ichigo/` | fan sprite sheet, supplied by the owner |
+| Uryu | `assets/local/uryu/` | ripped from *Bleach: The 3rd Phantom*, supplied by the owner |
+| Byakuya slot ("noble") | `assets/original/noble/` | original design |
+| Yhwach slot ("sovereign") | `assets/original/sovereign/` | original design |
 
-`assets/local/` is in `.gitignore` because those two sets are ripped from other works and
-must not go into a public repository. To see them, copy the `ichigo` and `uryu` folders
-(`*_atlas.png`, `*_effects.png`, `*_frames.json`) from the art package into
-`assets/local/` in your clone and open the project in Godot once so it imports them.
+The Ichigo and Uryu sets are ripped from other works. They are in the repository at the
+owner's request; whoever publishes this repository is responsible for that, and they are
+meant to be replaced by original art (see CREDITS.md). Move them out of the repository or
+make it private before sharing the game widely.
 
 The world is simulated at 480x270 units and drawn at 720x405 pixels (`RenderScale`), so one
 unit is 1.5 screen pixels and a 1:1 sprite fits a 30-unit-tall body. Physics, move data and

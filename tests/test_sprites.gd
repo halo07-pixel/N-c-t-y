@@ -1,7 +1,7 @@
 extends TestCase
 ## Sprite sets, the loader, the animation mapping and the fallback to the
-## placeholder body. The art of the two original characters is in the repo; the
-## other two live in assets/local, so their checks only run when those exist.
+## placeholder body. Ichigo and Uryu live in assets/local (the owner's rips); their
+## checks are skipped on a clone that does not have those files.
 
 const ORIGINAL_SETS := [
 	["res://assets/original/noble/", "noble"],
@@ -43,15 +43,11 @@ func test_local_sets_are_complete_when_present() -> void:
 		_check_set(entry[0], entry[1])
 
 
-func test_local_art_is_kept_out_of_the_repository() -> void:
-	var ignore := FileAccess.get_file_as_string("res://.gitignore")
-	check(ignore.contains("/assets/local/"), "assets/local is ignored by git")
-	for path in ["res://resources/characters/swordsman.tres", "res://resources/characters/archer.tres"]:
+func test_every_character_points_at_a_sprite_folder() -> void:
+	for path in MatchConfig.ROSTER_PATHS + PackedStringArray([ArcadeRun.BOSS_PATH]):
 		var character := load(path) as CharacterData
-		check(character.sprite_dir.begins_with("res://assets/local/"), "%s uses local art" % character.display_name)
-	for path in ["res://resources/characters/noble.tres", "res://resources/characters/emperor.tres"]:
-		var character := load(path) as CharacterData
-		check(character.sprite_dir.begins_with("res://assets/original/"), "%s uses committed art" % character.display_name)
+		check(character.sprite_dir.begins_with("res://assets/"), "%s has a sprite folder" % character.display_name)
+		check(character.sprite_id != "", "%s has a sprite id" % character.display_name)
 
 
 func test_missing_art_falls_back_to_the_placeholder() -> void:
