@@ -17,6 +17,9 @@ fighters are original placeholders drawn in code until real sprites are supplied
 - Phase 4b — Arcade (done): 4 fights, story text, continues, ending, the boss Yhwach.
 - Phase 5a — `feature/sprite-art` (this branch): real sprites for the four fighters,
   effect art for projectiles, screen drawn at 720x405.
+- Phase 5b — `feature/visual-polish-1` (this branch): ground shadows, hit flash, screen shake, KO burst and
+  slow-mo on the final KO (all behind the Settings switch "Screen effects"), vignette,
+  additive Reiatsu/Bankai glow, ultimate cut-in band.
 - Next: original art for Ichigo and Uryu, music and sound, balance and polish.
 
 ## Run it
@@ -95,7 +98,7 @@ If time runs out: most stocks wins, then the lowest percent; a full tie goes to
 sudden death (one stock each, 300%).
 
 Settings screen: stocks 1–10 (default 3), time limit 1–20 minutes or unlimited
-(default 5), music and SFX volume (used once audio is added), and a list of the keys.
+(default 5), music and SFX volume (used once audio is added), the Screen effects switch, and a list of the keys.
 Values are saved to `user://settings.cfg`.
 
 ## Tuning the feel

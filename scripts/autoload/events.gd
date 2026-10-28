@@ -18,6 +18,12 @@ signal fighter_percent_changed(player_id: int, percent: float)
 signal fighter_hit(attacker_id: int, victim_id: int, damage: float)
 @warning_ignore("unused_signal")
 signal fighter_left_blast_zone(player_id: int)
+## A fighter was sent flying: launch speed in pixels per second and the unit direction.
+@warning_ignore("unused_signal")
+signal fighter_launched(victim_id: int, speed: float, direction: Vector2)
+## Where a KO happened (world position where the fighter left the blast zone).
+@warning_ignore("unused_signal")
+signal fighter_ko(player_id: int, position: Vector2)
 @warning_ignore("unused_signal")
 signal fighter_respawn_due(player_id: int)
 @warning_ignore("unused_signal")

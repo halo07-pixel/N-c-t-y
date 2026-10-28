@@ -6,6 +6,8 @@
 [ext_resource type="Script" path="res://scripts/dev/debug_overlay.gd" id="4"]
 [ext_resource type="Script" path="res://scripts/match/match_manager.gd" id="5"]
 [ext_resource type="Script" path="res://scripts/ui/match_hud.gd" id="6"]
+[ext_resource type="Script" path="res://scripts/fx/vignette.gd" id="7"]
+[ext_resource type="Script" path="res://scripts/fx/match_fx.gd" id="8"]
 
 [node name="VersusMatch" type="Node2D"]
 script = ExtResource("1")
@@ -17,6 +19,12 @@ script = ExtResource("3")
 
 [node name="MatchManager" type="Node" parent="."]
 script = ExtResource("5")
+
+[node name="Vignette" type="CanvasLayer" parent="."]
+script = ExtResource("7")
+
+[node name="MatchFx" type="Node" parent="."]
+script = ExtResource("8")
 
 [node name="MatchHud" type="CanvasLayer" parent="."]
 script = ExtResource("6")

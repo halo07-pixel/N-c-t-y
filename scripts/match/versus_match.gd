@@ -39,7 +39,9 @@ func _physics_process(_delta: float) -> void:
 		var fighter: Fighter = _fighters[player_id]
 		if fighter.is_ko() or _stage.is_inside_blast_zone(fighter.global_position):
 			continue
+		var ko_position := fighter.global_position
 		fighter.enter_ko()
+		Events.fighter_ko.emit(player_id, ko_position)
 		Events.fighter_left_blast_zone.emit(player_id)
 
 

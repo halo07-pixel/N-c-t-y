@@ -8,7 +8,6 @@ extends FighterBody
 
 const FRAME_TICKS := 3 # physics frames each attack frame is held
 const MARKER_GAP := 5.0
-const AURA_COLOR_ALPHA := 0.35
 const FALLBACK_ANIMATIONS := {
 	&"ko": &"hitstun", &"charge": &"guard", &"hitstun": &"fall", &"guard": &"idle",
 	&"land": &"idle", &"jump": &"fall", &"fall": &"idle", &"run": &"idle",
@@ -35,7 +34,7 @@ var _animation: StringName = &""
 var _motion: String = ""
 var _pose_ticks: int = 0
 var _bankai: bool = false
-var _pulse: float = 0.0
+var _aura: AuraLayer
 var _attack_kind: StringName = &""
 var _attack_phase: StringName = &""
 var _attack_aerial: bool = false
@@ -54,9 +53,14 @@ func setup(character: CharacterData, player_id: int) -> void:
 		_sprite = AnimatedSprite2D.new()
 		_sprite.centered = false
 		_pivot.add_child(_sprite)
+		_aura = AuraLayer.new()
+		add_child(_aura)
+		move_child(_aura, 0) # the glow sits behind the body
 	_sprite.sprite_frames = _set.frames
 	_sprite.offset = -_set.anchor
 	_animation = &""
+	_aura.configure(character.accent_color, _set.top_px * RenderScale.sprite())
+	_update_aura()
 	_refresh_animation()
 	_apply_transform()
 	queue_redraw()
@@ -64,7 +68,12 @@ func setup(character: CharacterData, player_id: int) -> void:
 
 func set_bankai(active: bool) -> void:
 	_bankai = active
+	_update_aura()
 	queue_redraw()
+
+
+func _flash_target() -> CanvasItem:
+	return _sprite
 
 
 func effect_texture(effect_name: StringName) -> Texture2D:
@@ -77,6 +86,7 @@ func set_pose(pose: StringName) -> void:
 	if pose != _pose:
 		_pose = pose
 		_pose_ticks = 0
+		_update_aura()
 		_refresh_animation()
 
 
@@ -102,10 +112,9 @@ func sync_to(pose: StringName, facing: int, _velocity: Vector2) -> void:
 	_apply_transform()
 
 
-func _process(delta: float) -> void:
-	if _bankai or _pose == &"Charge" or _pose == &"Transform":
-		_pulse += delta
-		queue_redraw()
+func _update_aura() -> void:
+	if _aura != null:
+		_aura.set_active(_bankai or _pose == &"Charge" or _pose == &"Transform")
 
 
 ## Which animation shows the current state, and the first frame to put on it.
@@ -225,21 +234,7 @@ func _apply_transform() -> void:
 func _draw() -> void:
 	if _set == null:
 		return
-	var height := _set.top_px * RenderScale.sprite()
-	if _bankai or _pose == &"Charge" or _pose == &"Transform":
-		_draw_aura(height)
-	_draw_player_marker(-height - MARKER_GAP)
-
-
-func _draw_aura(height: float) -> void:
-	var color := _character.accent_color
-	var pulse := 1.0 + 0.12 * sin(_pulse * 10.0)
-	var center := Vector2(0.0, -height * 0.5)
-	var radius := Vector2(height * 0.42, height * 0.62) * pulse
-	draw_set_transform(center, 0.0, Vector2(1.0, radius.y / radius.x))
-	draw_circle(Vector2.ZERO, radius.x, Color(color.r, color.g, color.b, AURA_COLOR_ALPHA))
-	draw_circle(Vector2.ZERO, radius.x * 0.7, Color(1.0, 1.0, 1.0, AURA_COLOR_ALPHA * 0.5))
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	_draw_player_marker(-_set.top_px * RenderScale.sprite() - MARKER_GAP)
 
 
 func _draw_player_marker(top_y: float) -> void:

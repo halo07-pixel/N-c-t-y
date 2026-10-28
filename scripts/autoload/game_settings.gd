@@ -17,12 +17,15 @@ const DEFAULT_TIME_MINUTES := 5
 const MAX_VOLUME := 10
 const DEFAULT_VOLUME := 8
 const AUDIO_SECTION := "audio"
+const VIDEO_SECTION := "video"
 
 var stocks: int = DEFAULT_STOCKS
 var time_minutes: int = DEFAULT_TIME_MINUTES
 ## 0 to 10. Applied to the audio buses when sound arrives.
 var music_volume: int = DEFAULT_VOLUME
 var sfx_volume: int = DEFAULT_VOLUME
+## Screen shake, hit flash, KO burst and slow motion. Off keeps the match calm.
+var screen_effects: bool = true
 
 
 static func clamp_stocks(value: int) -> int:
@@ -71,6 +74,11 @@ func step_sfx_volume(direction: int) -> void:
 	Events.settings_changed.emit()
 
 
+func toggle_screen_effects() -> void:
+	screen_effects = not screen_effects
+	Events.settings_changed.emit()
+
+
 func is_time_unlimited() -> bool:
 	return time_minutes == TIME_UNLIMITED
 
@@ -85,6 +93,7 @@ func save_settings() -> Error:
 	config.set_value(SECTION, "time_minutes", time_minutes)
 	config.set_value(AUDIO_SECTION, "music", music_volume)
 	config.set_value(AUDIO_SECTION, "sfx", sfx_volume)
+	config.set_value(VIDEO_SECTION, "screen_effects", screen_effects)
 	return config.save(SETTINGS_PATH)
 
 
@@ -98,3 +107,4 @@ func load_settings() -> void:
 	)
 	music_volume = clampi(int(config.get_value(AUDIO_SECTION, "music", DEFAULT_VOLUME)), 0, MAX_VOLUME)
 	sfx_volume = clampi(int(config.get_value(AUDIO_SECTION, "sfx", DEFAULT_VOLUME)), 0, MAX_VOLUME)
+	screen_effects = bool(config.get_value(VIDEO_SECTION, "screen_effects", true))

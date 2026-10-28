@@ -2,8 +2,8 @@ extends SceneTree
 ## Developer tool: plays the versus match with a simple bot and saves a PNG.
 ## Usage (needs a display, e.g. xvfb-run):
 ##   godot --path . --rendering-driver opengl3 -s tools/capture_screenshot.gd -- \
-##       out.png SCENARIO [P1_CHARACTER_INDEX] [P2_CHARACTER_INDEX]
-## Scenarios: idle | hit | ko | end | special | bankai | ultimate
+##       out.png SCENARIO [P1_CHARACTER_INDEX] [P2_CHARACTER_INDEX] [zoom=N] [size=N] [snap=0]
+## Scenarios: idle | hit | ko | kofx | end | special | bankai | ultimate
 ## Menu screens: title | menu | select | select_cpu | settings | controls
 ## Arcade: select_arcade | story | story_boss | continue | clear | boss | boss_ult (match vs the boss)
 ## Character indexes follow MatchConfig.ROSTER_PATHS (0 swordsman, 1 archer, 2 noble).
@@ -62,8 +62,24 @@ func _run() -> void:
 	root.add_child(_match)
 	await physics_frame
 	_setup_fighters()
+	_apply_options(args)
 	await _play_scenario(scenario)
 	await _save(output_path)
+
+
+## Optional experiments after the indexes: zoom=N fixes the camera zoom (multiple of the
+## base scale), size=N scales the fighters' bodies, snap=0 turns pixel snapping off.
+func _apply_options(args: PackedStringArray) -> void:
+	for arg in args:
+		if arg.begins_with("zoom="):
+			var zoom_value := float(arg.substr(5)) * 1.5
+			_match._camera.min_zoom = zoom_value
+			_match._camera.max_zoom = zoom_value
+		elif arg.begins_with("size="):
+			for fighter in _fighters:
+				fighter._body.scale = Vector2.ONE * float(arg.substr(5))
+		elif arg == "snap=0":
+			_match._camera.snap_to_pixels = false
 
 
 func _capture_screen(output_path: String, scenario: String) -> void:
@@ -112,6 +128,10 @@ func _play_scenario(scenario: String) -> void:
 			_fighters[1].set_percent(180.0)
 			await _play_until(func() -> bool: return _fighters[1].is_ko())
 			await _frames(20)
+		"kofx": # the edge burst right after a KO
+			_fighters[1].set_percent(180.0)
+			await _play_until(func() -> bool: return _fighters[1].is_ko())
+			await _frames(6)
 		"end":
 			_fighters[1].set_percent(180.0)
 			await _play_until(func() -> bool: return _match._match_over)

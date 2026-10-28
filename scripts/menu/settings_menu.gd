@@ -3,13 +3,13 @@ extends MenuScreen
 ## Match rules (stocks, time limit), volume and a read-only key list.
 ## Changes go to GameSettings at once and are saved when leaving.
 
-const ROWS: Array[StringName] = [&"stocks", &"time", &"music", &"sfx", &"controls", &"back"]
+const ROWS: Array[StringName] = [&"stocks", &"time", &"music", &"sfx", &"effects", &"controls", &"back"]
 const LABELS := {
 	&"stocks": "STOCKS", &"time": "TIME LIMIT", &"music": "MUSIC VOLUME",
-	&"sfx": "SFX VOLUME", &"controls": "CONTROLS", &"back": "BACK",
+	&"sfx": "SFX VOLUME", &"effects": "SCREEN EFFECTS", &"controls": "CONTROLS", &"back": "BACK",
 }
-const ROW_HEIGHT := 24.0
-const FIRST_ROW_Y := 90.0
+const ROW_HEIGHT := 22.0
+const FIRST_ROW_Y := 84.0
 const ACTION_LABELS := {
 	&"left": "Left", &"right": "Right", &"up": "Jump", &"down": "Down / drop",
 	&"attack": "Attack", &"special": "Special", &"guard": "Guard / Shunpo",
@@ -53,6 +53,8 @@ func change(row: StringName, direction: int) -> void:
 			GameSettings.step_music_volume(direction)
 		&"sfx":
 			GameSettings.step_sfx_volume(direction)
+		&"effects":
+			GameSettings.toggle_screen_effects()
 
 
 func leave() -> void:
@@ -82,6 +84,8 @@ func value_text(row: StringName) -> String:
 			return _volume_text(GameSettings.music_volume)
 		&"sfx":
 			return _volume_text(GameSettings.sfx_volume)
+		&"effects":
+			return "ON" if GameSettings.screen_effects else "OFF"
 	return ""
 
 

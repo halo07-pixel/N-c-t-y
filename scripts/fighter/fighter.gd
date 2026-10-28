@@ -55,6 +55,10 @@ func _ready() -> void:
 	_body = BodyFactory.create(data, player_id)
 	add_child(_body)
 	move_child(_body, 1) # drawn behind the hit areas, right after the collision shape
+	var shadow := GroundShadow.new()
+	add_child(shadow)
+	move_child(shadow, 1) # under the body
+	shadow.setup(self)
 	hurtbox.setup(player_id, data.body_size)
 	hitbox.setup(player_id)
 	hurtbox.hit_received.connect(_on_hit_received)
@@ -118,10 +122,12 @@ func _on_hit_received(info: HitInfo) -> void:
 	hitstun_frames_left = Knockback.hitstun_frames(launch_speed)
 	hitlag_left = Knockback.hitlag_frames(info.damage)
 	is_fast_falling = false
+	_body.flash_hit()
 	if absf(info.direction.x) > 0.1:
 		facing = -1 if info.direction.x > 0.0 else 1
 	_state_machine.transition_to(&"Hitstun")
 	Events.fighter_hit.emit(info.attacker_id, player_id, info.damage)
+	Events.fighter_launched.emit(player_id, launch_speed, info.direction)
 
 
 func _on_hit_landed(info: HitInfo) -> void:

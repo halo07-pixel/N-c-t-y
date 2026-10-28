@@ -17,6 +17,9 @@ const PERCENT_FULL_HEAT := 150.0
 const BAR_WIDTH := 60.0
 const BAR_HEIGHT := 4.0
 const LETTERBOX_HEIGHT := 28.0
+const CUTIN_SLIDE_FRAMES := 10.0
+const CUTIN_FRAME := Vector2(72.0, 96.0)
+const PLAYER_NAMES := {1: "PLAYER 1", 2: "PLAYER 2"}
 
 var _percents: Dictionary = {}
 var _stocks: Dictionary = {}
@@ -28,6 +31,8 @@ var _result_shown: bool = false
 var _winner_id: int = 0
 var _cinematic_frames: int = 0
 var _cinematic_title: String = ""
+var _cinematic_total: int = 0
+var _cinematic_player: int = 1
 
 var _canvas: Control
 
@@ -92,7 +97,9 @@ func _on_match_ended(winner_id: int) -> void:
 	_canvas.queue_redraw()
 
 
-func _on_ultimate_started(_player_id: int, freeze_frames: int, title: String) -> void:
+func _on_ultimate_started(player_id: int, freeze_frames: int, title: String) -> void:
+	_cinematic_player = player_id
+	_cinematic_total = freeze_frames
 	_cinematic_frames = freeze_frames
 	_cinematic_title = title
 	_canvas.queue_redraw()
@@ -165,11 +172,38 @@ func _draw_reiatsu_bar(player_id: int, center_x: float) -> void:
 	_canvas.draw_rect(Rect2(notch_x, area.position.y - 1.0, 1.0, BAR_HEIGHT + 2.0), WHITE)
 
 
+## 0..1 slide-in progress of the cut-in `age` frames after it started.
+static func cutin_slide(age: int) -> float:
+	var t := clampf(float(age) / CUTIN_SLIDE_FRAMES, 0.0, 1.0)
+	return 1.0 - pow(1.0 - t, 3.0)
+
+
 func _draw_cinematic() -> void:
 	_canvas.draw_rect(Rect2(Vector2.ZERO, SCREEN), Color(0.0, 0.0, 0.05, 0.35))
 	_canvas.draw_rect(Rect2(0.0, 0.0, SCREEN.x, LETTERBOX_HEIGHT), Color.BLACK)
 	_canvas.draw_rect(Rect2(0.0, SCREEN.y - LETTERBOX_HEIGHT, SCREEN.x, LETTERBOX_HEIGHT), Color.BLACK)
-	_text(_cinematic_title, Vector2(SCREEN.x * 0.5, SCREEN.y - 9.0), 16, WARM)
+	var slide := cutin_slide(_cinematic_total - _cinematic_frames)
+	var color: Color = PLAYER_COLORS.get(_cinematic_player, WHITE)
+	# A slanted band that sweeps in from the left, with the move name on it.
+	var shift := (1.0 - slide) * -SCREEN.x
+	var band := PackedVector2Array([
+		Vector2(shift, 44.0), Vector2(shift + SCREEN.x, 36.0),
+		Vector2(shift + SCREEN.x, 74.0), Vector2(shift, 82.0),
+	])
+	_canvas.draw_colored_polygon(band, Color(color.r * 0.35, color.g * 0.35, color.b * 0.35, 0.9))
+	_canvas.draw_line(band[0], band[1], WHITE, 2.0)
+	_canvas.draw_line(band[3], band[2], color, 2.0)
+	# Placeholder portrait frame (a real portrait can replace the fill later).
+	var on_left := _cinematic_player == 1
+	var frame_x := 36.0 if on_left else SCREEN.x - 36.0 - CUTIN_FRAME.x
+	var frame_shift := (1.0 - slide) * (-120.0 if on_left else 120.0)
+	var frame := Rect2(Vector2(frame_x + frame_shift, 98.0), CUTIN_FRAME)
+	_canvas.draw_rect(frame.grow(2.0), OUTLINE)
+	_canvas.draw_rect(frame, Color(color.r * 0.25, color.g * 0.25, color.b * 0.25, 0.95))
+	_canvas.draw_rect(frame, color, false, 2.0)
+	_text(PLAYER_NAMES.get(_cinematic_player, "P%d" % _cinematic_player), frame.get_center() + Vector2(0.0, 4.0), 12, WHITE)
+	var title_x := SCREEN.x * 0.5 + (60.0 if on_left else -60.0)
+	_text(_cinematic_title, Vector2(title_x + shift * 0.4, 66.0), 20, WARM)
 
 
 func _draw_result() -> void:
