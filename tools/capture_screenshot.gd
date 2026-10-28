@@ -2,7 +2,7 @@ extends SceneTree
 ## Developer tool: plays the versus match with a simple bot and saves a PNG.
 ## Usage (needs a display, e.g. xvfb-run):
 ##   godot --path . --rendering-driver opengl3 -s tools/capture_screenshot.gd -- \
-##       out.png SCENARIO [P1_CHARACTER_INDEX] [P2_CHARACTER_INDEX] [zoom=N] [size=N] [snap=0]
+##       out.png SCENARIO [P1_CHARACTER_INDEX] [P2_CHARACTER_INDEX] [zoom=N] [size=N] [snap=0] [rig=noble]
 ## Scenarios: idle | hit | ko | kofx | end | special | bankai | ultimate
 ## Menu screens: title | menu | select | select_cpu | settings | controls
 ## Arcade: select_arcade | story | story_boss | continue | clear | boss | boss_ult (match vs the boss)
@@ -51,6 +51,9 @@ func _run() -> void:
 		await _capture_screen(output_path, scenario)
 		return
 	var config := root.get_node("MatchConfig")
+	if args.has("rig=noble"):
+		var noble: Resource = load("res://resources/characters/noble.tres")
+		noble.rig = load("res://resources/rigs/noble_rig.tres")
 	if scenario.begins_with("boss"):
 		_start_arcade(true)
 	config.p1_index = int(args[2]) if args.size() > 2 else 0

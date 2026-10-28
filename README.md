@@ -20,6 +20,9 @@ fighters are original placeholders drawn in code until real sprites are supplied
 - Phase 5b — `feature/visual-polish-1` (this branch): ground shadows, hit flash, screen shake, KO burst and
   slow-mo on the final KO (all behind the Settings switch "Screen effects"), vignette,
   additive Reiatsu/Bankai glow, ultimate cut-in band.
+- Phase 5c — `feature/rig-body` (this branch): RigBody, a jointed box skeleton drawn in code with
+  one shared pose library; Byakuya (noble) is the pilot (`resources/rigs/noble_rig.tres`, not yet
+  wired to the character until the style is approved). `tools/rig_sheet.gd` renders every pose.
 - Next: original art for Ichigo and Uryu, music and sound, balance and polish.
 
 ## Run it

@@ -1,0 +1,117 @@
+extends TestCase
+## The jointed rig: pose library, skeleton, ground contact, facing, flash and the factory.
+
+const NOBLE_RIG := "res://resources/rigs/noble_rig.tres"
+const NOBLE := "res://resources/characters/noble.tres"
+
+
+func _noble_with_rig() -> CharacterData:
+	var character := (load(NOBLE) as CharacterData).duplicate() as CharacterData
+	character.rig = load(NOBLE_RIG)
+	return character
+
+
+func _body() -> RigBody:
+	var body := BodyFactory.create(_noble_with_rig(), 1) as RigBody
+	tree.root.add_child(body)
+	return body
+
+
+func test_every_animation_has_a_complete_pose() -> void:
+	for animation in RigPoses.ANIMATIONS:
+		for phase in [&"startup", &"active", &"recovery"]:
+			var info := RigPoses.target(animation, 0.3, phase)
+			var pose: Dictionary = info["pose"]
+			for key: String in RigPoses.NEUTRAL:
+				check(pose.has(key), "%s/%s has %s" % [animation, phase, key])
+			check(float(info["rate"]) > 0.0, "%s has a smoothing rate" % animation)
+
+
+func test_attack_phases_differ_and_strike_reaches_forward() -> void:
+	for animation: StringName in [&"attack_neutral", &"attack_forward", &"attack_up", &"attack_down", &"air_attack", &"special"]:
+		var startup: Dictionary = RigPoses.target(animation, 0.0, &"startup")["pose"]
+		var active: Dictionary = RigPoses.target(animation, 0.0, &"active")["pose"]
+		check(startup["blade"] != active["blade"], "%s winds up differently than it strikes" % animation)
+	var forward: Dictionary = RigPoses.target(&"attack_forward", 0.0, &"active")["pose"]
+	check_near(forward["blade"], 90.0, 10.0, "a forward strike points the blade ahead")
+	var up: Dictionary = RigPoses.target(&"attack_up", 0.0, &"active")["pose"]
+	check(up["blade"] > 150.0, "an up strike points the blade up")
+
+
+func test_run_cycle_swings_the_legs_and_loops() -> void:
+	var first: Dictionary = RigPoses.target(&"run", 0.0)["pose"]
+	var half: Dictionary = RigPoses.target(&"run", 0.5 / RigPoses.RUN_CYCLES_PER_SECOND)["pose"]
+	var full: Dictionary = RigPoses.target(&"run", 1.0 / RigPoses.RUN_CYCLES_PER_SECOND)["pose"]
+	check_near(first["thigh_f"], -half["thigh_f"] + 0.0, 0.01, "the legs swap halfway through the cycle")
+	check_near(first["thigh_f"], full["thigh_f"], 0.01, "the cycle loops")
+	check_near(first["thigh_f"], -first["thigh_b"], 0.01, "legs swing in opposition")
+
+
+func test_weapon_angle_is_relative_to_the_forearm() -> void:
+	var pose := RigPoses.NEUTRAL.duplicate()
+	var relative := RigPoses.weapon_relative(pose)
+	var forearm: float = pose["arm_f"] + pose["elbow_f"] - pose["torso"] - pose["body"]
+	check_near(forearm + relative, pose["blade"], 0.001, "forearm plus weapon gives the wanted blade angle")
+
+
+func test_factory_draws_a_rig_when_the_character_has_one() -> void:
+	var body := BodyFactory.create(_noble_with_rig(), 1)
+	check(body is RigBody, "a character with a rig gets a RigBody")
+	body.free()
+	var plain := BodyFactory.create(load(NOBLE), 1)
+	check(plain is SpriteBody, "without a rig the sprites are still used")
+	plain.free()
+
+
+func test_standing_rig_rests_on_the_ground() -> void:
+	var body := _body()
+	for animation: StringName in [&"idle", &"run", &"land", &"guard", &"attack_forward", &"attack_down"]:
+		body.preview(animation, 0.2, &"active")
+		check_near(body._lowest_foot_y(), 0.0, 0.6, "%s keeps the lowest foot on the ground" % animation)
+	check(body.rig.height() > 30.0 and body.rig.height() < 40.0, "the body is about 34 units tall")
+	body.queue_free()
+
+
+func test_facing_mirrors_the_rig_and_the_blade_leads() -> void:
+	var body := _body()
+	body.preview(&"attack_forward", 0.0, &"active")
+	body.sync_to(&"Idle", 1, Vector2.ZERO)
+	body._apply(body._current, true, 0.0)
+	check(body.weapon_tip().x > 12.0, "facing right the blade reaches to the right")
+	body.sync_to(&"Idle", -1, Vector2.ZERO)
+	body._apply(body._current, true, 0.0)
+	check(body.weapon_tip().x < -12.0, "facing left it reaches to the left")
+	body.queue_free()
+
+
+func test_rig_body_follows_the_fighter_states() -> void:
+	var body := _body()
+	body.sync_to(&"Idle", 1, Vector2.ZERO)
+	body._land_ticks = 0
+	body.sync_to(&"Run", 1, Vector2(120.0, 0.0))
+	body._process(0.016)
+	check_eq(body._animation, &"run", "runs while running")
+	body.sync_to(&"Fall", 1, Vector2(0.0, 200.0))
+	body.sync_to(&"Idle", 1, Vector2.ZERO)
+	check(body._land_ticks > 0 and body._squash > 0.0, "landing squashes the body")
+	body._process(0.016)
+	check_eq(body._animation, &"land", "and plays the landing pose briefly")
+	body.set_pose(&"Attack")
+	body.set_attack_visual(&"up", &"startup")
+	body._process(0.016)
+	check_eq(body._animation, &"attack_up", "an up attack plays the up animation")
+	body.queue_free()
+
+
+func test_hit_flash_uses_the_root_and_hair_lags_behind_motion() -> void:
+	var effects_before := GameSettings.screen_effects
+	GameSettings.screen_effects = true
+	var body := _body()
+	body.flash_hit()
+	check(body._root.material != null, "the white flash is on the rig root")
+	body.sync_to(&"Run", 1, Vector2(150.0, 0.0))
+	for _i in 30:
+		body._process(0.016)
+	check(body._lag < -3.0, "hair and cape trail behind a running fighter")
+	body.queue_free()
+	GameSettings.screen_effects = effects_before
