@@ -60,8 +60,11 @@ func _draw() -> void:
 	draw_colored_polygon(grown, rig.outline)
 	draw_colored_polygon(blade, rig.weapon_color)
 	draw_line(Vector2(0.0, 3.4), Vector2(0.0, 3.0 + length - 1.5), rig.weapon_color.darkened(0.25), 0.5)
-	draw_rect(Rect2(-width * 0.5 - 0.6, -1.2, width + 1.2, 4.4), rig.outline)
-	draw_rect(Rect2(-width * 0.5, -0.8, width, 3.6), rig.grip_color)
+	if rig.style == &"stick":
+		draw_rect(Rect2(-0.8, -1.0, 1.6, 4.2), rig.line) # a thin grip in the body color
+	else:
+		draw_rect(Rect2(-width * 0.5 - 0.6, -1.2, width + 1.2, 4.4), rig.outline)
+		draw_rect(Rect2(-width * 0.5, -0.8, width, 3.6), rig.grip_color)
 	draw_rect(Rect2(-width - 1.4, 2.6, width * 2.0 + 2.8, 1.1), rig.accent)
 
 

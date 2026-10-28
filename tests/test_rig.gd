@@ -179,3 +179,42 @@ func test_a_swing_leaves_a_trail_only_with_effects_on() -> void:
 	check(calm._trail.is_empty(), "no trail when screen effects are off")
 	calm.queue_free()
 	GameSettings.screen_effects = effects_before
+
+
+func test_spring_settles_on_target_and_overshoots_when_underdamped() -> void:
+	var x := 0.0
+	var v := 0.0
+	var peak := 0.0
+	for _i in 120:
+		var result: Vector2 = RigBody.spring(x, v, 1.0, 20.0, 0.5, 1.0 / 60.0)
+		x = result.x
+		v = result.y
+		peak = maxf(peak, x)
+	check(peak > 1.0, "an underdamped spring overshoots a little")
+	check_near(x, 1.0, 0.02, "and then settles on the target")
+
+
+func test_stick_style_draws_lines_and_ghosts_follow_effects_setting() -> void:
+	var effects_before := GameSettings.screen_effects
+	var stick := load("res://resources/rigs/swordsman_rig.tres") as CharacterRigData
+	check(stick.style == &"stick", "Ichigo uses the stick style")
+	var character: CharacterData = (load("res://resources/characters/swordsman.tres") as CharacterData).duplicate()
+	check(character.rig != null, "Ichigo has a rig")
+	var body := BodyFactory.create(character, 1) as RigBody
+	tree.root.add_child(body)
+	check(not body.snapshot().is_empty(), "a stick body reports its line segments")
+	GameSettings.screen_effects = true
+	body.sync_to(&"Run", 1, Vector2(300, 0))
+	for _i in 6:
+		body._process(0.05)
+	check(body._ghosts.count() > 0, "fast motion leaves afterimages")
+	body.queue_free()
+	GameSettings.screen_effects = false
+	var calm := BodyFactory.create(character, 1) as RigBody
+	tree.root.add_child(calm)
+	calm.sync_to(&"Run", 1, Vector2(300, 0))
+	for _i in 6:
+		calm._process(0.05)
+	check(calm._ghosts.count() == 0, "no afterimages when screen effects are off")
+	calm.queue_free()
+	GameSettings.screen_effects = effects_before

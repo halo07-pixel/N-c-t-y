@@ -14,6 +14,18 @@ const LAG_RATE := 9.0
 const LAG_PER_SPEED := 0.12
 const MAX_LAG := 50.0
 const SPIN_SPEED := 14.0
+const GHOST_INTERVAL := 0.035
+const GHOST_MIN_SPEED := 150.0
+## Spring damping per joint (1 settles without overshoot; lower swings past the pose and back).
+const DAMPING := {
+	"hip_x": 0.9, "hip_y": 0.9, "body": 0.8, "torso": 0.75, "head": 0.6,
+	"arm_f": 0.55, "elbow_f": 0.5, "blade": 0.55, "arm_b": 0.6, "elbow_b": 0.55,
+	"thigh_f": 0.75, "knee_f": 0.65, "foot_f": 0.6, "thigh_b": 0.75, "knee_b": 0.65, "foot_b": 0.6,
+}
+const DEFAULT_DAMPING := 0.7
+const MAX_SPRING_STEP := 1.0 / 30.0
+const SPRING_SUBSTEPS := 2
+const OMEGA_PER_RATE := 0.9
 const SPIN_PIVOT := Vector2(0.0, -16.0)
 const AIRBORNE_STATES: Array[StringName] = [&"Jump", &"Fall", &"Hitstun"]
 
@@ -37,6 +49,10 @@ var _hair_tail: Array[RigPart] = []
 var _cape: Array[RigPart] = []
 var _aura: AuraLayer
 var _trail: RigTrail
+var _ghosts: RigGhosts
+var _stick_parts: Array[RigPart] = []
+var _velocities: Dictionary = {}
+var _ghost_timer: float = 0.0
 
 var _pose: StringName = &"Fall"
 var _facing: int = 1
@@ -82,6 +98,11 @@ func _part(parent: Node2D, size: Vector2, color: Color, position_in_parent: Vect
 	part.up = up
 	part.radius = corner
 	part.position = position_in_parent
+	if rig.style == &"stick":
+		part.color = rig.line
+		part.stick_width = rig.line_width
+		part.band = Color(0.0, 0.0, 0.0, 0.0)
+		_stick_parts.append(part)
 	parent.add_child(part)
 	return part
 
@@ -91,6 +112,10 @@ func _build() -> void:
 		child.queue_free()
 	_aura = AuraLayer.new()
 	add_child(_aura)
+	_ghosts = RigGhosts.new()
+	_ghosts.color = rig.line if rig.style == &"stick" else rig.accent
+	add_child(_ghosts)
+	_stick_parts.clear()
 	_trail = RigTrail.new()
 	_trail.color = rig.weapon_color.lerp(Color.WHITE, 0.3)
 	add_child(_trail)
@@ -104,11 +129,15 @@ func _build() -> void:
 	_hip = _part(_root, Vector2(0.1, 0.1), rig.cloth, Vector2.ZERO) # an invisible joint
 	_hip.visible = true
 	_hip.size = Vector2(0.01, 0.01)
+	_hip.stick_width = 0.0 # the hip is only a joint
+	_stick_parts.erase(_hip)
 	var leg_width := rig.leg_width
 	# Back leg first so the front leg is drawn over it, then the torso over both legs' tops.
 	_build_leg(&"b", Vector2(-1.5, 0.0), leg_width)
 	_build_leg(&"f", Vector2(1.5, 0.0), leg_width)
 	_torso = _part(_hip, rig.torso_size, rig.cloth, Vector2.ZERO, true, 2.0)
+	if rig.style == &"stick":
+		_torso.stick_width = rig.line_width * 1.35
 	_torso.band = rig.accent
 	_torso.band_at = 0.18
 	_torso.band_height = 1.8
@@ -151,13 +180,24 @@ func _build_arm(side: StringName, shoulder: Vector2) -> void:
 	_forearm[side] = lower
 
 
+## Hair and cape keep their own color and a thicker line in the stick style.
+func _style_trailing(part: RigPart, tint: Color, width: float) -> void:
+	if rig.style != &"stick":
+		return
+	part.color = tint
+	part.stick_width = width
+	_stick_parts.erase(part)
+
+
 func _build_hair_tail() -> void:
 	if rig.hair_tail <= 0.0:
 		return
 	var anchor := Vector2(-rig.head_size.x * 0.5 + 1.2, -rig.head_size.y * 0.6)
 	var first := _part(_head, Vector2(3.4, rig.hair_tail * 0.55), rig.hair, anchor, false, 1.4)
 	first.show_behind_parent = true
+	_style_trailing(first, rig.hair, 3.4)
 	var second := _part(first, Vector2(3.0, rig.hair_tail * 0.5), rig.hair, Vector2(0.0, rig.hair_tail * 0.5), false, 1.2)
+	_style_trailing(second, rig.hair, 2.6)
 	_hair_tail = [first, second]
 
 
@@ -167,7 +207,9 @@ func _build_cape() -> void:
 	var anchor := Vector2(-rig.torso_size.x * 0.5 + 1.0, -rig.torso_size.y + 1.6)
 	var first := _part(_torso, Vector2(4.2, rig.cape_length * 0.5), rig.cape_color, anchor, false, 1.4)
 	first.show_behind_parent = true
+	_style_trailing(first, rig.cape_color, 4.6)
 	var second := _part(first, Vector2(4.0, rig.cape_length * 0.5), rig.cape_color.darkened(0.1), Vector2(0.0, rig.cape_length * 0.5 - 0.4), false, 1.2)
+	_style_trailing(second, rig.cape_color.darkened(0.1), 4.0)
 	_cape = [first, second]
 
 
@@ -229,15 +271,38 @@ func _process(delta: float) -> void:
 		_anim_time = 0.0
 	_anim_time += delta * _time_scale()
 	_target_info = RigPoses.target(_animation, _anim_time, _attack_phase, rig.weapon)
-	var weight := 1.0 - exp(-float(_target_info["rate"]) * delta)
-	var target: Dictionary = _target_info["pose"]
-	for key: String in target:
-		_current[key] = lerpf(_current.get(key, target[key]), target[key], weight)
+	_spring_toward(_target_info["pose"], float(_target_info["rate"]), delta)
 	_update_secondary(delta)
 	_update_spin(delta)
 	_apply(_current, _target_info["plant"], delta)
 	_update_trail()
+	_update_ghosts(delta)
 	_head.set_look(&"fierce" if _pose == &"Attack" or _pose == &"Hitstun" or _pose == &"Charge" else &"calm")
+
+
+## One step of a damped spring: where `x` (moving at `v`) is after `dt` when pulled toward
+## `target`. `omega` is how stiff the spring is, `zeta` how damped (below 1 it overshoots).
+static func spring(x: float, v: float, target: float, omega: float, zeta: float, dt: float) -> Vector2:
+	var step := dt / float(SPRING_SUBSTEPS)
+	for _i in SPRING_SUBSTEPS:
+		var acceleration := omega * omega * (target - x) - 2.0 * zeta * omega * v
+		v += acceleration * step
+		x += v * step
+	return Vector2(x, v)
+
+
+## Moves every joint toward the target pose with a spring, so motion snaps, overshoots a little
+## and settles instead of sliding at a constant rate.
+func _spring_toward(target: Dictionary, rate: float, delta: float) -> void:
+	var dt := minf(delta, MAX_SPRING_STEP)
+	var omega := rate * OMEGA_PER_RATE
+	for key: String in target:
+		var result := spring(
+			_current.get(key, target[key]), _velocities.get(key, 0.0), target[key],
+			omega, DAMPING.get(key, DEFAULT_DAMPING), dt
+		)
+		_current[key] = result.x
+		_velocities[key] = result.y
 
 
 func _wanted_animation() -> StringName:
@@ -333,6 +398,30 @@ func _update_trail() -> void:
 		_trail.add_sample(_weapon.to_global(_weapon.tip()), hilt)
 
 
+## Afterimages during fast motion: attacks past the wind-up and lunges or dashes.
+func _update_ghosts(delta: float) -> void:
+	_ghost_timer -= delta
+	if _ghost_timer > 0.0 or not GameSettings.screen_effects:
+		return
+	var fast := _velocity.length() > GHOST_MIN_SPEED
+	var swinging := _pose == &"Attack" and _attack_kind != &"" and _attack_phase != &"startup"
+	if not (fast or swinging):
+		return
+	_ghost_timer = GHOST_INTERVAL
+	_ghosts.add_ghost(snapshot())
+
+
+## The body's lines in world coordinates ([from, to, width] each), including the weapon.
+func snapshot() -> Array:
+	var segments: Array = []
+	for part in _stick_parts:
+		segments.append(part.segment())
+	var head_center := _head.to_global(Vector2(0.0, -rig.head_size.y * 0.5))
+	segments.append([head_center, head_center + Vector2(0.01, 0.0), rig.head_size.y])
+	segments.append([_weapon.to_global(Vector2.ZERO), _weapon.to_global(_weapon.tip()), rig.line_width])
+	return segments
+
+
 func _update_aura() -> void:
 	if _aura != null:
 		_aura.set_active(_bankai or _pose == &"Charge" or _pose == &"Transform")
@@ -350,6 +439,7 @@ func _snap(animation: StringName, time: float, phase: StringName) -> void:
 	_attack_phase = phase
 	_target_info = RigPoses.target(animation, time, phase, rig.weapon)
 	_current = (_target_info["pose"] as Dictionary).duplicate()
+	_velocities.clear()
 	_hip_y = 0.0
 	_apply(_current, _target_info["plant"], 0.0)
 	_hip_y = _hip.position.y

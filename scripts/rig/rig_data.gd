@@ -5,6 +5,17 @@ extends Resource
 ## data differs, so all characters move alike and are tuned in one place.
 ## Lengths are world units; the body stands about 34 units tall.
 
+@export_group("Style")
+## "box" draws boxy limbs, "stick" draws a stick figure: lines for limbs, a round head.
+@export var style: StringName = &"box"
+## Stick figure: the color of the body lines and the head.
+@export var line: Color = Color(0.98, 0.98, 1.0)
+## Stick figure: width of the limbs (the torso is a little thicker).
+@export var line_width: float = 2.0
+## A signature of the face: glasses.
+@export var glasses: bool = false
+@export var glasses_color: Color = Color(0.4, 0.8, 1.0)
+
 @export_group("Proportions")
 @export var head_size: Vector2 = Vector2(11.0, 10.5)
 @export var torso_size: Vector2 = Vector2(9.0, 9.0)
