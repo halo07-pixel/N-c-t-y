@@ -20,7 +20,8 @@ const NEUTRAL := {
 const RUN_CYCLES_PER_SECOND := 2.4
 const ANIMATIONS: Array[StringName] = [
 	&"idle", &"run", &"jump", &"fall", &"land", &"guard", &"hitstun", &"ko", &"charge",
-	&"attack_neutral", &"attack_forward", &"attack_up", &"attack_down", &"air_attack", &"special",
+	&"attack_neutral", &"attack_forward", &"attack_up", &"attack_down", &"air_attack", &"air_up",
+	&"air_down", &"special",
 ]
 
 ## Hand-posed keyframes. Attacks have a pose for each phase.
@@ -101,7 +102,7 @@ const POSES := {
 			"thigh_f": 40.0, "knee_f": 70.0, "thigh_b": -20.0, "knee_b": 60.0,
 		},
 		&"active": {
-			"torso": 24.0, "arm_f": 58.0, "elbow_f": 6.0, "blade": 52.0, "hip_x": 2.0,
+			"torso": 24.0, "arm_f": 48.0, "elbow_f": 8.0, "blade": 60.0, "hip_x": 2.0,
 			"thigh_f": 44.0, "knee_f": 74.0, "thigh_b": -22.0, "knee_b": 64.0, "arm_b": -40.0,
 		},
 		&"recovery": {
@@ -123,6 +124,11 @@ const POSES := {
 			"thigh_f": 40.0, "knee_f": 60.0, "thigh_b": 0.0, "knee_b": 56.0,
 		},
 	},
+	&"air_down_arms": {
+		&"startup": {"torso": 2.0, "arm_f": 150.0, "elbow_f": 40.0, "blade": 172.0},
+		&"active": {"torso": 12.0, "arm_f": 62.0, "elbow_f": 8.0, "blade": 2.0},
+		&"recovery": {"torso": 8.0, "arm_f": 55.0, "elbow_f": 20.0, "blade": 20.0},
+	},
 	&"special": {
 		&"startup": {
 			"torso": -14.0, "arm_f": 70.0, "elbow_f": 60.0, "blade": 215.0, "hip_x": -3.0,
@@ -139,6 +145,22 @@ const POSES := {
 	},
 }
 
+## Poses that replace the sword poses for a bow fighter's special (drawing and loosing the bow).
+const BOW_SPECIAL := {
+	&"startup": {
+		"torso": -4.0, "arm_f": 88.0, "elbow_f": 4.0, "arm_b": -85.0, "elbow_b": 140.0, "hip_x": -2.0,
+		"thigh_f": 22.0, "knee_f": 24.0, "thigh_b": -24.0, "knee_b": 20.0,
+	},
+	&"active": {
+		"torso": 8.0, "arm_f": 90.0, "elbow_f": 2.0, "arm_b": -55.0, "elbow_b": 30.0, "hip_x": 1.0,
+		"thigh_f": 24.0, "knee_f": 22.0, "thigh_b": -22.0, "knee_b": 16.0,
+	},
+	&"recovery": {
+		"torso": 4.0, "arm_f": 70.0, "elbow_f": 20.0, "arm_b": -25.0, "elbow_b": 30.0,
+		"thigh_f": 16.0, "knee_f": 22.0, "thigh_b": -14.0, "knee_b": 16.0,
+	},
+}
+
 ## How quickly the body moves toward the target, per second (higher is snappier).
 const RATES := {
 	&"idle": 12.0, &"run": 34.0, &"jump": 16.0, &"fall": 12.0, &"land": 24.0, &"guard": 20.0,
@@ -146,13 +168,21 @@ const RATES := {
 }
 const PHASE_RATES := {&"startup": 15.0, &"active": 55.0, &"recovery": 11.0}
 ## Animations where the lowest foot is kept on the ground (the others float).
-const AIRBORNE: Array[StringName] = [&"jump", &"fall", &"hitstun", &"ko", &"air_attack"]
+const AIRBORNE: Array[StringName] = [
+	&"jump", &"fall", &"hitstun", &"ko", &"air_attack", &"air_up", &"air_down",
+]
+## Legs tucked for aerial up and down attacks (their arms follow the ground up and down attacks).
+const AIR_LEGS := {
+	"thigh_f": 44.0, "knee_f": 66.0, "thigh_b": 6.0, "knee_b": 62.0,
+}
 
 
 ## The pose (every joint filled in) a body should move toward, with its smoothing rate and
 ## whether the feet are planted on the ground. `time` is seconds since the animation began
 ## (run cycles use it); `phase` is the attack phase for attack animations.
-static func target(animation: StringName, time: float, phase: StringName = &"active") -> Dictionary:
+static func target(
+	animation: StringName, time: float, phase: StringName = &"active", weapon: StringName = &"katana"
+) -> Dictionary:
 	var pose := NEUTRAL.duplicate()
 	var rate: float = RATES.get(animation, 14.0)
 	match animation:
@@ -162,12 +192,27 @@ static func target(animation: StringName, time: float, phase: StringName = &"act
 			_run(pose, time)
 		_:
 			var entry: Dictionary = POSES.get(animation, {})
+			if animation == &"air_up":
+				entry = _air_variant(POSES[&"attack_up"])
+			elif animation == &"air_down":
+				entry = _air_variant(POSES[&"air_down_arms"])
+			if animation == &"special" and weapon == &"bow":
+				entry = BOW_SPECIAL
 			if entry.has(&"startup"):
 				pose.merge(entry.get(phase, entry[&"active"]), true)
 				rate = PHASE_RATES.get(phase, 14.0)
 			else:
 				pose.merge(entry, true)
 	return {"pose": pose, "rate": rate, "plant": not AIRBORNE.has(animation)}
+
+
+static func _air_variant(ground: Dictionary) -> Dictionary:
+	var result := {}
+	for phase: StringName in ground:
+		var pose: Dictionary = (ground[phase] as Dictionary).duplicate()
+		pose.merge(AIR_LEGS, true)
+		result[phase] = pose
+	return result
 
 
 static func _idle(pose: Dictionary, time: float) -> void:

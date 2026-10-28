@@ -58,7 +58,8 @@ func test_missing_art_falls_back_to_the_placeholder() -> void:
 	var body := BodyFactory.create(character, 1)
 	check(body is PlaceholderBody, "the placeholder is used")
 	body.free()
-	var noble := load("res://resources/characters/noble.tres") as CharacterData
+	var noble := (load("res://resources/characters/noble.tres") as CharacterData).duplicate() as CharacterData
+	noble.rig = null # a character without a rig falls back to its sprites
 	var sprite_body := BodyFactory.create(noble, 2)
 	check(sprite_body is SpriteBody, "sprites are used when they exist")
 	sprite_body.free()
@@ -90,7 +91,8 @@ func test_attack_frames_follow_the_phases() -> void:
 
 
 func test_body_follows_the_fighter_and_borrows_missing_animations() -> void:
-	var noble := load("res://resources/characters/noble.tres") as CharacterData
+	var noble := (load("res://resources/characters/noble.tres") as CharacterData).duplicate() as CharacterData
+	noble.rig = null
 	var body := BodyFactory.create(noble, 1) as SpriteBody
 	body.sync_to(&"Run", -1, Vector2(100.0, 0.0))
 	check_eq(body._sprite.animation, &"run", "runs while running")
@@ -104,7 +106,8 @@ func test_body_follows_the_fighter_and_borrows_missing_animations() -> void:
 
 
 func test_projectile_art_comes_from_the_owners_sprite_set() -> void:
-	var noble := load("res://resources/characters/noble.tres") as CharacterData
+	var noble := (load("res://resources/characters/noble.tres") as CharacterData).duplicate() as CharacterData
+	noble.rig = null
 	var body := BodyFactory.create(noble, 1)
 	check(body.effect_texture(&"petal0") != null, "a named effect has a texture")
 	check(body.effect_texture(&"nothing") == null, "an unknown effect has none")

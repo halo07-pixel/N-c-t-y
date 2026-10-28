@@ -14,8 +14,8 @@ angle_degrees = 40.0
 startup_frames = 3
 active_frames = 2
 recovery_frames = 9
-hitbox_size = Vector2(26, 19)
-hitbox_offset = Vector2(18, -16)
+hitbox_size = Vector2(31.6, 19)
+hitbox_offset = Vector2(20.8, -16)
 
 [sub_resource type="Resource" id="M_ground_forward"]
 script = ExtResource("2")
@@ -28,8 +28,8 @@ angle_degrees = 38.0
 startup_frames = 8
 active_frames = 3
 recovery_frames = 18
-hitbox_size = Vector2(38, 22)
-hitbox_offset = Vector2(23, -16)
+hitbox_size = Vector2(34.6, 22)
+hitbox_offset = Vector2(21.3, -16)
 lunge_speed = 170.0
 
 [sub_resource type="Resource" id="M_ground_up"]
@@ -43,8 +43,8 @@ angle_degrees = 88.0
 startup_frames = 6
 active_frames = 3
 recovery_frames = 16
-hitbox_size = Vector2(31, 38)
-hitbox_offset = Vector2(4, -40)
+hitbox_size = Vector2(31, 31.1)
+hitbox_offset = Vector2(4, -36.5)
 
 [sub_resource type="Resource" id="M_ground_down"]
 script = ExtResource("2")
@@ -57,8 +57,8 @@ angle_degrees = 30.0
 startup_frames = 5
 active_frames = 3
 recovery_frames = 15
-hitbox_size = Vector2(43, 12)
-hitbox_offset = Vector2(21, -6)
+hitbox_size = Vector2(43, 16.9)
+hitbox_offset = Vector2(21, -3.5)
 
 [sub_resource type="Resource" id="M_air_neutral"]
 script = ExtResource("2")
@@ -85,8 +85,8 @@ angle_degrees = 35.0
 startup_frames = 9
 active_frames = 3
 recovery_frames = 16
-hitbox_size = Vector2(41, 24)
-hitbox_offset = Vector2(23, -16)
+hitbox_size = Vector2(32.6, 24)
+hitbox_offset = Vector2(18.8, -16)
 
 [sub_resource type="Resource" id="M_air_up"]
 script = ExtResource("2")
@@ -99,8 +99,8 @@ angle_degrees = 85.0
 startup_frames = 6
 active_frames = 3
 recovery_frames = 12
-hitbox_size = Vector2(34, 34)
-hitbox_offset = Vector2(2, -42)
+hitbox_size = Vector2(34, 25.4)
+hitbox_offset = Vector2(2, -37.7)
 
 [sub_resource type="Resource" id="M_air_down"]
 script = ExtResource("2")
@@ -113,8 +113,8 @@ angle_degrees = -70.0
 startup_frames = 12
 active_frames = 4
 recovery_frames = 18
-hitbox_size = Vector2(22, 26)
-hitbox_offset = Vector2(8, 2)
+hitbox_size = Vector2(22, 22.8)
+hitbox_offset = Vector2(8, 0.4)
 
 [resource]
 script = ExtResource("1")

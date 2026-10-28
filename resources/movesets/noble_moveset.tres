@@ -28,8 +28,8 @@ angle_degrees = 38.0
 startup_frames = 7
 active_frames = 3
 recovery_frames = 17
-hitbox_size = Vector2(37, 21)
-hitbox_offset = Vector2(23, -16)
+hitbox_size = Vector2(30.9, 21)
+hitbox_offset = Vector2(19.9, -16)
 lunge_speed = 170.0
 
 [sub_resource type="Resource" id="M_ground_up"]
@@ -43,8 +43,8 @@ angle_degrees = 88.0
 startup_frames = 5
 active_frames = 3
 recovery_frames = 15
-hitbox_size = Vector2(30, 37)
-hitbox_offset = Vector2(4, -40)
+hitbox_size = Vector2(30, 26.6)
+hitbox_offset = Vector2(4, -34.8)
 
 [sub_resource type="Resource" id="M_ground_down"]
 script = ExtResource("2")
@@ -57,8 +57,8 @@ angle_degrees = 30.0
 startup_frames = 4
 active_frames = 3
 recovery_frames = 14
-hitbox_size = Vector2(41, 12)
-hitbox_offset = Vector2(21, -6)
+hitbox_size = Vector2(41, 16.3)
+hitbox_offset = Vector2(21, -3.9)
 
 [sub_resource type="Resource" id="M_air_neutral"]
 script = ExtResource("2")
@@ -85,8 +85,8 @@ angle_degrees = 35.0
 startup_frames = 8
 active_frames = 3
 recovery_frames = 15
-hitbox_size = Vector2(39, 23)
-hitbox_offset = Vector2(23, -16)
+hitbox_size = Vector2(28.5, 23)
+hitbox_offset = Vector2(17.7, -16)
 
 [sub_resource type="Resource" id="M_air_up"]
 script = ExtResource("2")
@@ -99,8 +99,8 @@ angle_degrees = 85.0
 startup_frames = 5
 active_frames = 3
 recovery_frames = 11
-hitbox_size = Vector2(32, 32)
-hitbox_offset = Vector2(2, -42)
+hitbox_size = Vector2(32, 20.4)
+hitbox_offset = Vector2(2, -36.2)
 
 [sub_resource type="Resource" id="M_air_down"]
 script = ExtResource("2")
@@ -113,8 +113,8 @@ angle_degrees = -70.0
 startup_frames = 11
 active_frames = 4
 recovery_frames = 17
-hitbox_size = Vector2(21, 25)
-hitbox_offset = Vector2(8, 2)
+hitbox_size = Vector2(21, 20.3)
+hitbox_offset = Vector2(8, -0.4)
 
 [resource]
 script = ExtResource("1")

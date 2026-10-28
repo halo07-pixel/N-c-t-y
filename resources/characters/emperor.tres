@@ -5,6 +5,7 @@
 [ext_resource type="Resource" path="res://resources/specials/emperor_specials.tres" id="3"]
 [ext_resource type="Resource" path="res://resources/specials/emperor_bankai_specials.tres" id="4"]
 [ext_resource type="Resource" path="res://resources/specials/emperor_ultimate.tres" id="5"]
+[ext_resource type="Resource" path="res://resources/rigs/emperor_rig.tres" id="6"]
 
 [resource]
 script = ExtResource("1")
@@ -22,3 +23,4 @@ weapon_style = &"sword"
 weapon_color = Color(0.55, 0.45, 0.7, 1)
 sprite_dir = "res://assets/original/sovereign/"
 sprite_id = "sovereign"
+rig = ExtResource("6")

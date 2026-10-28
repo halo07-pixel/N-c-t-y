@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CharacterRigData" format=3]
+
+[ext_resource type="Script" path="res://scripts/rig/rig_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+torso_size = Vector2(9.6, 9.0)
+arm_width = 2.8
+cloth = Color(0.16, 0.16, 0.22, 1)
+cloth_dark = Color(0.11, 0.11, 0.17, 1)
+accent = Color(0.95, 0.5, 0.1, 1)
+hair = Color(0.95, 0.5, 0.12, 1)
+hair_style = &"spiky"
+weapon = &"greatsword"
+weapon_length = 19.0
+weapon_width = 3.6
+weapon_color = Color(0.82, 0.86, 0.92, 1)
+grip_color = Color(0.12, 0.1, 0.14, 1)

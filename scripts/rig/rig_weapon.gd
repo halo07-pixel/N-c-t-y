@@ -5,26 +5,46 @@ extends Node2D
 ## the hand instead: its limbs run along the local X axis and bulge toward +Y.
 
 var rig: CharacterRigData
+## A bow fighter swinging a blade of spirit energy in melee instead of the bow.
+var blade_mode: bool = false
 
 
 func _init() -> void:
 	use_parent_material = true
 
 
+func set_blade_mode(on: bool) -> void:
+	if on != blade_mode:
+		blade_mode = on
+		queue_redraw()
+
+
+func is_bow() -> bool:
+	return rig != null and rig.weapon == &"bow" and not blade_mode
+
+
+## Blade length: a bow fighter's energy blade is a little shorter than the bow is tall.
+func blade_length() -> float:
+	return rig.weapon_length * (0.85 if rig.weapon == &"bow" else 1.0)
+
+
 ## The far end of the weapon in this node's own coordinates.
 func tip() -> Vector2:
 	if rig == null:
 		return Vector2.ZERO
-	if rig.weapon == &"bow":
+	if is_bow():
 		return Vector2(rig.weapon_length * 0.5, 0.0)
-	return Vector2(0.0, 3.0 + rig.weapon_length)
+	return Vector2(0.0, 3.0 + blade_length())
 
 
 func _draw() -> void:
 	if rig == null:
 		return
-	if rig.weapon == &"bow":
+	if is_bow():
 		_draw_bow()
+		return
+	if rig.weapon == &"bow":
+		_draw_energy_blade()
 		return
 	var width := rig.weapon_width
 	var length := rig.weapon_length
@@ -43,6 +63,20 @@ func _draw() -> void:
 	draw_rect(Rect2(-width * 0.5 - 0.6, -1.2, width + 1.2, 4.4), rig.outline)
 	draw_rect(Rect2(-width * 0.5, -0.8, width, 3.6), rig.grip_color)
 	draw_rect(Rect2(-width - 1.4, 2.6, width * 2.0 + 2.8, 1.1), rig.accent)
+
+
+func _draw_energy_blade() -> void:
+	var length := blade_length()
+	var glow := PackedVector2Array([
+		Vector2(-2.2, 1.0), Vector2(2.2, 1.0), Vector2(1.6, 3.0 + length - 2.0),
+		Vector2(0.0, 3.0 + length), Vector2(-1.6, 3.0 + length - 2.0),
+	])
+	draw_colored_polygon(glow, Color(rig.weapon_color.r, rig.weapon_color.g, rig.weapon_color.b, 0.55))
+	var core := PackedVector2Array([
+		Vector2(-0.8, 1.5), Vector2(0.8, 1.5), Vector2(0.6, 3.0 + length - 2.5),
+		Vector2(0.0, 2.5 + length), Vector2(-0.6, 3.0 + length - 2.5),
+	])
+	draw_colored_polygon(core, Color(1.0, 1.0, 1.0, 0.95))
 
 
 func _draw_bow() -> void:

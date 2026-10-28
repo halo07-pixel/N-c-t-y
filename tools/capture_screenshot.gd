@@ -3,7 +3,7 @@ extends SceneTree
 ## Usage (needs a display, e.g. xvfb-run):
 ##   godot --path . --rendering-driver opengl3 -s tools/capture_screenshot.gd -- \
 ##       out.png SCENARIO [P1_CHARACTER_INDEX] [P2_CHARACTER_INDEX] [zoom=N] [size=N] [snap=0] [rig=noble]
-## Scenarios: idle | hit | ko | kofx | end | special | bankai | ultimate
+## Scenarios: film (frame sequence) | idle | hit | ko | kofx | end | special | bankai | ultimate
 ## Menu screens: title | menu | select | select_cpu | settings | controls
 ## Arcade: select_arcade | story | story_boss | continue | clear | boss | boss_ult (match vs the boss)
 ## Character indexes follow MatchConfig.ROSTER_PATHS (0 swordsman, 1 archer, 2 noble).
@@ -66,6 +66,9 @@ func _run() -> void:
 	await physics_frame
 	_setup_fighters()
 	_apply_options(args)
+	if scenario == "film":
+		await _film(output_path)
+		return
 	await _play_scenario(scenario)
 	await _save(output_path)
 
@@ -83,6 +86,25 @@ func _apply_options(args: PackedStringArray) -> void:
 				fighter._body.scale = Vector2.ONE * float(arg.substr(5))
 		elif arg == "snap=0":
 			_match._camera.snap_to_pixels = false
+
+
+## Saves a short run of frames (output_0.png, output_1.png, ...) while the bot attacks, to judge
+## motion. A frame is taken every FILM_STEP physics frames.
+const FILM_STEP := 3
+const FILM_FRAMES := 16
+
+
+func _film(output_path: String) -> void:
+	await _frames(30)
+	var base := output_path.trim_suffix(".png")
+	for index in FILM_FRAMES:
+		_drive_bot()
+		for _i in FILM_STEP:
+			await physics_frame
+		await RenderingServer.frame_post_draw
+		var image := root.get_texture().get_image()
+		image.save_png("%s_%02d.png" % [base, index])
+	quit(0)
 
 
 func _capture_screen(output_path: String, scenario: String) -> void:

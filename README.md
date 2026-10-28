@@ -20,9 +20,10 @@ fighters are original placeholders drawn in code until real sprites are supplied
 - Phase 5b — `feature/visual-polish-1` (this branch): ground shadows, hit flash, screen shake, KO burst and
   slow-mo on the final KO (all behind the Settings switch "Screen effects"), vignette,
   additive Reiatsu/Bankai glow, ultimate cut-in band.
-- Phase 5c — `feature/rig-body` (this branch): RigBody, a jointed box skeleton drawn in code with
-  one shared pose library; Byakuya (noble) is the pilot (`resources/rigs/noble_rig.tres`, not yet
-  wired to the character until the style is approved). `tools/rig_sheet.gd` renders every pose.
+- Phase 5c — rigs: every fighter is a RigBody, a jointed box skeleton drawn in code with one shared
+  pose library (`scripts/rig/`, data in `resources/rigs/*.tres`). Smooth pose blending, planted feet,
+  hair and cape lag, squash and stretch, a slash trail, and hitboxes aligned to the weapon reach.
+  The sprite bodies stay as a fallback for a character without a rig.
 - Next: original art for Ichigo and Uryu, music and sound, balance and polish.
 
 ## Run it
@@ -115,6 +116,9 @@ Everything is data, no code changes needed:
 - `resources/characters/*.tres`: speed, jump, gravity, weight, look.
 - `scripts/combat/knockback.gd` and `scripts/combat/reiatsu.gd`: launch, hitstun,
   hitlag and Reiatsu/Bankai tuning.
+- `resources/rigs/*.tres`: proportions, colors, hair, weapon and cape of each body; poses live in
+  `scripts/rig/rig_poses.gd`. After changing a weapon length or a strike pose run
+  `godot --headless --path . -s tools/rig_reach.gd | python3 tools/align_hitboxes.py --write`.
 - `scripts/ai/ai_input.gd`: CPU levels (reaction time, aggression, mistakes).
 
 ## Project layout
@@ -134,7 +138,8 @@ scripts/sprites/    Sprite set loader and the body factory (sprites or placehold
 scripts/data/       CharacterData, MoveSet/MoveData, SpecialSet/SpecialData, ProjectileData
 scenes/ resources/  Fighter, stage and match scenes; character and move data
 tests/              Headless test suite
-tools/              Dev tools (screenshot capture)
+tools/              Dev tools: screenshot capture (also `film` frame runs), rig_sheet.gd (every pose
+                    on one sheet), rig_reach.gd + align_hitboxes.py (check/pull hitboxes to weapon reach)
 ```
 
 Design rule: *call down, signal up*. Nodes talk through signals (the `Events`

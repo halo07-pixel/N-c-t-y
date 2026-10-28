@@ -7,7 +7,7 @@ extends FighterBody
 ## (hair and cape lag, squash and stretch). Hitboxes never come from this drawing.
 
 const MARKER_GAP := 6.0
-const LAND_TICKS := 6
+const LAND_SECONDS := 0.1
 const SQUASH_DECAY := 7.0
 const HIP_FOLLOW_RATE := 30.0
 const LAG_RATE := 9.0
@@ -36,6 +36,7 @@ var _weapon: RigWeapon
 var _hair_tail: Array[RigPart] = []
 var _cape: Array[RigPart] = []
 var _aura: AuraLayer
+var _trail: RigTrail
 
 var _pose: StringName = &"Fall"
 var _facing: int = 1
@@ -49,7 +50,7 @@ var _anim_time: float = 0.0
 var _current: Dictionary = RigPoses.NEUTRAL.duplicate()
 var _hip_y: float = 0.0
 var _squash: float = 0.0
-var _land_ticks: int = 0
+var _land_time: float = 0.0
 var _was_airborne: bool = false
 var _spin: float = 0.0
 var _spin_direction: float = 1.0
@@ -90,6 +91,9 @@ func _build() -> void:
 		child.queue_free()
 	_aura = AuraLayer.new()
 	add_child(_aura)
+	_trail = RigTrail.new()
+	_trail.color = rig.weapon_color.lerp(Color.WHITE, 0.3)
+	add_child(_trail)
 	_spinner = Node2D.new()
 	add_child(_spinner)
 	_flip = Node2D.new()
@@ -187,7 +191,7 @@ func set_pose(pose: StringName) -> void:
 	var was_air := AIRBORNE_STATES.has(_pose)
 	_pose = pose
 	if was_air and (pose == &"Idle" or pose == &"Run"):
-		_land_ticks = LAND_TICKS
+		_land_time = LAND_SECONDS
 		_squash = 1.0
 	elif pose == &"Jump":
 		_squash = -1.0
@@ -207,8 +211,6 @@ func sync_to(pose: StringName, facing: int, velocity: Vector2) -> void:
 	_velocity = velocity
 	if absf(velocity.x) > 1.0:
 		_spin_direction = signf(velocity.x)
-	if _land_ticks > 0:
-		_land_ticks -= 1
 
 
 func _flash_target() -> CanvasItem:
@@ -220,12 +222,13 @@ func _flash_target() -> CanvasItem:
 func _process(delta: float) -> void:
 	if _root == null:
 		return
+	_land_time = maxf(_land_time - delta, 0.0)
 	var wanted := _wanted_animation()
 	if wanted != _animation:
 		_animation = wanted
 		_anim_time = 0.0
 	_anim_time += delta * _time_scale()
-	_target_info = RigPoses.target(_animation, _anim_time, _attack_phase)
+	_target_info = RigPoses.target(_animation, _anim_time, _attack_phase, rig.weapon)
 	var weight := 1.0 - exp(-float(_target_info["rate"]) * delta)
 	var target: Dictionary = _target_info["pose"]
 	for key: String in target:
@@ -233,13 +236,16 @@ func _process(delta: float) -> void:
 	_update_secondary(delta)
 	_update_spin(delta)
 	_apply(_current, _target_info["plant"], delta)
+	_update_trail()
 	_head.set_look(&"fierce" if _pose == &"Attack" or _pose == &"Hitstun" or _pose == &"Charge" else &"calm")
 
 
 func _wanted_animation() -> StringName:
-	if _land_ticks > 0 and (_pose == &"Idle" or _pose == &"Run"):
+	if _land_time > 0.0 and (_pose == &"Idle" or _pose == &"Run"):
 		return &"land"
 	var attacking := _pose == &"Attack" and _attack_kind != &""
+	if attacking and _attack_aerial and not _attack_special and (_attack_kind == &"up" or _attack_kind == &"down"):
+		return &"air_up" if _attack_kind == &"up" else &"air_down"
 	return SpriteBody.animation_for(_pose, _attack_kind if attacking else &"", _attack_aerial, _attack_special)
 
 
@@ -282,7 +288,9 @@ func _apply(pose: Dictionary, plant: bool, delta: float) -> void:
 		_foot[side].rotation = -deg_to_rad(pose["foot_" + side])
 		_upper_arm[side].rotation = -deg_to_rad(pose["arm_" + side])
 		_forearm[side].rotation = -deg_to_rad(pose["elbow_" + side])
-	_weapon.rotation = -deg_to_rad(RigPoses.weapon_relative(pose))
+	_weapon.set_blade_mode(_animation.begins_with("attack_") or _animation.begins_with("air_"))
+	var weapon_angle := 0.0 if _weapon.is_bow() else RigPoses.weapon_relative(pose)
+	_weapon.rotation = -deg_to_rad(weapon_angle)
 	_apply_trailing_parts()
 	_hip.position.x = pose["hip_x"]
 	var standing := rig.leg_length.x + rig.leg_length.y
@@ -316,6 +324,15 @@ func _lowest_foot_y() -> float:
 	return lowest
 
 
+## The streak follows the blade while a swing is active and for a moment after.
+func _update_trail() -> void:
+	var swinging := _pose == &"Attack" and _attack_kind != &"" and not _attack_special \
+		and _attack_phase != &"startup" and GameSettings.screen_effects
+	if swinging:
+		var hilt := _weapon.to_global(Vector2.ZERO)
+		_trail.add_sample(_weapon.to_global(_weapon.tip()), hilt)
+
+
 func _update_aura() -> void:
 	if _aura != null:
 		_aura.set_active(_bankai or _pose == &"Charge" or _pose == &"Transform")
@@ -331,7 +348,7 @@ func _snap(animation: StringName, time: float, phase: StringName) -> void:
 	_animation = animation
 	_anim_time = time
 	_attack_phase = phase
-	_target_info = RigPoses.target(animation, time, phase)
+	_target_info = RigPoses.target(animation, time, phase, rig.weapon)
 	_current = (_target_info["pose"] as Dictionary).duplicate()
 	_hip_y = 0.0
 	_apply(_current, _target_info["plant"], 0.0)
