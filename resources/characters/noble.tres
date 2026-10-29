@@ -10,6 +10,7 @@
 [resource]
 script = ExtResource("1")
 display_name = "Byakuya"
+transform_title = "BANKAI: SENBONZAKURA KAGEYOSHI"
 weight = 85.0
 run_speed = 150.0
 gravity = 940.0

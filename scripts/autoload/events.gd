@@ -27,6 +27,15 @@ signal hit_impact(position: Vector2, direction: Vector2, damage: float, launch_s
 ## Dust kicked up by a landing or a jump; strength 0..1.
 @warning_ignore("unused_signal")
 signal dust_puff(position: Vector2, strength: float)
+## The Combat Gauge (0..CombatGauge.MAX) of a fighter changed.
+@warning_ignore("unused_signal")
+signal fighter_gauge_changed(player_id: int, gauge: float)
+## A fighter begins its transformation: the title to show and how many frames it lasts.
+@warning_ignore("unused_signal")
+signal transform_started(player_id: int, title: String, frames: int)
+## A fighter lost a stock; attacker_id is who hit it last (0 when nobody did).
+@warning_ignore("unused_signal")
+signal fighter_defeated(victim_id: int, attacker_id: int)
 ## Where a KO happened (world position where the fighter left the blast zone).
 @warning_ignore("unused_signal")
 signal fighter_ko(player_id: int, position: Vector2)

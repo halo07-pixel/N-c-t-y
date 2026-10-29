@@ -161,3 +161,13 @@ Drawn in code (no art files): `scripts/fx/projectile_art.gd` gives projectiles a
 `ProjectileData.style` (crescent, arrow, petal, orb, blast) with a fading trail; `HitSpark`
 (ring, rays, speed lines on heavy hits) and `DustPuff` are spawned by `CombatFx` from the
 `Events.hit_impact` / `Events.dust_puff` signals. All of it follows the "screen effects" setting.
+
+## Combat Gauge and transformation
+
+Each fighter has a Combat Gauge (0-100, `scripts/combat/combat_gauge.gd`, all numbers tunable):
+it fills from damage dealt (more in a combo), damage taken, KOs and lost stocks, and fades after
+about 6 s without combat. At 100 the charge key transforms (camera zoom, opponents frozen, title
+from `CharacterData.transform_title`). The form lasts 15 s, +0.5 s per hit (cap 30 s), gives
++25% damage / +15% speed and the Bankai special set, then the gauge restarts from 0. The
+Reiatsu bar (0-300) now only powers the ultimate, which is usable only while transformed.
+Yhwach starts with half a gauge. The CPU transforms on its own.

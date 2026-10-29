@@ -31,6 +31,9 @@ var hitlag_left: int = 0
 var invincible_left: int = 0
 var reiatsu: float = 0.0
 var bankai_frames_left: int = 0
+var gauge: float = 0.0
+var combo_count: int = 0
+var last_attacker_id: int = 0
 var damage_multiplier: float = 1.0
 var speed_scale: float = 1.0
 
@@ -38,6 +41,8 @@ var _input_source: InputSource
 var _drop_through_frames_left: int = 0
 var _invincible_blinks: bool = false
 var _queued_move: MoveData
+var _combo_frames: int = 0
+var _gauge_idle_frames: int = 0
 
 @onready var hitbox: Hitbox = $Hitbox
 @onready var hurtbox: Hurtbox = $Hurtbox
@@ -64,11 +69,15 @@ func _ready() -> void:
 	hurtbox.hit_received.connect(_on_hit_received)
 	hitbox.hit_landed.connect(_on_hit_landed)
 	Events.ultimate_started.connect(_on_ultimate_started)
+	Events.transform_started.connect(_on_transform_started)
+	Events.fighter_defeated.connect(_on_fighter_defeated)
+	gauge = clampf(data.starting_gauge, 0.0, CombatGauge.MAX)
 	air_jumps_left = data.max_air_jumps
 	_state_machine.state_changed.connect(_on_state_changed)
 	_state_machine.setup(self, &"Fall")
 	Events.fighter_percent_changed.emit(player_id, percent)
 	Events.fighter_reiatsu_changed.emit(player_id, reiatsu)
+	Events.fighter_gauge_changed.emit(player_id, gauge)
 
 
 func _physics_process(delta: float) -> void:
@@ -78,6 +87,7 @@ func _physics_process(delta: float) -> void:
 		_body.sync_to(_state_machine.current_name, facing, velocity)
 		return
 	_tick_bankai()
+	_tick_gauge()
 	if _input_source != null:
 		input = _input_source.get_frame()
 	_tick_drop_through()
@@ -114,6 +124,9 @@ func set_percent(value: float) -> void:
 
 func _on_hit_received(info: HitInfo) -> void:
 	set_percent(percent + info.damage)
+	last_attacker_id = info.attacker_id
+	combo_count = 0
+	add_gauge(info.damage * CombatGauge.GAIN_TAKEN)
 	add_reiatsu(info.damage * Reiatsu.GAIN_TAKEN)
 	var launch_speed := Knockback.magnitude(
 		info.base_knockback, info.knockback_growth, percent, data.weight
@@ -136,11 +149,61 @@ func _on_hit_received(info: HitInfo) -> void:
 func _on_hit_landed(info: HitInfo) -> void:
 	hitlag_left = Knockback.hitlag_frames(info.damage)
 	add_reiatsu(info.damage * Reiatsu.GAIN_DEALT)
+	_register_landed_hit(info.damage)
 
 
 ## A projectile we fired connected: gain Reiatsu, but no hitlag (we may be doing something else).
 func _on_projectile_hit(info: HitInfo) -> void:
 	add_reiatsu(info.damage * Reiatsu.GAIN_DEALT)
+	_register_landed_hit(info.damage)
+
+
+# --- Combat Gauge ---------------------------------------------------------------
+
+func add_gauge(amount: float) -> void:
+	if amount > 0.0:
+		_gauge_idle_frames = 0
+	set_gauge(gauge + amount)
+
+
+func set_gauge(value: float) -> void:
+	var clamped := clampf(value, 0.0, CombatGauge.MAX)
+	if is_equal_approx(clamped, gauge):
+		return
+	gauge = clamped
+	Events.fighter_gauge_changed.emit(player_id, gauge)
+
+
+## A hit of ours connected: fill the gauge (more in a combo) and lengthen the form.
+func _register_landed_hit(damage: float) -> void:
+	combo_count = combo_count + 1 if _combo_frames > 0 else 1
+	_combo_frames = CombatGauge.COMBO_WINDOW_FRAMES
+	if is_bankai():
+		bankai_frames_left = CombatGauge.extend_form(bankai_frames_left)
+	else:
+		add_gauge(CombatGauge.gain_for_hit(damage, combo_count))
+
+
+func _tick_gauge() -> void:
+	if _combo_frames > 0:
+		_combo_frames -= 1
+		if _combo_frames == 0:
+			combo_count = 0
+	if is_bankai() or gauge <= 0.0:
+		return
+	_gauge_idle_frames += 1
+	if _gauge_idle_frames > CombatGauge.IDLE_FRAMES:
+		set_gauge(gauge - CombatGauge.DECAY_PER_FRAME)
+
+
+func _on_transform_started(transformer_id: int, _title: String, frames: int) -> void:
+	if transformer_id != player_id:
+		hitlag_left = maxi(hitlag_left, frames)
+
+
+func _on_fighter_defeated(victim_id: int, attacker_id: int) -> void:
+	if attacker_id == player_id and victim_id != player_id and not is_ko():
+		add_gauge(CombatGauge.KO_BONUS)
 
 
 # --- Reiatsu, Bankai and ultimates ---------------------------------------------
@@ -163,11 +226,11 @@ func is_bankai() -> bool:
 
 
 func can_bankai() -> bool:
-	return not is_bankai() and reiatsu >= Reiatsu.BANKAI_COST
+	return not is_bankai() and gauge >= CombatGauge.MAX
 
 
 func can_ultimate() -> bool:
-	return data.ultimate != null and reiatsu >= Reiatsu.ULTIMATE_COST
+	return data.ultimate != null and is_bankai() and reiatsu >= Reiatsu.ULTIMATE_COST
 
 
 ## What pressing the charge key does right now. Returns the state to enter.
@@ -180,14 +243,14 @@ func charge_press_state() -> StringName:
 		return &"Attack"
 	if can_bankai():
 		return &"Transform"
-	return &"Charge"
+	return &"Charge" if is_bankai() else &""
 
 
 func start_bankai() -> void:
-	spend_reiatsu(Reiatsu.BANKAI_COST)
-	bankai_frames_left = Reiatsu.BANKAI_FRAMES
-	damage_multiplier = Reiatsu.BANKAI_DAMAGE_SCALE
-	speed_scale = Reiatsu.BANKAI_SPEED_SCALE
+	set_gauge(0.0)
+	bankai_frames_left = CombatGauge.FORM_FRAMES
+	damage_multiplier = CombatGauge.DAMAGE_SCALE
+	speed_scale = CombatGauge.SPEED_SCALE
 	_body.set_bankai(true)
 	Events.fighter_bankai_changed.emit(player_id, true)
 
@@ -258,6 +321,11 @@ func enter_ko() -> void:
 	hitlag_left = 0
 	invincible_left = 0
 	_queued_move = null
+	if not is_bankai():
+		add_gauge(CombatGauge.STOCK_LOSS_PITY)
+	Events.fighter_defeated.emit(player_id, last_attacker_id)
+	last_attacker_id = 0
+	combo_count = 0
 	end_bankai()
 	_body.modulate.a = 1.0
 	velocity = Vector2.ZERO

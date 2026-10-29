@@ -10,6 +10,7 @@
 [resource]
 script = ExtResource("1")
 display_name = "Uryu"
+transform_title = "VOLLSTÄNDIG"
 weight = 90.0
 run_speed = 125.0
 moveset = ExtResource("2")

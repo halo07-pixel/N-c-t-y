@@ -11,6 +11,8 @@ const OUTLINE := Color(0.05, 0.03, 0.08)
 const BAR_BACK := Color(0.1, 0.08, 0.16)
 const BAR_NORMAL := Color(0.35, 0.65, 1.0)
 const BAR_READY := Color(1.0, 0.8, 0.25)
+const GAUGE_COLOR := Color(0.75, 0.35, 0.95)
+const GAUGE_READY := Color(1.0, 0.45, 0.35)
 const PLAYER_COLORS := {1: Color(0.95, 0.3, 0.3), 2: Color(0.3, 0.55, 0.95)}
 const SCREEN := Vector2(480.0, 270.0)
 const PERCENT_FULL_HEAT := 150.0
@@ -25,6 +27,11 @@ var _percents: Dictionary = {}
 var _stocks: Dictionary = {}
 var _reiatsu: Dictionary = {}
 var _bankai: Dictionary = {}
+var _gauge: Dictionary = {}
+var _transform_title: String = ""
+var _transform_frames: int = 0
+var _transform_total: int = 0
+var _transform_player: int = 0
 var _seconds_left: int = -1
 var _sudden_death: bool = false
 var _result_shown: bool = false
@@ -48,6 +55,8 @@ func _ready() -> void:
 	Events.fighter_percent_changed.connect(_on_percent_changed)
 	Events.fighter_reiatsu_changed.connect(_on_reiatsu_changed)
 	Events.fighter_bankai_changed.connect(_on_bankai_changed)
+	Events.fighter_gauge_changed.connect(_on_gauge_changed)
+	Events.transform_started.connect(_on_transform_started)
 	Events.stocks_changed.connect(_on_stocks_changed)
 	Events.match_time_changed.connect(_on_time_changed)
 	Events.sudden_death_started.connect(_on_sudden_death_started)
@@ -56,6 +65,9 @@ func _ready() -> void:
 
 
 func _physics_process(_delta: float) -> void:
+	if _transform_frames > 0:
+		_transform_frames -= 1
+		_canvas.queue_redraw()
 	if _cinematic_frames > 0:
 		_cinematic_frames -= 1
 		_canvas.queue_redraw()
@@ -97,6 +109,19 @@ func _on_match_ended(winner_id: int) -> void:
 	_canvas.queue_redraw()
 
 
+func _on_gauge_changed(player_id: int, gauge: float) -> void:
+	_gauge[player_id] = gauge
+	_canvas.queue_redraw()
+
+
+func _on_transform_started(player_id: int, title: String, frames: int) -> void:
+	_transform_player = player_id
+	_transform_title = title
+	_transform_total = frames
+	_transform_frames = frames
+	_canvas.queue_redraw()
+
+
 func _on_ultimate_started(player_id: int, freeze_frames: int, title: String) -> void:
 	_cinematic_player = player_id
 	_cinematic_total = freeze_frames
@@ -130,6 +155,8 @@ func _on_canvas_draw() -> void:
 	_text(clock, Vector2(SCREEN.x * 0.5, 18.0), 14, WHITE)
 	if _cinematic_frames > 0:
 		_draw_cinematic()
+	if _transform_frames > 0:
+		_draw_transform()
 	if _result_shown:
 		_draw_result()
 
@@ -146,6 +173,7 @@ func _draw_player_panel(player_id: int, center_x: float) -> void:
 		var pip_rect := Rect2(first_x + pip_gap * float(pip) - 3.0, 246.0, 6.0, 6.0)
 		_canvas.draw_rect(pip_rect.grow(1.0), OUTLINE)
 		_canvas.draw_rect(pip_rect, color)
+	_draw_gauge_bar(player_id, center_x)
 	_draw_reiatsu_bar(player_id, center_x)
 
 
@@ -154,22 +182,55 @@ func _player_label(player_id: int) -> String:
 	if player_id == 2 and MatchConfig.cpu_level > MatchConfig.CPU_OFF:
 		label += " CPU"
 	if _bankai.get(player_id, false):
-		label += "  BANKAI"
+		label += "  FORM"
 	return label
 
 
-## The meter, with notches where Bankai (200) and the ultimate (300) become available.
+## The Reiatsu meter: full means the ultimate (usable while transformed).
 func _draw_reiatsu_bar(player_id: int, center_x: float) -> void:
 	var value: float = _reiatsu.get(player_id, 0.0)
 	var left := center_x - BAR_WIDTH * 0.5
 	var area := Rect2(left, 258.0, BAR_WIDTH, BAR_HEIGHT)
 	_canvas.draw_rect(area.grow(1.0), OUTLINE)
 	_canvas.draw_rect(area, BAR_BACK)
-	var fill_color := BAR_READY if value >= Reiatsu.BANKAI_COST else BAR_NORMAL
+	var fill_color := BAR_READY if value >= Reiatsu.ULTIMATE_COST else BAR_NORMAL
 	var fill := Rect2(left, area.position.y, BAR_WIDTH * value / Reiatsu.MAX, BAR_HEIGHT)
 	_canvas.draw_rect(fill, fill_color)
-	var notch_x := left + BAR_WIDTH * Reiatsu.BANKAI_COST / Reiatsu.MAX
-	_canvas.draw_rect(Rect2(notch_x, area.position.y - 1.0, 1.0, BAR_HEIGHT + 2.0), WHITE)
+
+
+## The Combat Gauge above the Reiatsu bar; it pulses when a transformation is ready.
+func _draw_gauge_bar(player_id: int, center_x: float) -> void:
+	var value: float = _gauge.get(player_id, 0.0)
+	var left := center_x - BAR_WIDTH * 0.5
+	var area := Rect2(left, 253.0, BAR_WIDTH, BAR_HEIGHT)
+	_canvas.draw_rect(area.grow(1.0), OUTLINE)
+	_canvas.draw_rect(area, BAR_BACK)
+	var ready := value >= CombatGauge.MAX
+	var color := GAUGE_COLOR
+	if ready:
+		var pulse := 0.5 + 0.5 * sin(float(Engine.get_process_frames()) * 0.3)
+		color = GAUGE_READY.lerp(WHITE, pulse * 0.6)
+	_canvas.draw_rect(Rect2(left, area.position.y, BAR_WIDTH * value / CombatGauge.MAX, BAR_HEIGHT), color)
+	if ready:
+		_text("READY", Vector2(center_x, 251.0), 8, GAUGE_READY)
+
+
+## The transformation title: a dark band across the screen with the name popping in.
+func _draw_transform() -> void:
+	var age := _transform_total - _transform_frames
+	var t := clampf(float(age) / 18.0, 0.0, 1.0)
+	var pop := 1.0 - pow(1.0 - t, 3.0)
+	var fade := clampf(float(_transform_frames) / 12.0, 0.0, 1.0)
+	var color: Color = PLAYER_COLORS.get(_transform_player, WHITE)
+	_canvas.draw_rect(Rect2(0.0, 0.0, SCREEN.x, LETTERBOX_HEIGHT * pop), Color.BLACK)
+	_canvas.draw_rect(Rect2(0.0, SCREEN.y - LETTERBOX_HEIGHT * pop, SCREEN.x, LETTERBOX_HEIGHT), Color.BLACK)
+	var band_height := 30.0 * pop
+	var band := Rect2(0.0, SCREEN.y * 0.22 - band_height * 0.5, SCREEN.x, band_height)
+	_canvas.draw_rect(band, Color(color.r * 0.3, color.g * 0.3, color.b * 0.3, 0.85 * fade))
+	_canvas.draw_rect(Rect2(band.position.x, band.position.y, SCREEN.x, 1.5), Color(1.0, 1.0, 1.0, fade))
+	_canvas.draw_rect(Rect2(band.position.x, band.end.y - 1.5, SCREEN.x, 1.5), Color(color.r, color.g, color.b, fade))
+	if pop > 0.3:
+		_text(_transform_title, Vector2(SCREEN.x * 0.5, band.get_center().y + 7.0 + (1.0 - pop) * 12.0), 20, Color(WARM.r, WARM.g, WARM.b, fade))
 
 
 ## 0..1 slide-in progress of the cut-in `age` frames after it started.

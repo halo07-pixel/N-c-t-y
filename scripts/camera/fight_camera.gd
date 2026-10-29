@@ -39,6 +39,7 @@ func _ready() -> void:
 	process_callback = Camera2D.CAMERA2D_PROCESS_PHYSICS
 	position_smoothing_enabled = false
 	Events.ultimate_started.connect(_on_ultimate_started)
+	Events.transform_started.connect(_on_transform_started)
 	Events.fighter_launched.connect(_on_fighter_launched)
 	Events.fighter_ko.connect(_on_fighter_ko)
 
@@ -83,6 +84,11 @@ func _on_fighter_ko(_player_id: int, _position: Vector2) -> void:
 func _on_ultimate_started(player_id: int, freeze_frames: int, _title: String) -> void:
 	_cinematic_player_id = player_id
 	_cinematic_frames_left = freeze_frames
+
+
+func _on_transform_started(player_id: int, _title: String, frames: int) -> void:
+	_cinematic_player_id = player_id
+	_cinematic_frames_left = frames
 
 
 func set_targets(targets: Array[Node2D]) -> void:

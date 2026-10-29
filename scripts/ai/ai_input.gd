@@ -88,7 +88,7 @@ func _recover(frame: InputFrame) -> void:
 ## Charging is only done while the opponent is far away; stop as soon as they close in.
 func _keep_charging(frame: InputFrame) -> void:
 	var distance := absf(target.global_position.x - fighter.global_position.x)
-	if distance < CHARGE_ABORT_DISTANCE or fighter.reiatsu >= Reiatsu.BANKAI_COST:
+	if distance < CHARGE_ABORT_DISTANCE or fighter.reiatsu >= Reiatsu.ULTIMATE_COST:
 		_charge_frames_left = 0
 		return
 	frame.charge_held = true
@@ -140,7 +140,7 @@ func _melee(frame: InputFrame, toward: float, distance: float, rise: float) -> v
 		_retreat_frames = _rng.randi_range(0, 14)
 
 
-## Returns true if it used this decision on the Reiatsu meter.
+## Returns true if it used this decision on the gauge, the form or the Reiatsu meter.
 func _manage_reiatsu(frame: InputFrame, distance: float) -> bool:
 	if fighter.can_ultimate() and distance < 220.0 and fighter.is_on_floor():
 		frame.charge_just_pressed = true
@@ -148,7 +148,9 @@ func _manage_reiatsu(frame: InputFrame, distance: float) -> bool:
 	if fighter.can_bankai() and distance > 60.0 and fighter.is_on_floor():
 		frame.charge_just_pressed = true
 		return true
-	var wants_charge := fighter.reiatsu < Reiatsu.BANKAI_COST and distance > SAFE_CHARGE_DISTANCE
+	var wants_charge := (
+		fighter.is_bankai() and fighter.reiatsu < Reiatsu.ULTIMATE_COST and distance > SAFE_CHARGE_DISTANCE
+	)
 	if wants_charge and fighter.is_on_floor() and _rng.randf() < CHARGE_CHANCE:
 		_charge_frames_left = CHARGE_FRAMES
 		return true

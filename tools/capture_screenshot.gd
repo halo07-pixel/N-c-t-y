@@ -166,19 +166,21 @@ func _play_scenario(scenario: String) -> void:
 			_bot_input.tap_special()
 			await _until(func() -> bool: return _count_projectiles() > 0)
 			await _frames(14)
-		"bankai":
-			_fighters[0].set_reiatsu(250.0)
+		"bankai": # mid-transformation: zoom and title
+			_fighters[0].set_gauge(100.0)
 			await _frames(30)
 			_bot_input.tap_charge()
-			await _frames(30)
+			await _frames(40)
 		"boss":
 			await _frames(60)
 		"boss_ult":
+			_fighters[1].start_bankai()
 			_fighters[1].set_reiatsu(300.0)
 			await _frames(30)
 			_boss_input.tap_charge()
 			await _frames(28)
 		"ultimate":
+			_fighters[0].start_bankai()
 			_fighters[0].set_reiatsu(300.0)
 			await _frames(30)
 			_bot_input.tap_charge()

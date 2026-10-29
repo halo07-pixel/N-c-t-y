@@ -83,6 +83,7 @@ func test_every_character_has_a_complete_kit() -> void:
 
 func test_charging_gains_reiatsu_only_while_held() -> void:
 	_build_world(SWORDSMAN, SWORDSMAN, -90.0, 120.0)
+	_a.start_bankai() # charging Reiatsu is a transformed-only action
 	await wait_frames(30)
 	_input_a.tap_charge()
 	_input_a.held_charge = true
@@ -115,18 +116,18 @@ func test_reiatsu_is_capped_and_gained_from_hits() -> void:
 
 func test_bankai_costs_reiatsu_and_boosts_the_fighter() -> void:
 	_build_world(SWORDSMAN, SWORDSMAN, -90.0, 120.0)
-	_a.set_reiatsu(250.0)
+	_a.set_gauge(CombatGauge.MAX)
 	await wait_frames(30)
 	_input_a.tap_charge()
 	await wait_frames(3)
 	check_eq(_a.get_state_name(), &"Transform", "transforming")
 	check(_a.is_bankai(), "Bankai is on")
-	check_near(_a.reiatsu, 250.0 - Reiatsu.BANKAI_COST, 0.001, "paid the cost")
-	check_eq(_a.damage_multiplier, Reiatsu.BANKAI_DAMAGE_SCALE, "stronger")
-	check_eq(_a.speed_scale, Reiatsu.BANKAI_SPEED_SCALE, "faster")
+	check_near(_a.gauge, 0.0, 0.001, "the gauge starts over")
+	check_eq(_a.damage_multiplier, CombatGauge.DAMAGE_SCALE, "stronger")
+	check_eq(_a.speed_scale, CombatGauge.SPEED_SCALE, "faster")
 	check(not _a.hurtbox.is_active, "invincible while transforming")
 	check_eq(_a.current_specials(), SWORDSMAN.bankai_specials, "uses the Bankai specials")
-	await wait_frames(Reiatsu.TRANSFORM_FRAMES + 5)
+	await wait_frames(CombatGauge.TRANSFORM_FRAMES + 5)
 	check_eq(_a.get_state_name(), &"Idle", "back in control")
 	check(_a.hurtbox.is_active, "hittable again")
 	_teardown_world()
@@ -134,10 +135,10 @@ func test_bankai_costs_reiatsu_and_boosts_the_fighter() -> void:
 
 func test_bankai_wears_off_and_resets_the_stats() -> void:
 	_build_world(SWORDSMAN, SWORDSMAN, -90.0, 120.0)
-	_a.set_reiatsu(250.0)
+	_a.set_gauge(CombatGauge.MAX)
 	await wait_frames(30)
 	_input_a.tap_charge()
-	await wait_frames(Reiatsu.TRANSFORM_FRAMES + 5)
+	await wait_frames(CombatGauge.TRANSFORM_FRAMES + 5)
 	_a.bankai_frames_left = 3
 	await wait_frames(6)
 	check(not _a.is_bankai(), "Bankai ended")
@@ -147,15 +148,75 @@ func test_bankai_wears_off_and_resets_the_stats() -> void:
 	_teardown_world()
 
 
-func test_bankai_needs_enough_reiatsu() -> void:
+func test_transformation_needs_a_full_gauge() -> void:
 	_build_world(SWORDSMAN, SWORDSMAN, -90.0, 120.0)
-	_a.set_reiatsu(150.0)
+	_a.set_gauge(CombatGauge.MAX - 5.0)
+	_a.set_reiatsu(Reiatsu.MAX) # Reiatsu alone does not transform
 	await wait_frames(30)
 	_input_a.tap_charge()
-	_input_a.held_charge = true
 	await wait_frames(3)
-	check(not _a.is_bankai(), "not enough Reiatsu for Bankai")
-	check_eq(_a.get_state_name(), &"Charge", "starts charging instead")
+	check(not _a.is_bankai(), "no transformation without a full gauge")
+	check(_a.get_state_name() != &"Transform" and _a.get_state_name() != &"Charge", "and nothing else starts either")
+	_teardown_world()
+
+
+func test_ultimate_only_while_transformed() -> void:
+	_build_world(SWORDSMAN, SWORDSMAN, -90.0, 120.0)
+	_a.set_reiatsu(Reiatsu.MAX)
+	check(not _a.can_ultimate(), "no ultimate in normal form")
+	_a.start_bankai()
+	check(_a.can_ultimate(), "ultimate available while transformed")
+	_teardown_world()
+
+
+func test_gauge_fills_from_hits_and_combo_and_resets_after_transforming() -> void:
+	check(CombatGauge.gain_for_hit(10.0, 3) > CombatGauge.gain_for_hit(10.0, 1), "combos fill it faster")
+	check_near(CombatGauge.combo_multiplier(99), CombatGauge.COMBO_MAX_MULTIPLIER, 0.001, "combo bonus is capped")
+	_build_world(SWORDSMAN, SWORDSMAN)
+	await wait_frames(30)
+	_input_a.tap_attack()
+	for _i in 40:
+		await tree.physics_frame
+	check(_a.gauge > 0.0, "the attacker's gauge grew")
+	check(_b.gauge > 0.0, "the victim's gauge grew too")
+	check(_a.gauge > _b.gauge, "but dealing damage pays more than taking it")
+	_teardown_world()
+
+
+func test_form_lasts_longer_with_hits_up_to_a_cap() -> void:
+	check_eq(CombatGauge.extend_form(100), 100 + CombatGauge.HIT_EXTEND_FRAMES, "each hit adds time")
+	check_eq(CombatGauge.extend_form(CombatGauge.FORM_CAP_FRAMES - 1), CombatGauge.FORM_CAP_FRAMES, "capped")
+
+
+func test_stock_loss_gives_pity_and_ko_gives_a_bonus() -> void:
+	_build_world(SWORDSMAN, SWORDSMAN, -90.0, 150.0)
+	_b.last_attacker_id = _a.player_id
+	_b.enter_ko()
+	check_near(_b.gauge, CombatGauge.STOCK_LOSS_PITY, 0.001, "losing a stock fills the gauge")
+	check_near(_a.gauge, CombatGauge.KO_BONUS, 0.001, "the one who landed the last hit gets a bonus")
+	_teardown_world()
+
+
+func test_gauge_fades_when_nothing_happens_but_not_in_form() -> void:
+	_build_world(SWORDSMAN, SWORDSMAN, -90.0, 400.0)
+	_a.set_gauge(50.0)
+	_a._gauge_idle_frames = CombatGauge.IDLE_FRAMES
+	await wait_frames(20)
+	check(_a.gauge < 50.0, "it fades after a quiet spell")
+	_teardown_world()
+
+
+func test_transformation_announces_its_title_and_freezes_the_opponent() -> void:
+	_build_world(SWORDSMAN, SWORDSMAN, -90.0, 120.0)
+	var titles: Array[String] = []
+	Events.transform_started.connect(func(_id: int, title: String, _frames: int) -> void: titles.append(title))
+	_a.set_gauge(CombatGauge.MAX)
+	await wait_frames(30)
+	_input_a.tap_charge()
+	await wait_frames(3)
+	check_eq(titles.size(), 1, "one announcement")
+	check_eq(titles[0], SWORDSMAN.transform_title, "with the character's own title")
+	check(_b.hitlag_left > 0, "the opponent is frozen during the cinematic")
 	_teardown_world()
 
 
@@ -167,12 +228,13 @@ func test_bankai_boosts_damage_dealt() -> void:
 	for _i in 40:
 		await tree.physics_frame
 	var jab := SWORDSMAN.moveset.ground_neutral.damage
-	check_near(_b.percent, jab * Reiatsu.BANKAI_DAMAGE_SCALE, 0.001, "jab hits 25 percent harder")
+	check_near(_b.percent, jab * CombatGauge.DAMAGE_SCALE, 0.001, "jab hits 25 percent harder")
 	_teardown_world()
 
 
 func test_ultimate_spends_everything_and_freezes_the_opponent() -> void:
 	_build_world(SWORDSMAN, SWORDSMAN, -90.0, 120.0)
+	_a.start_bankai()
 	_a.set_reiatsu(Reiatsu.MAX)
 	await wait_frames(30)
 	_input_a.tap_charge()
@@ -188,6 +250,7 @@ func test_ultimate_spends_everything_and_freezes_the_opponent() -> void:
 
 func test_ultimate_fires_a_piercing_projectile() -> void:
 	_build_world(SWORDSMAN, SWORDSMAN, -90.0, 120.0)
+	_a.start_bankai()
 	_a.set_reiatsu(Reiatsu.MAX)
 	await wait_frames(30)
 	_input_a.tap_charge()

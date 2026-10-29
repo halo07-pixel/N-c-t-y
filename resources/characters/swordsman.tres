@@ -10,6 +10,7 @@
 [resource]
 script = ExtResource("1")
 display_name = "Ichigo"
+transform_title = "BANKAI: TENSA ZANGETSU"
 moveset = ExtResource("2")
 specials = ExtResource("3")
 bankai_specials = ExtResource("4")

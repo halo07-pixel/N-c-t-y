@@ -33,6 +33,10 @@ extends Resource
 ## Replaces `specials` while Bankai is active.
 @export var bankai_specials: SpecialSet
 @export var ultimate: SpecialData
+## Combat Gauge the fighter starts the match with (0..100).
+@export var starting_gauge: float = 0.0
+## The big text shown when transforming, e.g. "BANKAI: TENSA ZANGETSU".
+@export var transform_title: String = "TRANSFORM"
 
 @export_group("Placeholder look")
 ## "sword" or "bow": only changes how the placeholder weapon is drawn.

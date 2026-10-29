@@ -118,9 +118,9 @@ func test_cpu_does_nothing_while_knocked_out_or_stunned() -> void:
 	_teardown_world()
 
 
-func test_cpu_uses_bankai_when_it_has_the_meter() -> void:
+func test_cpu_transforms_when_its_gauge_is_full() -> void:
 	_build_world(SWORDSMAN, Vector2(-120.0, 50.0), 120.0, 3)
-	_cpu.set_reiatsu(250.0)
+	_cpu.set_gauge(CombatGauge.MAX)
 	await wait_frames(240)
-	check(_cpu.is_bankai() or _cpu.reiatsu < 250.0, "the CPU spent its Reiatsu")
+	check(_cpu.is_bankai(), "the CPU transformed")
 	_teardown_world()

@@ -8,7 +8,8 @@ var _frames: int = 0
 func enter(_previous: StringName) -> void:
 	_frames = 0
 	fighter.start_bankai()
-	fighter.grant_invincibility(Reiatsu.TRANSFORM_FRAMES)
+	fighter.grant_invincibility(CombatGauge.TRANSFORM_FRAMES)
+	Events.transform_started.emit(fighter.player_id, fighter.data.transform_title, CombatGauge.TRANSFORM_FRAMES)
 
 
 func physics_update(delta: float) -> StringName:
@@ -16,6 +17,6 @@ func physics_update(delta: float) -> StringName:
 	fighter.apply_horizontal(delta, 0.0, stats.run_speed, stats.ground_accel, stats.ground_friction)
 	fighter.apply_gravity(delta)
 	_frames += 1
-	if _frames < Reiatsu.TRANSFORM_FRAMES:
+	if _frames < CombatGauge.TRANSFORM_FRAMES:
 		return &""
 	return &"Idle" if fighter.is_on_floor() else &"Fall"

@@ -10,6 +10,8 @@
 [resource]
 script = ExtResource("1")
 display_name = "Yhwach"
+transform_title = "VOLLSTÄNDIG: THE ALMIGHTY"
+starting_gauge = 50.0
 weight = 118.0
 run_speed = 118.0
 gravity = 960.0
