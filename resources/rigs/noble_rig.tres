@@ -5,6 +5,8 @@
 [resource]
 script = ExtResource("1")
 style = &"stick"
+form_style = &"blades"
+form_color = Color(1, 0.55, 0.8, 1)
 line = Color(0.95, 0.62, 0.8, 1)
 line_width = 1.9
 head_size = Vector2(9.4, 9.4)

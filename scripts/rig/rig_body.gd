@@ -73,6 +73,8 @@ var _spin_direction: float = 1.0
 var _lag: float = 0.0
 var _lag_2: float = 0.0
 var _bankai: bool = false
+var _form_back: FormFx
+var _form_front: FormFx
 var _target_info := {"pose": RigPoses.NEUTRAL, "rate": 12.0, "plant": true}
 
 
@@ -123,8 +125,12 @@ func _build() -> void:
 	add_child(_spinner)
 	_flip = Node2D.new()
 	_spinner.add_child(_flip)
+	_form_back = _make_form_fx(&"back")
+	_flip.add_child(_form_back)
 	_root = Node2D.new()
 	_flip.add_child(_root)
+	_form_front = _make_form_fx(&"front")
+	_flip.add_child(_form_front)
 
 	_hip = _part(_root, Vector2(0.1, 0.1), rig.cloth, Vector2.ZERO) # an invisible joint
 	_hip.visible = true
@@ -149,6 +155,27 @@ func _build() -> void:
 	_torso.add_child(_head)
 	_build_hair_tail()
 	_build_arm(&"f", Vector2(1.0, -rig.torso_size.y + 2.4))
+
+
+func _make_form_fx(which: StringName) -> FormFx:
+	var form := FormFx.new()
+	form.layer = which
+	form.style = rig.form_style
+	form.color = rig.form_color if rig.form_color.a > 0.0 else rig.accent
+	form.hair_color = rig.hair
+	form.head_radius = rig.head_size.y * 0.5
+	return form
+
+
+## Keeps the form overlays on the head and back of the body (they live in the flip node).
+func _update_form_anchors() -> void:
+	if _form_back == null or not (_bankai and rig.form_style != &""):
+		return
+	var head := _flip.to_local(_head.global_position)
+	var back := _flip.to_local(_torso.to_global(Vector2(-rig.torso_size.x * 0.3, -rig.torso_size.y * 0.6)))
+	for form in [_form_back, _form_front]:
+		form.head_anchor = head
+		form.back_anchor = back
 
 
 func _build_leg(side: StringName, hip_offset: Vector2, width: float) -> void:
@@ -277,6 +304,7 @@ func _process(delta: float) -> void:
 	_apply(_current, _target_info["plant"], delta)
 	_update_trail()
 	_update_ghosts(delta)
+	_update_form_anchors()
 	_head.set_look(&"fierce" if _pose == &"Attack" or _pose == &"Hitstun" or _pose == &"Charge" else &"calm")
 
 
@@ -424,7 +452,12 @@ func snapshot() -> Array:
 
 func _update_aura() -> void:
 	if _aura != null:
+		var color := rig.form_color if rig.form_color.a > 0.0 else _character.accent_color
+		_aura.configure(color if _bankai else _character.accent_color, rig.height())
 		_aura.set_active(_bankai or _pose == &"Charge" or _pose == &"Transform")
+	if _form_back != null:
+		_form_back.set_active(_bankai)
+		_form_front.set_active(_bankai)
 
 
 ## Shows one animation frame and stops the body from animating by itself. Used by tools and tests.

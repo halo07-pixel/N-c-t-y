@@ -171,6 +171,16 @@ func _play_scenario(scenario: String) -> void:
 			await _frames(30)
 			_bot_input.tap_charge()
 			await _frames(40)
+		"form": # transformed: the look of the form after the cinematic
+			_fighters[0].set_gauge(100.0)
+			await _frames(30)
+			_bot_input.tap_charge()
+			await _frames(110)
+		"boss_form":
+			_fighters[1].set_gauge(100.0)
+			await _frames(30)
+			_boss_input.tap_charge()
+			await _frames(110)
 		"boss":
 			await _frames(60)
 		"boss_ult":

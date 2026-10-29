@@ -171,3 +171,9 @@ from `CharacterData.transform_title`). The form lasts 15 s, +0.5 s per hit (cap 
 +25% damage / +15% speed and the Bankai special set, then the gauge restarts from 0. The
 Reiatsu bar (0-300) now only powers the ultimate, which is usable only while transformed.
 Yhwach starts with half a gauge. The CPU transforms on its own.
+
+## Transformed look
+
+`scripts/rig/form_fx.gd` draws the form by code while a fighter is transformed (set per rig with
+`form_style` / `form_color`): Ichigo a hollow mask, long hair and a red aura; Uryu light wings
+and a halo; Byakuya orbiting blades; Yhwach large dark wings with a halo.

@@ -5,6 +5,8 @@
 [resource]
 script = ExtResource("1")
 style = &"stick"
+form_style = &"dark_wings"
+form_color = Color(0.8, 0.1, 0.3, 1)
 line = Color(0.78, 0.2, 0.42, 1)
 line_width = 2.3
 head_size = Vector2(11, 11)

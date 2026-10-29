@@ -218,3 +218,36 @@ func test_stick_style_draws_lines_and_ghosts_follow_effects_setting() -> void:
 	check(calm._ghosts.count() == 0, "no afterimages when screen effects are off")
 	calm.queue_free()
 	GameSettings.screen_effects = effects_before
+
+
+func test_form_overlay_grows_and_shapes_are_valid() -> void:
+	check_near(FormFx.grow(0.0), 0.0, 0.001, "starts folded")
+	check_near(FormFx.grow(5.0), 1.0, 0.001, "ends fully unfolded")
+	var leaf := FormFx.feather(Vector2.ZERO, 0.5, 10.0, 2.0)
+	check(not Geometry2D.triangulate_polygon(leaf).is_empty(), "a feather triangulates")
+	var orbit := FormFx.blade_orbit(1.0, FormFx.BLADE_COUNT, Vector2(17.0, 5.0), Vector2.ZERO)
+	check_eq(orbit.size(), FormFx.BLADE_COUNT, "all the blades are placed")
+	var behind := 0
+	for entry in orbit:
+		if entry[1] > 0.0:
+			behind += 1
+	check(behind > 0 and behind < FormFx.BLADE_COUNT, "some blades pass behind, some in front")
+
+
+func test_every_rig_has_a_form_look_that_only_shows_while_transformed() -> void:
+	for path in ["swordsman", "archer", "noble", "emperor"]:
+		var rig := load("res://resources/rigs/%s_rig.tres" % path) as CharacterRigData
+		check(FormFx.STYLES.has(rig.form_style), "%s has a known form style" % path)
+	var character: CharacterData = (load("res://resources/characters/archer.tres") as CharacterData).duplicate()
+	var body := BodyFactory.create(character, 1) as RigBody
+	tree.root.add_child(body)
+	check(not body._form_back.visible, "no wings in normal form")
+	body.set_bankai(true)
+	body._process(0.05)
+	check(body._form_back.visible and body._form_front.visible, "the overlays show in the form")
+	body.set_bankai(false)
+	for _i in 40:
+		body._process(0.05)
+		body._form_back._process(0.05)
+	check(not body._form_back.visible, "and fold away when it ends")
+	body.queue_free()

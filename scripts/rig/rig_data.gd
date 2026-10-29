@@ -58,3 +58,9 @@ extends Resource
 ## Standing height in world units (feet to top of the head).
 func height() -> float:
 	return leg_length.x + leg_length.y + torso_size.y + head_size.y
+
+@export_group("Form")
+## Look of the transformed fighter: mask, wings, blades or dark_wings (empty = aura only).
+@export var form_style: StringName = &""
+## Aura color while transformed (empty alpha 0 keeps the character's accent).
+@export var form_color: Color = Color(0, 0, 0, 0)
