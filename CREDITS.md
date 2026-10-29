@@ -8,10 +8,8 @@ not affiliated with or endorsed by them.
 
 - `assets/original/noble/` and `assets/original/sovereign/`: original character designs
   drawn by code for this project (supplied in the owner's art package).
-- `assets/local/ichigo/` and `assets/local/uryu/`: supplied by the project owner and not
-  made by this project. Ichigo comes from a fan sprite sheet (author to be credited once
-  known); Uryu from the game *Bleach: The 3rd Phantom*. They are placeholders until
-  original art replaces them. They must not be redistributed or sold.
+- Ichigo, Uryu, Byakuya and Yhwach are drawn in code as stick figures (`resources/rigs/`); no
+  third-party artwork is shipped.
 - All other visuals (stage, menus, placeholder bodies) are drawn in code.
 
 ## Audio

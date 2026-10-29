@@ -72,7 +72,7 @@ func test_standing_rig_rests_on_the_ground() -> void:
 	for animation: StringName in [&"idle", &"run", &"land", &"guard", &"attack_forward", &"attack_down"]:
 		body.preview(animation, 0.2, &"active")
 		check_near(body._lowest_foot_y(), 0.0, 0.6, "%s keeps the lowest foot on the ground" % animation)
-	check(body.rig.height() > 30.0 and body.rig.height() < 40.0, "the body is about 34 units tall")
+	check(body.rig.height() > 28.0 and body.rig.height() < 40.0, "the body is about 34 units tall")
 	body.queue_free()
 
 

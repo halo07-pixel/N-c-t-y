@@ -78,15 +78,10 @@ without its files falls back to the code-drawn placeholder, so the game always r
 
 | Fighter | Art folder | Origin |
 |---|---|---|
-| Ichigo | `assets/local/ichigo/` | fan sprite sheet, supplied by the owner |
-| Uryu | `assets/local/uryu/` | ripped from *Bleach: The 3rd Phantom*, supplied by the owner |
 | Byakuya slot ("noble") | `assets/original/noble/` | original design |
 | Yhwach slot ("sovereign") | `assets/original/sovereign/` | original design |
 
-The Ichigo and Uryu sets are ripped from other works. They are in the repository at the
-owner's request; whoever publishes this repository is responsible for that, and they are
-meant to be replaced by original art (see CREDITS.md). Move them out of the repository or
-make it private before sharing the game widely.
+All four fighters are stick figures drawn in code by their rigs (`resources/rigs/`); the sprite sets above are only a fallback for characters without a rig.
 
 The world is simulated at 480x270 units and drawn at 720x405 pixels (`RenderScale`), so one
 unit is 1.5 screen pixels and a 1:1 sprite fits a 30-unit-tall body. Physics, move data and

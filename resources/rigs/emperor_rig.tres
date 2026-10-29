@@ -4,7 +4,10 @@
 
 [resource]
 script = ExtResource("1")
-head_size = Vector2(11.5, 11.0)
+style = &"stick"
+line = Color(0.78, 0.2, 0.42, 1)
+line_width = 2.3
+head_size = Vector2(11, 11)
 torso_size = Vector2(10.4, 9.6)
 arm_width = 3.0
 leg_length = Vector2(5.8, 5.8)

@@ -4,6 +4,10 @@
 
 [resource]
 script = ExtResource("1")
+style = &"stick"
+line = Color(0.95, 0.62, 0.8, 1)
+line_width = 1.9
+head_size = Vector2(9.4, 9.4)
 cloth = Color(0.2, 0.18, 0.3, 1)
 cloth_dark = Color(0.13, 0.12, 0.2, 1)
 accent = Color(0.92, 0.82, 0.9, 1)

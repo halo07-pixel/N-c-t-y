@@ -1,15 +1,10 @@
 extends TestCase
 ## Sprite sets, the loader, the animation mapping and the fallback to the
-## placeholder body. Ichigo and Uryu live in assets/local (the owner's rips); their
-## checks are skipped on a clone that does not have those files.
+## placeholder body. Ichigo and Uryu no longer ship sprites (they are drawn by their rigs).
 
 const ORIGINAL_SETS := [
 	["res://assets/original/noble/", "noble"],
 	["res://assets/original/sovereign/", "sovereign"],
-]
-const LOCAL_SETS := [
-	["res://assets/local/ichigo/", "ichigo"],
-	["res://assets/local/uryu/", "uryu"],
 ]
 const REQUIRED_ANIMATIONS: Array[StringName] = [
 	&"idle", &"run", &"jump", &"fall", &"hitstun", &"attack_neutral", &"attack_forward",
@@ -33,13 +28,6 @@ func _check_set(dir: String, id: String) -> void:
 
 func test_original_sets_are_complete() -> void:
 	for entry in ORIGINAL_SETS:
-		_check_set(entry[0], entry[1])
-
-
-func test_local_sets_are_complete_when_present() -> void:
-	for entry in LOCAL_SETS:
-		if SpriteSetLoader.load_set(entry[0], entry[1]) == null:
-			continue # the owner's local art is not on this computer
 		_check_set(entry[0], entry[1])
 
 
