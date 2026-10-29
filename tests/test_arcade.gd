@@ -32,7 +32,8 @@ func test_boss_is_a_complete_character() -> void:
 	check_eq(boss.display_name, "Yhwach", "the boss is Yhwach")
 	check(boss.moveset != null and boss.specials != null and boss.ultimate != null, "the boss has moves")
 	check(boss.bankai_specials != null, "the boss has a powered-up set")
-	check(boss.weight > 100.0, "the boss is heavy")
+	for path in MatchConfig.ROSTER_PATHS:
+		check(boss.weight > (load(path) as CharacterData).weight, "the boss is heavier than the roster")
 	check(not MatchConfig.ROSTER_PATHS.has(ArcadeRun.BOSS_PATH), "the boss is not selectable")
 
 

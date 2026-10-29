@@ -186,3 +186,8 @@ Perfect Guard (no damage, the attacker freezes, +8 Combat Gauge). Guard plus a d
 Shunpo: a quick 60-unit step, dodging hits for its first frames (a dodged hit also gives +8 gauge),
 with a cooldown, and one per jump in the air. CPU level 2+ guards and sometimes Shunpos through
 attacks. All numbers are in `scripts/combat/guard_rules.gd`.
+
+## Balance
+
+`tools/balance_sim.gd` plays CPU against CPU headlessly and reports win rates and how fast the
+Combat Gauge fills; the latest numbers and the changes they led to are in `docs/BALANCE.md`.
