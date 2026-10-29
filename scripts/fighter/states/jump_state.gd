@@ -10,6 +10,8 @@ func physics_update(delta: float) -> StringName:
 
 	if fighter.wants_attack():
 		return &"Attack"
+	if fighter.input.guard_just_pressed and absf(fighter.input.move.x) > 0.0 and fighter.can_shunpo():
+		return &"Shunpo"
 	if fighter.input.up_just_pressed and fighter.can_air_jump():
 		fighter.start_air_jump()
 		return &""

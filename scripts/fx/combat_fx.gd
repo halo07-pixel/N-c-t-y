@@ -7,6 +7,9 @@ extends Node2D
 func _ready() -> void:
 	Events.hit_impact.connect(_on_hit_impact)
 	Events.dust_puff.connect(_on_dust_puff)
+	Events.fighter_guarded.connect(_on_guarded)
+	Events.fighter_dodged.connect(_on_dodged)
+	Events.fighter_shunpo.connect(_on_shunpo)
 
 
 func _on_hit_impact(
@@ -28,4 +31,37 @@ func _on_dust_puff(puff_position: Vector2, strength: float) -> void:
 	var puff := DustPuff.new()
 	puff.position = puff_position
 	puff.strength = strength
+	add_child(puff)
+
+
+func _on_guarded(_victim: int, _attacker: int, perfect: bool, spot: Vector2) -> void:
+	if not GameSettings.screen_effects:
+		return
+	var spark := HitSpark.new()
+	spark.position = spot
+	spark.power = 0.9 if perfect else 0.25
+	spark.color = Color(1.0, 0.9, 0.5) if perfect else Color(0.5, 0.8, 1.0)
+	add_child(spark)
+
+
+func _on_dodged(_victim: int, _attacker: int, spot: Vector2) -> void:
+	if not GameSettings.screen_effects:
+		return
+	var spark := HitSpark.new()
+	spark.position = spot
+	spark.power = 0.7
+	spark.color = Color(0.9, 0.95, 1.0)
+	add_child(spark)
+
+
+func _on_shunpo(_id: int, start: Vector2, direction: int) -> void:
+	if not GameSettings.screen_effects:
+		return
+	var streak := ShunpoStreak.new()
+	streak.from_point = start
+	streak.to_point = start + Vector2(float(direction) * GuardRules.SHUNPO_DISTANCE, 0.0)
+	add_child(streak)
+	var puff := DustPuff.new()
+	puff.position = start
+	puff.strength = 0.8
 	add_child(puff)

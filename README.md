@@ -177,3 +177,12 @@ Yhwach starts with half a gauge. The CPU transforms on its own.
 `scripts/rig/form_fx.gd` draws the form by code while a fighter is transformed (set per rig with
 `form_style` / `form_color`): Ichigo a hollow mask, long hair and a red aura; Uryu light wings
 and a halo; Byakuya orbiting blades; Yhwach large dark wings with a halo.
+
+## Guard and Shunpo
+
+Hold guard (P1 `L`, P2 `Numpad 3`) on the ground: hits do 30% damage and 40% knockback while the
+guard energy drains (empty = guard break, a long stun). Pressing guard just before a hit lands is a
+Perfect Guard (no damage, the attacker freezes, +8 Combat Gauge). Guard plus a direction is a
+Shunpo: a quick 60-unit step, dodging hits for its first frames (a dodged hit also gives +8 gauge),
+with a cooldown, and one per jump in the air. CPU level 2+ guards and sometimes Shunpos through
+attacks. All numbers are in `scripts/combat/guard_rules.gd`.

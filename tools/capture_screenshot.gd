@@ -181,6 +181,21 @@ func _play_scenario(scenario: String) -> void:
 			await _frames(30)
 			_boss_input.tap_charge()
 			await _frames(110)
+		"guard": # holding guard: the bubble
+			await _frames(30)
+			_bot_input.held_guard = true
+			_bot_input.tap_guard()
+			await _frames(4)
+		"perfect_guard": # the first frames of a guard: the gold bubble
+			await _frames(30)
+			_bot_input.held_guard = true
+			_bot_input.tap_guard()
+			await _frames(2)
+		"shunpo": # in the middle of a Shunpo
+			await _frames(30)
+			_bot_input.held_move = Vector2(1.0, 0.0)
+			_bot_input.tap_guard()
+			await _frames(5)
 		"boss":
 			await _frames(60)
 		"boss_ult":

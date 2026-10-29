@@ -124,3 +124,28 @@ func test_cpu_transforms_when_its_gauge_is_full() -> void:
 	await wait_frames(240)
 	check(_cpu.is_bankai(), "the CPU transformed")
 	_teardown_world()
+
+
+func test_cpu_defends_when_the_opponent_attacks_close_by() -> void:
+	_build_world(SWORDSMAN, Vector2(-20.0, 50.0), 20.0, 3)
+	await wait_frames(30)
+	_dummy._state_machine.transition_to(&"Attack")
+	var defended := 0
+	for _i in 40:
+		_brain._defend_cooldown = 0
+		_brain._guard_frames_left = 0
+		var frame := _brain.get_frame()
+		if frame.guard_just_pressed:
+			defended += 1
+	check(defended > 5, "the CPU raised its guard against close attacks (%d of 40)" % defended)
+	_teardown_world()
+
+
+func test_easy_cpu_never_defends() -> void:
+	_build_world(SWORDSMAN, Vector2(-20.0, 50.0), 20.0, 1)
+	await wait_frames(30)
+	_dummy._state_machine.transition_to(&"Attack")
+	for _i in 40:
+		_brain._defend_cooldown = 0
+		check(not _brain.get_frame().guard_just_pressed, "level 1 does not defend")
+	_teardown_world()

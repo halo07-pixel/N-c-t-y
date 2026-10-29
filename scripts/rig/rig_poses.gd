@@ -19,7 +19,7 @@ const NEUTRAL := {
 
 const RUN_CYCLES_PER_SECOND := 2.4
 const ANIMATIONS: Array[StringName] = [
-	&"idle", &"run", &"jump", &"fall", &"land", &"guard", &"hitstun", &"ko", &"charge",
+	&"idle", &"run", &"jump", &"fall", &"land", &"guard", &"shunpo", &"hitstun", &"ko", &"charge",
 	&"attack_neutral", &"attack_forward", &"attack_up", &"attack_down", &"air_attack", &"air_up",
 	&"air_down", &"special",
 ]
@@ -41,6 +41,10 @@ const POSES := {
 	&"guard": {
 		"thigh_f": 18.0, "knee_f": 30.0, "thigh_b": -14.0, "knee_b": 24.0, "torso": 8.0,
 		"arm_f": 82.0, "elbow_f": 85.0, "blade": 175.0, "arm_b": 70.0, "elbow_b": 90.0,
+	},
+	&"shunpo": {
+		"thigh_f": 52.0, "knee_f": 38.0, "thigh_b": -46.0, "knee_b": 30.0, "torso": 30.0, "head": 8.0,
+		"arm_f": -50.0, "elbow_f": 20.0, "blade": 250.0, "arm_b": -62.0, "elbow_b": 22.0,
 	},
 	&"hitstun": {
 		"thigh_f": 34.0, "knee_f": 44.0, "thigh_b": -30.0, "knee_b": 40.0, "torso": -16.0, "head": -18.0,
@@ -163,7 +167,7 @@ const BOW_SPECIAL := {
 
 ## How quickly the body moves toward the target, per second (higher is snappier).
 const RATES := {
-	&"idle": 12.0, &"run": 34.0, &"jump": 16.0, &"fall": 12.0, &"land": 24.0, &"guard": 20.0,
+	&"idle": 12.0, &"run": 34.0, &"jump": 16.0, &"fall": 12.0, &"land": 24.0, &"guard": 20.0, &"shunpo": 46.0,
 	&"hitstun": 26.0, &"ko": 20.0, &"charge": 14.0,
 }
 const PHASE_RATES := {&"startup": 15.0, &"active": 55.0, &"recovery": 11.0}

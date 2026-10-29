@@ -8,6 +8,9 @@ signal hit_received(info: HitInfo)
 var fighter_id: int = 0
 ## False while the fighter is invincible or knocked out.
 var is_active: bool = true
+## True while the fighter evades hits (a perfect-guard window or a Shunpo): the attacker gets
+## nothing from them (no hitlag, no gauge), and the fighter is told with `hit_received`.
+var evading: bool = false
 
 @onready var _shape: CollisionShape2D = $CollisionShape2D
 

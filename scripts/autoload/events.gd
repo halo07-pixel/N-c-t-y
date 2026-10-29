@@ -36,6 +36,18 @@ signal transform_started(player_id: int, title: String, frames: int)
 ## A fighter lost a stock; attacker_id is who hit it last (0 when nobody did).
 @warning_ignore("unused_signal")
 signal fighter_defeated(victim_id: int, attacker_id: int)
+## A hit was absorbed by a guard (perfect = no damage at all) at `position`.
+@warning_ignore("unused_signal")
+signal fighter_guarded(victim_id: int, attacker_id: int, perfect: bool, position: Vector2)
+## The guard ran out and broke.
+@warning_ignore("unused_signal")
+signal fighter_guard_broken(player_id: int)
+## A hit missed because of a Shunpo (a perfect dodge).
+@warning_ignore("unused_signal")
+signal fighter_dodged(victim_id: int, attacker_id: int, position: Vector2)
+## A Shunpo step started from `position`, direction -1 or 1.
+@warning_ignore("unused_signal")
+signal fighter_shunpo(player_id: int, position: Vector2, direction: int)
 ## Where a KO happened (world position where the fighter left the blast zone).
 @warning_ignore("unused_signal")
 signal fighter_ko(player_id: int, position: Vector2)

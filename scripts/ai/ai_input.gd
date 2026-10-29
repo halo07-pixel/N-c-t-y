@@ -6,10 +6,10 @@ extends InputSource
 ## Difficulty (level 1 to 3, 4 for the Arcade boss) changes reaction time, aggression and mistakes.
 
 const LEVELS := {
-	1: {"reaction": 22, "attack": 0.35, "special": 0.15, "mistake": 0.25, "reiatsu": false},
-	2: {"reaction": 11, "attack": 0.60, "special": 0.30, "mistake": 0.10, "reiatsu": true},
-	3: {"reaction": 5, "attack": 0.85, "special": 0.40, "mistake": 0.03, "reiatsu": true},
-	4: {"reaction": 3, "attack": 0.95, "special": 0.50, "mistake": 0.01, "reiatsu": true}, # boss
+	1: {"reaction": 22, "attack": 0.35, "special": 0.15, "mistake": 0.25, "reiatsu": false, "guard": 0.0, "shunpo": 0.0},
+	2: {"reaction": 11, "attack": 0.60, "special": 0.30, "mistake": 0.10, "reiatsu": true, "guard": 0.35, "shunpo": 0.15},
+	3: {"reaction": 5, "attack": 0.85, "special": 0.40, "mistake": 0.03, "reiatsu": true, "guard": 0.6, "shunpo": 0.3},
+	4: {"reaction": 3, "attack": 0.95, "special": 0.50, "mistake": 0.01, "reiatsu": true, "guard": 0.75, "shunpo": 0.4}, # boss
 }
 const MAX_LEVEL := 4
 const STAGE_SAFE_HALF_WIDTH := 150.0
@@ -22,6 +22,8 @@ const CHARGE_FRAMES := 70
 const SAFE_CHARGE_DISTANCE := 150.0
 const CHARGE_ABORT_DISTANCE := 100.0
 const CHARGE_CHANCE := 0.6
+const DEFEND_RANGE := 55.0
+const DEFEND_COOLDOWN := 30
 
 var fighter: Fighter
 var target: Fighter
@@ -32,6 +34,8 @@ var _cooldown: int = 0
 var _retreat_frames: int = 0
 var _charge_frames_left: int = 0
 var _recover_cooldown: int = 0
+var _guard_frames_left: int = 0
+var _defend_cooldown: int = 0
 
 
 func bind(self_fighter: Fighter, target_fighter: Fighter, ai_level: int, rng_seed: int = -1) -> void:
@@ -53,8 +57,12 @@ func get_frame() -> InputFrame:
 		return frame
 	if _is_off_stage():
 		_recover(frame)
+	elif _guard_frames_left > 0:
+		_keep_guarding(frame)
 	elif _charge_frames_left > 0:
 		_keep_charging(frame)
+	elif _try_defend(frame):
+		pass
 	else:
 		_fight(frame)
 	return frame
@@ -86,6 +94,34 @@ func _recover(frame: InputFrame) -> void:
 
 
 ## Charging is only done while the opponent is far away; stop as soon as they close in.
+## Raises the guard when the opponent attacks close by, sometimes slipping behind with a Shunpo.
+func _try_defend(frame: InputFrame) -> bool:
+	_defend_cooldown -= 1
+	var params := _params()
+	var chance: float = params["guard"]
+	if chance <= 0.0 or _defend_cooldown > 0 or not fighter.is_on_floor():
+		return false
+	var gap := target.global_position.x - fighter.global_position.x
+	if target.get_state_name() != &"Attack" or absf(gap) > DEFEND_RANGE:
+		return false
+	_defend_cooldown = DEFEND_COOLDOWN
+	if _rng.randf() >= chance:
+		return false
+	frame.guard_just_pressed = true
+	frame.guard_held = true
+	if _rng.randf() < params["shunpo"]:
+		frame.move.x = signf(gap) # step through them, ending up behind
+		_guard_frames_left = 0
+	else:
+		_guard_frames_left = _rng.randi_range(10, 24)
+	return true
+
+
+func _keep_guarding(frame: InputFrame) -> void:
+	frame.guard_held = true
+	_guard_frames_left -= 1
+
+
 func _keep_charging(frame: InputFrame) -> void:
 	var distance := absf(target.global_position.x - fighter.global_position.x)
 	if distance < CHARGE_ABORT_DISTANCE or fighter.reiatsu >= Reiatsu.ULTIMATE_COST:

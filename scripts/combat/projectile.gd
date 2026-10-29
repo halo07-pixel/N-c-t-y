@@ -139,7 +139,8 @@ func _on_area_entered(area: Area2D) -> void:
 	info.base_knockback = _move.base_knockback
 	info.knockback_growth = _move.knockback_growth
 	info.direction = Knockback.direction(_move.angle_degrees, _facing)
-	hit_landed.emit(info)
+	if not hurtbox.evading:
+		hit_landed.emit(info)
 	hurtbox.receive_hit(info)
 	if not _data.pierce:
 		queue_free()

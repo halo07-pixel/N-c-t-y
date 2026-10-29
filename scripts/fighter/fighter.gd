@@ -34,6 +34,11 @@ var bankai_frames_left: int = 0
 var gauge: float = 0.0
 var combo_count: int = 0
 var last_attacker_id: int = 0
+var guard_energy: float = GuardRules.ENERGY_MAX
+var guard_age: int = 0
+var dodge_frames_left: int = 0
+var shunpo_cooldown: int = 0
+var air_shunpo_used: bool = false
 var damage_multiplier: float = 1.0
 var speed_scale: float = 1.0
 
@@ -64,6 +69,9 @@ func _ready() -> void:
 	add_child(shadow)
 	move_child(shadow, 1) # under the body
 	shadow.setup(self)
+	var shield := GuardShield.new()
+	add_child(shield)
+	shield.setup(self)
 	hurtbox.setup(player_id, data.body_size)
 	hitbox.setup(player_id)
 	hurtbox.hit_received.connect(_on_hit_received)
@@ -71,6 +79,7 @@ func _ready() -> void:
 	Events.ultimate_started.connect(_on_ultimate_started)
 	Events.transform_started.connect(_on_transform_started)
 	Events.fighter_defeated.connect(_on_fighter_defeated)
+	Events.fighter_guarded.connect(_on_guarded_by_other)
 	gauge = clampf(data.starting_gauge, 0.0, CombatGauge.MAX)
 	air_jumps_left = data.max_air_jumps
 	_state_machine.state_changed.connect(_on_state_changed)
@@ -88,6 +97,7 @@ func _physics_process(delta: float) -> void:
 		return
 	_tick_bankai()
 	_tick_gauge()
+	_tick_defense()
 	if _input_source != null:
 		input = _input_source.get_frame()
 	_tick_drop_through()
@@ -123,6 +133,12 @@ func set_percent(value: float) -> void:
 
 
 func _on_hit_received(info: HitInfo) -> void:
+	if hurtbox.evading:
+		_evade_hit(info)
+		return
+	if is_guarding():
+		_block_hit(info)
+		return
 	set_percent(percent + info.damage)
 	last_attacker_id = info.attacker_id
 	combo_count = 0
@@ -156,6 +172,82 @@ func _on_hit_landed(info: HitInfo) -> void:
 func _on_projectile_hit(info: HitInfo) -> void:
 	add_reiatsu(info.damage * Reiatsu.GAIN_DEALT)
 	_register_landed_hit(info.damage)
+
+
+# --- Guard and Shunpo ----------------------------------------------------------
+
+func is_guarding() -> bool:
+	return _state_machine.current_name == &"Guard"
+
+
+## The state to enter when the guard key is pressed: a Shunpo with a direction held, a Guard
+## otherwise, nothing when the guard energy is too low.
+func guard_press_state() -> StringName:
+	if absf(input.move.x) > 0.0 and can_shunpo():
+		return &"Shunpo"
+	return &"Guard" if guard_energy >= GuardRules.ENERGY_MIN_TO_GUARD else &""
+
+
+func can_shunpo() -> bool:
+	return shunpo_cooldown <= 0 and (is_on_floor() or not air_shunpo_used)
+
+
+func begin_shunpo() -> void:
+	dodge_frames_left = GuardRules.SHUNPO_DODGE_FRAMES
+	shunpo_cooldown = GuardRules.SHUNPO_COOLDOWN
+	is_fast_falling = false
+	if not is_on_floor():
+		air_shunpo_used = true
+
+
+func _tick_defense() -> void:
+	if shunpo_cooldown > 0:
+		shunpo_cooldown -= 1
+	if dodge_frames_left > 0:
+		dodge_frames_left -= 1
+	if not is_guarding():
+		guard_energy = minf(guard_energy + GuardRules.RECOVER_PER_FRAME, GuardRules.ENERGY_MAX)
+	var perfect_window := is_guarding() and guard_age < GuardRules.PERFECT_WINDOW_FRAMES
+	hurtbox.evading = dodge_frames_left > 0 or perfect_window
+
+
+## A hit that arrived during a perfect-guard window or a Shunpo: nothing happens to us.
+func _evade_hit(info: HitInfo) -> void:
+	var spot := global_position + Vector2(0.0, -14.0)
+	add_gauge(GuardRules.PERFECT_GAUGE)
+	if is_guarding():
+		Events.fighter_guarded.emit(player_id, info.attacker_id, true, spot)
+	else:
+		Events.fighter_dodged.emit(player_id, info.attacker_id, spot)
+
+
+## A hit absorbed by the guard: a little damage, a little push, the guard energy drains.
+func _block_hit(info: HitInfo) -> void:
+	set_percent(percent + info.damage * GuardRules.DAMAGE_SCALE)
+	last_attacker_id = info.attacker_id
+	add_gauge(info.damage * GuardRules.BLOCK_GAUGE_RATIO)
+	guard_energy -= info.damage * GuardRules.BLOCK_DRAIN_PER_DAMAGE
+	var push := Knockback.magnitude(info.base_knockback, info.knockback_growth, percent, data.weight)
+	velocity.x = info.direction.x * push * GuardRules.KNOCKBACK_SCALE * GuardRules.PUSHBACK_SCALE
+	hitlag_left = Knockback.hitlag_frames(info.damage)
+	Events.fighter_guarded.emit(player_id, info.attacker_id, false, global_position + Vector2(0.0, -14.0))
+	if guard_energy <= 0.0:
+		_state_machine.transition_to(break_guard())
+
+
+## The guard broke: a long stun, and only a little energy back. Returns the state to enter.
+func break_guard() -> StringName:
+	guard_energy = GuardRules.BREAK_RESTORE
+	hitstun_frames_left = GuardRules.BREAK_STUN_FRAMES
+	velocity.x = 0.0
+	_body.flash_hit()
+	Events.fighter_guard_broken.emit(player_id)
+	return &"Hitstun"
+
+
+func _on_guarded_by_other(victim_id: int, attacker_id: int, perfect: bool, _spot: Vector2) -> void:
+	if perfect and attacker_id == player_id and victim_id != player_id:
+		hitlag_left = maxi(hitlag_left, GuardRules.PERFECT_ATTACKER_HITLAG)
 
 
 # --- Combat Gauge ---------------------------------------------------------------
@@ -320,6 +412,8 @@ func enter_ko() -> void:
 	hurtbox.set_active(false)
 	hitlag_left = 0
 	invincible_left = 0
+	dodge_frames_left = 0
+	guard_energy = GuardRules.ENERGY_MAX
 	_queued_move = null
 	if not is_bankai():
 		add_gauge(CombatGauge.STOCK_LOSS_PITY)
@@ -415,6 +509,7 @@ func refill_jumps() -> void:
 
 func notify_landed() -> void:
 	refill_jumps()
+	air_shunpo_used = false
 	is_fast_falling = false
 	Events.fighter_landed.emit(player_id)
 	Events.dust_puff.emit(global_position, 1.0)
