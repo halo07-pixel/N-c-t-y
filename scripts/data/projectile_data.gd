@@ -13,3 +13,6 @@ extends Resource
 @export var color: Color = Color(0.6, 0.9, 1.0)
 ## Name of an effect sprite in the owner's sprite set; empty draws the plain shape.
 @export var art: StringName = &""
+## Procedural look drawn by code: crescent, arrow, petal, orb or blast. Empty keeps the
+## effect sprite (or the plain diamond).
+@export var style: StringName = &""

@@ -13,6 +13,7 @@ size = Vector2(22, 8)
 pierce = true
 color = Color(0.55, 0.9, 1.0, 1)
 art = &"24"
+style = &"arrow"
 
 [sub_resource type="Resource" id="S_archerb_neutral"]
 script = ExtResource("2")
@@ -43,6 +44,7 @@ size = Vector2(22, 8)
 pierce = true
 color = Color(0.55, 0.9, 1.0, 1)
 art = &"24"
+style = &"arrow"
 
 [sub_resource type="Resource" id="P_archerb_forward_1"]
 script = ExtResource("3")
@@ -53,6 +55,7 @@ size = Vector2(22, 8)
 pierce = true
 color = Color(0.55, 0.9, 1.0, 1)
 art = &"24"
+style = &"arrow"
 
 [sub_resource type="Resource" id="P_archerb_forward_2"]
 script = ExtResource("3")
@@ -63,6 +66,7 @@ size = Vector2(22, 8)
 pierce = true
 color = Color(0.55, 0.9, 1.0, 1)
 art = &"24"
+style = &"arrow"
 
 [sub_resource type="Resource" id="S_archerb_forward"]
 script = ExtResource("2")
@@ -112,6 +116,7 @@ size = Vector2(20, 8)
 pierce = true
 color = Color(0.55, 0.9, 1.0, 1)
 art = &"24"
+style = &"arrow"
 
 [sub_resource type="Resource" id="P_archerb_down_1"]
 script = ExtResource("3")
@@ -122,6 +127,7 @@ size = Vector2(20, 8)
 pierce = true
 color = Color(0.55, 0.9, 1.0, 1)
 art = &"24"
+style = &"arrow"
 
 [sub_resource type="Resource" id="S_archerb_down"]
 script = ExtResource("2")

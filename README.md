@@ -154,3 +154,10 @@ godot --path . --rendering-driver opengl3 -s tools/capture_screenshot.gd -- \
     out.png [idle|hit|ko|end|special|bankai|ultimate|title|menu|select|select_cpu|settings|controls]
     [p1_character] [p2_character]
 ```
+
+## Combat effects
+
+Drawn in code (no art files): `scripts/fx/projectile_art.gd` gives projectiles a look through
+`ProjectileData.style` (crescent, arrow, petal, orb, blast) with a fading trail; `HitSpark`
+(ring, rays, speed lines on heavy hits) and `DustPuff` are spawned by `CombatFx` from the
+`Events.hit_impact` / `Events.dust_puff` signals. All of it follows the "screen effects" setting.

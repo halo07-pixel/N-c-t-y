@@ -21,6 +21,12 @@ signal fighter_left_blast_zone(player_id: int)
 ## A fighter was sent flying: launch speed in pixels per second and the unit direction.
 @warning_ignore("unused_signal")
 signal fighter_launched(victim_id: int, speed: float, direction: Vector2)
+## A hit connected: where, which way the victim flies, how hard (for sparks and speed lines).
+@warning_ignore("unused_signal")
+signal hit_impact(position: Vector2, direction: Vector2, damage: float, launch_speed: float, attacker_id: int)
+## Dust kicked up by a landing or a jump; strength 0..1.
+@warning_ignore("unused_signal")
+signal dust_puff(position: Vector2, strength: float)
 ## Where a KO happened (world position where the fighter left the blast zone).
 @warning_ignore("unused_signal")
 signal fighter_ko(player_id: int, position: Vector2)

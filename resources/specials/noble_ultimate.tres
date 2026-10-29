@@ -12,6 +12,7 @@ size = Vector2(28, 20)
 pierce = true
 color = Color(1.0, 0.6, 0.8, 1)
 art = &"petal0"
+style = &"petal"
 
 [sub_resource type="Resource" id="P_nobleu_1"]
 script = ExtResource("3")
@@ -22,6 +23,7 @@ size = Vector2(28, 20)
 pierce = true
 color = Color(1.0, 0.6, 0.8, 1)
 art = &"petal1"
+style = &"petal"
 
 [sub_resource type="Resource" id="P_nobleu_2"]
 script = ExtResource("3")
@@ -32,6 +34,7 @@ size = Vector2(28, 20)
 pierce = true
 color = Color(1.0, 0.6, 0.8, 1)
 art = &"petal2"
+style = &"petal"
 
 [sub_resource type="Resource" id="P_nobleu_3"]
 script = ExtResource("3")
@@ -42,6 +45,7 @@ size = Vector2(28, 20)
 pierce = true
 color = Color(1.0, 0.6, 0.8, 1)
 art = &"petal3"
+style = &"petal"
 
 [sub_resource type="Resource" id="P_nobleu_4"]
 script = ExtResource("3")
@@ -52,6 +56,7 @@ size = Vector2(28, 20)
 pierce = true
 color = Color(1.0, 0.6, 0.8, 1)
 art = &"petal_hi"
+style = &"petal"
 
 [resource]
 script = ExtResource("2")

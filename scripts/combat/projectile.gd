@@ -21,6 +21,8 @@ var _frames_left: int = 0
 var _freeze_left: int = 0
 var _already_hit: Array[Hurtbox] = []
 var _art: Texture2D
+var _age: float = 0.0
+var _trail: Array[Vector2] = []
 
 
 ## Sets everything up; call before adding to the scene tree.
@@ -55,6 +57,16 @@ func set_art(texture: Texture2D) -> void:
 func _ready() -> void:
 	area_entered.connect(_on_area_entered)
 	Events.ultimate_started.connect(_on_ultimate_started)
+	if _data != null and _data.style != &"":
+		var additive := CanvasItemMaterial.new()
+		additive.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+		material = additive
+		z_index = 10
+
+
+func _process(_delta: float) -> void:
+	if _data != null and _data.style != &"":
+		queue_redraw()
 
 
 func _physics_process(delta: float) -> void:
@@ -62,6 +74,11 @@ func _physics_process(delta: float) -> void:
 		_freeze_left -= 1
 		return
 	position += _velocity * delta
+	_age += delta
+	if _data.style != &"" and GameSettings.screen_effects:
+		_trail.append(position)
+		if _trail.size() > ProjectileArt.TRAIL_POINTS:
+			_trail.pop_front()
 	_frames_left -= 1
 	if _frames_left <= 0 or position.length() > OFFSCREEN_LIMIT:
 		queue_free()
@@ -69,6 +86,13 @@ func _physics_process(delta: float) -> void:
 
 func _draw() -> void:
 	if _data == null:
+		return
+	if _data.style != &"":
+		var local_trail := PackedVector2Array()
+		for point in _trail:
+			local_trail.append(point - position)
+		var angle := _velocity.angle() if _velocity != Vector2.ZERO else (0.0 if _facing > 0 else PI)
+		ProjectileArt.draw(self, _data.style, _data.size, _data.color, angle, _age, local_trail)
 		return
 	if _art != null:
 		_draw_art()

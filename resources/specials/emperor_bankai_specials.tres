@@ -13,6 +13,7 @@ size = Vector2(56, 56)
 pierce = true
 color = Color(0.75, 0.4, 1.0, 1)
 art = &"orb"
+style = &"orb"
 
 [sub_resource type="Resource" id="S_emperorb_neutral"]
 script = ExtResource("2")

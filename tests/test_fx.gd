@@ -139,3 +139,38 @@ func test_fighters_have_a_shadow_on_the_floor_and_hits_flash_and_shake() -> void
 	match_scene.queue_free()
 	await tree.process_frame
 	Engine.time_scale = 1.0
+
+
+func test_hit_power_grows_with_damage_and_speed() -> void:
+	check(HitSpark.power_for(3.0, 150.0) < HitSpark.power_for(18.0, 700.0), "a big hit is bigger")
+	check(HitSpark.power_for(0.0, 0.0) >= 0.15 and HitSpark.power_for(99.0, 9999.0) <= 1.0, "power is clamped")
+
+
+func test_crescent_is_a_valid_polygon_with_a_forward_bulge() -> void:
+	var points := ProjectileArt.crescent_points(22.0, 14.0)
+	check(not Geometry2D.triangulate_polygon(points).is_empty(), "the crescent triangulates")
+	var front := -INF
+	for point in points:
+		front = maxf(front, point.x)
+	check_near(front, 11.0, 0.01, "its convex side reaches half the width forward")
+
+
+func test_every_special_projectile_style_is_known() -> void:
+	for path in ["archer_specials", "swordsman_specials", "noble_specials", "emperor_specials", "swordsman_ultimate", "emperor_ultimate", "noble_ultimate", "archer_ultimate"]:
+		var text := FileAccess.get_file_as_string("res://resources/specials/%s.tres" % path)
+		check(text.contains("style = &\""), "%s has procedural projectile styles" % path)
+
+
+func test_hits_and_landings_spawn_effects_only_when_enabled() -> void:
+	var before := GameSettings.screen_effects
+	var fx := CombatFx.new()
+	tree.root.add_child(fx)
+	GameSettings.screen_effects = true
+	Events.hit_impact.emit(Vector2.ZERO, Vector2.RIGHT, 10.0, 400.0, 1)
+	Events.dust_puff.emit(Vector2.ZERO, 1.0)
+	check_eq(fx.get_child_count(), 2, "a spark and a puff appear")
+	GameSettings.screen_effects = false
+	Events.hit_impact.emit(Vector2.ZERO, Vector2.RIGHT, 10.0, 400.0, 1)
+	check_eq(fx.get_child_count(), 2, "nothing appears with effects off")
+	fx.queue_free()
+	GameSettings.screen_effects = before

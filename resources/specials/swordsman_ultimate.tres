@@ -12,6 +12,7 @@ size = Vector2(56, 36)
 pierce = true
 color = Color(0.55, 0.9, 1.0, 1)
 art = &"wave_b"
+style = &"blast"
 
 [resource]
 script = ExtResource("2")

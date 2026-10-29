@@ -128,6 +128,9 @@ func _on_hit_received(info: HitInfo) -> void:
 	_state_machine.transition_to(&"Hitstun")
 	Events.fighter_hit.emit(info.attacker_id, player_id, info.damage)
 	Events.fighter_launched.emit(player_id, launch_speed, info.direction)
+	Events.hit_impact.emit(
+		global_position + Vector2(0.0, -14.0), info.direction, info.damage, launch_speed, info.attacker_id
+	)
 
 
 func _on_hit_landed(info: HitInfo) -> void:
@@ -241,7 +244,8 @@ func take_queued_move() -> MoveData:
 func spawn_projectile(projectile_data: ProjectileData, move: MoveData) -> void:
 	var projectile := Projectile.new()
 	projectile.launch(projectile_data, move, player_id, facing, damage_multiplier, global_position)
-	projectile.set_art(_body.effect_texture(projectile_data.art))
+	if projectile_data.style == &"":
+		projectile.set_art(_body.effect_texture(projectile_data.art))
 	projectile.hit_landed.connect(_on_projectile_hit)
 	projectile_spawned.emit(projectile)
 
@@ -323,6 +327,7 @@ func start_jump() -> void:
 	velocity.y = -data.jump_velocity
 	is_fast_falling = false
 	Events.fighter_jumped.emit(player_id, false)
+	Events.dust_puff.emit(global_position, 0.55)
 
 
 func can_air_jump() -> bool:
@@ -344,6 +349,7 @@ func notify_landed() -> void:
 	refill_jumps()
 	is_fast_falling = false
 	Events.fighter_landed.emit(player_id)
+	Events.dust_puff.emit(global_position, 1.0)
 
 
 # --- Soft platforms ----------------------------------------------------------
