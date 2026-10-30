@@ -429,6 +429,14 @@ func take_queued_move() -> MoveData:
 	return move
 
 
+## Sends every commandable projectile this fighter has out flying forward.
+func command_projectiles(speed: float) -> void:
+	for node in get_tree().get_nodes_in_group(Projectile.COMMAND_GROUP):
+		var shot := node as Projectile
+		if shot != null and shot.owner_id == player_id and not shot.is_queued_for_deletion():
+			shot.command(facing, speed)
+
+
 ## Live traps this fighter has placed, oldest first.
 func live_traps() -> Array[Projectile]:
 	var mine: Array[Projectile] = []

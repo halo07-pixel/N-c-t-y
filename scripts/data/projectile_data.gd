@@ -19,3 +19,5 @@ extends Resource
 ## A trap stays where it was placed and explodes on the first enemy that touches it.
 ## Fighters keep a limited number of live traps (see SpecialData.limit_active).
 @export var trap: bool = false
+## A commandable projectile (a petal cloud) can be sent flying by a command move.
+@export var commandable: bool = false

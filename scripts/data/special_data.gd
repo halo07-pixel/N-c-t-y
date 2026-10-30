@@ -42,6 +42,10 @@ extends MoveData
 ## limit is reached) the oldest live trap is replaced instead.
 @export var repeat_cost: float = 0.0
 
+@export_group("Command")
+## More than zero sends all of the fighter's commandable projectiles flying forward at this speed.
+@export var command_speed: float = 0.0
+
 @export_group("Ultimate")
 ## More than zero makes this a cinematic move: everyone else freezes for this
 ## many frames and the camera zooms in on the fighter.

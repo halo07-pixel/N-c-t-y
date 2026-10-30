@@ -14,15 +14,60 @@ pierce = true
 color = Color(1.0, 0.6, 0.8, 1)
 art = &"petal_hi"
 style = &"petal"
+commandable = true
+
+[sub_resource type="Resource" id="P_nobleb_neutral_1"]
+script = ExtResource("3")
+offset = Vector2(16, -52)
+velocity = Vector2(180, -20)
+lifetime_frames = 130
+size = Vector2(36, 28)
+pierce = true
+color = Color(1.0, 0.6, 0.8, 1)
+art = &"petal_hi"
+style = &"petal"
+commandable = true
+
+[sub_resource type="Resource" id="P_nobleb_neutral_2"]
+script = ExtResource("3")
+offset = Vector2(16, 14)
+velocity = Vector2(180, 20)
+lifetime_frames = 130
+size = Vector2(36, 28)
+pierce = true
+color = Color(1.0, 0.6, 0.8, 1)
+art = &"petal_hi"
+style = &"petal"
+commandable = true
+
+[sub_resource type="Resource" id="S_nobleb_command"]
+script = ExtResource("2")
+display_name = "Command"
+direction = &"neutral"
+damage = 0
+base_knockback = 0
+knockback_growth = 0
+angle_degrees = 0
+startup_frames = 3
+active_frames = 2
+recovery_frames = 14
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+command_speed = 430.0
 
 [sub_resource type="Resource" id="S_nobleb_neutral"]
 script = ExtResource("2")
 display_name = "Petal Drift +"
 direction = &"neutral"
 damage = 6.7
-base_knockback = 130.0
-knockback_growth = 50.0
-angle_degrees = 35.0
+base_knockback = 130
+knockback_growth = 50
+angle_degrees = 35
 startup_frames = 10
 active_frames = 2
 recovery_frames = 16
@@ -33,16 +78,39 @@ teleport = Vector2(0, 0)
 ignore_gravity = false
 cinematic_frames = 0
 title = ""
-projectiles = Array[ExtResource("3")]([SubResource("P_nobleb_neutral_0")])
+follow_up = SubResource("S_nobleb_command")
+follow_up_cost = 0
+follow_up_window = 45
+projectiles = Array[ExtResource("3")]([SubResource("P_nobleb_neutral_0"), SubResource("P_nobleb_neutral_1"), SubResource("P_nobleb_neutral_2")])
+
+[sub_resource type="Resource" id="S_nobleb_behind"]
+script = ExtResource("2")
+display_name = "Behind Slash +"
+direction = &"forward"
+damage = 9
+base_knockback = 190
+knockback_growth = 110
+angle_degrees = 40
+startup_frames = 3
+active_frames = 3
+recovery_frames = 16
+hitbox_size = Vector2(34, 18)
+hitbox_offset = Vector2(24, -16)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(150, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+flip_facing = true
 
 [sub_resource type="Resource" id="S_nobleb_forward"]
 script = ExtResource("2")
 display_name = "Flash Step +"
 direction = &"forward"
 damage = 10.1
-base_knockback = 190.0
-knockback_growth = 120.0
-angle_degrees = 40.0
+base_knockback = 190
+knockback_growth = 120
+angle_degrees = 40
 startup_frames = 4
 active_frames = 3
 recovery_frames = 18
@@ -53,15 +121,49 @@ teleport = Vector2(112, 0)
 ignore_gravity = false
 cinematic_frames = 0
 title = ""
+follow_up = SubResource("S_nobleb_behind")
+follow_up_cost = 0
+follow_up_window = 30
+
+[sub_resource type="Resource" id="P_nobleb_drop_0"]
+script = ExtResource("3")
+offset = Vector2(20, -30)
+velocity = Vector2(120, 360)
+lifetime_frames = 40
+size = Vector2(26, 16)
+pierce = false
+color = Color(1.0, 0.6, 0.8, 1)
+art = &""
+style = &"crescent"
+
+[sub_resource type="Resource" id="S_nobleb_drop"]
+script = ExtResource("2")
+display_name = "Blade Drop +"
+direction = &"up"
+damage = 10.8
+base_knockback = 170
+knockback_growth = 90
+angle_degrees = -60
+startup_frames = 4
+active_frames = 2
+recovery_frames = 16
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+projectiles = Array[ExtResource("3")]([SubResource("P_nobleb_drop_0")])
 
 [sub_resource type="Resource" id="S_nobleb_up"]
 script = ExtResource("2")
 display_name = "Sky Flash +"
 direction = &"up"
-damage = 0.0
-base_knockback = 0.0
-knockback_growth = 0.0
-angle_degrees = 85.0
+damage = 0
+base_knockback = 0
+knockback_growth = 0
+angle_degrees = 85
 startup_frames = 3
 active_frames = 2
 recovery_frames = 16
@@ -72,6 +174,9 @@ teleport = Vector2(38, -121)
 ignore_gravity = false
 cinematic_frames = 0
 title = ""
+follow_up = SubResource("S_nobleb_drop")
+follow_up_cost = 0
+follow_up_window = 30
 
 [sub_resource type="Resource" id="P_nobleb_down_0"]
 script = ExtResource("3")
@@ -83,15 +188,16 @@ pierce = false
 color = Color(1.0, 0.6, 0.8, 1)
 art = &"petal2"
 style = &"petal"
+trap = true
 
 [sub_resource type="Resource" id="S_nobleb_down"]
 script = ExtResource("2")
 display_name = "Petal Trap +"
 direction = &"down"
 damage = 7.8
-base_knockback = 160.0
-knockback_growth = 70.0
-angle_degrees = 70.0
+base_knockback = 160
+knockback_growth = 70
+angle_degrees = 70
 startup_frames = 8
 active_frames = 2
 recovery_frames = 18
@@ -102,6 +208,8 @@ teleport = Vector2(0, 0)
 ignore_gravity = false
 cinematic_frames = 0
 title = ""
+limit_active = 2
+repeat_cost = 0
 projectiles = Array[ExtResource("3")]([SubResource("P_nobleb_down_0")])
 
 [resource]
