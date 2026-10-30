@@ -14,15 +14,16 @@ pierce = true
 color = Color(0.75, 0.4, 1.0, 1)
 art = &"orb"
 style = &"orb"
+absorbs = true
 
 [sub_resource type="Resource" id="S_emperorb_neutral"]
 script = ExtResource("2")
 display_name = "Void Sphere +"
 direction = &"neutral"
 damage = 8.5
-base_knockback = 170.0
-knockback_growth = 90.0
-angle_degrees = 30.0
+base_knockback = 170
+knockback_growth = 90
+angle_degrees = 30
 startup_frames = 12
 active_frames = 2
 recovery_frames = 20
@@ -33,16 +34,41 @@ teleport = Vector2(0, 0)
 ignore_gravity = false
 cinematic_frames = 0
 title = ""
+charge_max_frames = 40
+charge_cost = 0
+charge_damage_scale = 1.6
+charge_size_scale = 1.5
+charge_speed_scale = 1.25
+charge_pierce = true
 projectiles = Array[ExtResource("3")]([SubResource("P_emperorb_neutral_0")])
+
+[sub_resource type="Resource" id="S_emperorb_stab"]
+script = ExtResource("2")
+display_name = "Blood Stab +"
+direction = &"forward"
+damage = 11.5
+base_knockback = 250
+knockback_growth = 150
+angle_degrees = 35
+startup_frames = 3
+active_frames = 4
+recovery_frames = 20
+hitbox_size = Vector2(46, 30)
+hitbox_offset = Vector2(26, -16)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
 
 [sub_resource type="Resource" id="S_emperorb_forward"]
 script = ExtResource("2")
 display_name = "Blood Rush +"
 direction = &"forward"
 damage = 10.2
-base_knockback = 220.0
-knockback_growth = 140.0
-angle_degrees = 38.0
+base_knockback = 220
+knockback_growth = 140
+angle_degrees = 38
 startup_frames = 5
 active_frames = 4
 recovery_frames = 20
@@ -53,15 +79,37 @@ teleport = Vector2(0, 0)
 ignore_gravity = true
 cinematic_frames = 0
 title = ""
+follow_up = SubResource("S_emperorb_stab")
+follow_up_cost = 0
+follow_up_window = 28
+
+[sub_resource type="Resource" id="S_emperorb_fall"]
+script = ExtResource("2")
+display_name = "Judgment Fall +"
+direction = &"up"
+damage = 10.5
+base_knockback = 200
+knockback_growth = 120
+angle_degrees = -70
+startup_frames = 3
+active_frames = 14
+recovery_frames = 14
+hitbox_size = Vector2(40, 40)
+hitbox_offset = Vector2(8, -8)
+self_velocity = Vector2(50, 520)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
 
 [sub_resource type="Resource" id="S_emperorb_up"]
 script = ExtResource("2")
 display_name = "Ascension +"
 direction = &"up"
 damage = 7.6
-base_knockback = 210.0
-knockback_growth = 120.0
-angle_degrees = 85.0
+base_knockback = 210
+knockback_growth = 120
+angle_degrees = 85
 startup_frames = 4
 active_frames = 4
 recovery_frames = 22
@@ -72,25 +120,49 @@ teleport = Vector2(0, 0)
 ignore_gravity = false
 cinematic_frames = 0
 title = ""
+follow_up = SubResource("S_emperorb_fall")
+follow_up_cost = 0
+follow_up_window = 30
 
-[sub_resource type="Resource" id="S_emperorb_down"]
+[sub_resource type="Resource" id="S_emperorb_riposte"]
 script = ExtResource("2")
-display_name = "Shadow Pillar +"
+display_name = "Judgment Counter +"
 direction = &"down"
-damage = 7.6
-base_knockback = 190.0
-knockback_growth = 110.0
-angle_degrees = 80.0
-startup_frames = 6
-active_frames = 4
+damage = 12.5
+base_knockback = 280
+knockback_growth = 170
+angle_degrees = 40
+startup_frames = 2
+active_frames = 5
 recovery_frames = 22
-hitbox_size = Vector2(83, 44)
-hitbox_offset = Vector2(0, -18)
+hitbox_size = Vector2(70, 50)
+hitbox_offset = Vector2(22, -24)
 self_velocity = Vector2(0, 0)
 teleport = Vector2(0, 0)
 ignore_gravity = false
 cinematic_frames = 0
 title = ""
+
+[sub_resource type="Resource" id="S_emperorb_down"]
+script = ExtResource("2")
+display_name = "Counter Stance +"
+direction = &"down"
+damage = 0
+base_knockback = 0
+knockback_growth = 0
+angle_degrees = 0
+startup_frames = 4
+active_frames = 28
+recovery_frames = 18
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+counter_move = SubResource("S_emperorb_riposte")
+cost = 0
 
 [resource]
 script = ExtResource("1")

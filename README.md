@@ -219,4 +219,10 @@ Byakuya's kit: Petal Drift (a slow cloud of petals; press special again to comma
 enemy, half a block), Flash Step + Behind Slash (teleports past the enemy and slashes back),
 Sky Flash + Blade Drop and Petal Wall (a standing column that destroys enemy projectiles, one at a
 time; `ProjectileData.absorbs`). In the form there are more petals and every follow-up and the wall
-are free. Yhwach follows.
+are free.
+
+Yhwach's kit: a Void Sphere that swallows enemy projectiles (chargeable), Blood Rush + Blood Stab,
+Ascension + Judgment Fall and Counter Stance (down special, one block): a hit that lands during
+its active frames is negated and answered with Judgment Counter, facing the attacker
+(`SpecialData.counter_move`, `cost`). Without a block the down special is a normal attack.
+In the form everything is free and the stance lasts longer.

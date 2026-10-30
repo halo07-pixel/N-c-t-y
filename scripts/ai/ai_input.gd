@@ -110,6 +110,11 @@ func _try_defend(frame: InputFrame) -> bool:
 	_defend_cooldown = DEFEND_COOLDOWN
 	if _rng.randf() >= chance:
 		return false
+	var down := fighter.current_specials().down
+	if down != null and down.counter_move != null and fighter.can_afford(down.cost) and _rng.randf() < 0.3:
+		frame.special_just_pressed = true # a counter stance instead of a guard
+		frame.move.y = 1.0
+		return true
 	frame.guard_just_pressed = true
 	frame.guard_held = true
 	if _rng.randf() < params["shunpo"]:

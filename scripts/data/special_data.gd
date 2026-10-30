@@ -46,6 +46,13 @@ extends MoveData
 ## More than zero sends all of the fighter's commandable projectiles flying forward at this speed.
 @export var command_speed: float = 0.0
 
+@export_group("Counter")
+## A counter stance: a hit that lands during the active frames is negated and this move
+## is played at once, facing the attacker. The stance itself deals no damage.
+@export var counter_move: SpecialData
+## Reiatsu paid when the move starts. Without it the fighter performs a normal attack instead.
+@export var cost: float = 0.0
+
 @export_group("Ultimate")
 ## More than zero makes this a cinematic move: everyone else freezes for this
 ## many frames and the camera zooms in on the fighter.

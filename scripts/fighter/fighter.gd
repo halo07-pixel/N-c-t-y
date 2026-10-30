@@ -34,6 +34,8 @@ var bankai_frames_left: int = 0
 var gauge: float = 0.0
 var combo_count: int = 0
 var last_attacker_id: int = 0
+## While set, hits are negated and answered with this move (see SpecialData.counter_move).
+var counter_move: SpecialData = null
 var guard_energy: float = GuardRules.ENERGY_MAX
 ## 0..1 while a special is being charged (drawn as a glow around the fighter).
 var special_charge: float = 0.0
@@ -214,11 +216,14 @@ func _tick_defense() -> void:
 	if not is_guarding():
 		guard_energy = minf(guard_energy + GuardRules.RECOVER_PER_FRAME, GuardRules.ENERGY_MAX)
 	var perfect_window := is_guarding() and guard_age < GuardRules.PERFECT_WINDOW_FRAMES
-	hurtbox.evading = dodge_frames_left > 0 or perfect_window
+	hurtbox.evading = dodge_frames_left > 0 or perfect_window or counter_move != null
 
 
 ## A hit that arrived during a perfect-guard window or a Shunpo: nothing happens to us.
 func _evade_hit(info: HitInfo) -> void:
+	if counter_move != null:
+		_counter_hit(info)
+		return
 	var spot := global_position + Vector2(0.0, -14.0)
 	add_gauge(GuardRules.PERFECT_GAUGE)
 	add_reiatsu(Reiatsu.PERFECT_GAIN)
@@ -226,6 +231,23 @@ func _evade_hit(info: HitInfo) -> void:
 		Events.fighter_guarded.emit(player_id, info.attacker_id, true, spot)
 	else:
 		Events.fighter_dodged.emit(player_id, info.attacker_id, spot)
+
+
+## A counter stance caught a hit: nothing lands, and the counter strike plays facing the attacker.
+func _counter_hit(info: HitInfo) -> void:
+	var spot := global_position + Vector2(0.0, -14.0)
+	Events.fighter_guarded.emit(player_id, info.attacker_id, true, spot)
+	add_gauge(GuardRules.PERFECT_GAUGE)
+	facing = -1 if info.direction.x > 0.0 else 1
+	queue_move(counter_move)
+	set_counter(null)
+	_state_machine.transition_to(&"Attack")
+
+
+## Opens (or closes, with null) the counter window; the attack state calls it.
+func set_counter(move: SpecialData) -> void:
+	counter_move = move
+	hurtbox.evading = move != null
 
 
 ## A hit absorbed by the guard: a little damage, a little push, the guard energy drains.
@@ -413,7 +435,9 @@ func current_specials() -> SpecialSet:
 ## The move for the button just pressed and the direction held.
 func pick_move(aerial: bool) -> MoveData:
 	if input.special_just_pressed:
-		return current_specials().select(input.move)
+		var special := current_specials().select(input.move)
+		if special.cost <= 0.0 or can_afford(special.cost):
+			return special
 	return data.moveset.select(aerial, input.move)
 
 

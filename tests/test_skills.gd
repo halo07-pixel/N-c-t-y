@@ -4,6 +4,7 @@ extends TestCase
 const STAGE_SCENE: PackedScene = preload("res://scenes/stages/test_stage.tscn")
 const FIGHTER_SCENE: PackedScene = preload("res://scenes/fighter/fighter.tscn")
 const SWORDSMAN: CharacterData = preload("res://resources/characters/swordsman.tres")
+const EMPEROR: CharacterData = preload("res://resources/characters/emperor.tres")
 const NOBLE: CharacterData = preload("res://resources/characters/noble.tres")
 const ARCHER: CharacterData = preload("res://resources/characters/archer.tres")
 
@@ -313,4 +314,82 @@ func test_the_petal_wall_destroys_enemy_projectiles_and_only_one_stands() -> voi
 	_input.tap_special()
 	await wait_frames(40)
 	check_eq(_a.live_traps().size(), 1, "a new wall replaces the old one")
+	_teardown()
+
+
+
+# --- Yhwach ------------------------------------------------------------------------
+
+func test_yhwachs_kit_and_the_form_makes_it_free() -> void:
+	for set: SpecialSet in [EMPEROR.specials, EMPEROR.bankai_specials]:
+		check(set.neutral.projectiles[0].absorbs and set.neutral.is_chargeable(), "the void sphere swallows projectiles and charges")
+		check(set.forward.follow_up != null and set.up.follow_up != null, "Blood Rush and Ascension have follow-ups")
+		check(set.down.counter_move != null and set.down.damage == 0.0, "a counter stance")
+	check(EMPEROR.specials.down.cost > 0.0, "the counter stance costs a block")
+	check_eq(EMPEROR.bankai_specials.down.cost, 0.0, "free in the form")
+	check_eq(EMPEROR.bankai_specials.forward.follow_up_cost, 0.0, "follow-ups are free in the form")
+
+
+func test_the_counter_stance_negates_a_hit_and_strikes_back() -> void:
+	_build(EMPEROR)
+	_a.set_reiatsu(100.0)
+	_b.global_position = _a.global_position + Vector2(60.0, 0.0)
+	await wait_frames(30)
+	_input.held_move = Vector2(0.0, 1.0)
+	_input.tap_special()
+	await wait_frames(8)
+	_input.held_move = Vector2.ZERO
+	check(_a.reiatsu < 20.0, "a block was paid (%d left)" % int(_a.reiatsu))
+	check(_a.counter_move != null, "the stance is up")
+	var info := HitInfo.new()
+	info.attacker_id = 2
+	info.damage = 12.0
+	info.base_knockback = 200.0
+	info.direction = Vector2(-1.0, -0.3).normalized()
+	_a.hurtbox.receive_hit(info)
+	await wait_frames(2)
+	check_eq(_a.percent, 0.0, "no damage taken")
+	check_eq(_a.get_state_name(), &"Attack", "answering with the counter")
+	check_eq(_a.facing, 1, "facing the attacker")
+	await wait_frames(12)
+	check(_b.percent > 0.0, "the counter hit the attacker")
+	_teardown()
+
+
+func test_a_whiffed_counter_stance_ends_and_leaves_no_window() -> void:
+	_build(EMPEROR)
+	_a.set_reiatsu(100.0)
+	await wait_frames(30)
+	_input.held_move = Vector2(0.0, 1.0)
+	_input.tap_special()
+	await wait_frames(60)
+	_input.held_move = Vector2.ZERO
+	check(_a.counter_move == null and not _a.hurtbox.evading, "the window closed")
+	_teardown()
+
+
+func test_without_a_block_the_down_special_is_a_normal_attack() -> void:
+	_build(EMPEROR)
+	_a.set_reiatsu(0.0)
+	await wait_frames(30)
+	_input.held_move = Vector2(0.0, 1.0)
+	_input.tap_special()
+	await wait_frames(10)
+	check(_a.counter_move == null, "no stance without the Reiatsu")
+	_teardown()
+
+
+func test_the_void_sphere_swallows_enemy_arrows() -> void:
+	_build(EMPEROR)
+	await wait_frames(30)
+	_input.tap_special()
+	await wait_frames(20)
+	var sphere: Projectile = _shots[0]
+	var arrow := Projectile.new()
+	arrow.launch(ARCHER.specials.neutral.projectiles[0], ARCHER.specials.neutral, 2, -1, 1.0, sphere.position + Vector2(24.0, 20.0))
+	tree.root.add_child(arrow)
+	_shots.append(arrow)
+	await wait_frames(4)
+	check(not is_instance_valid(arrow) or arrow.is_queued_for_deletion(), "the arrow was swallowed")
+	check(is_instance_valid(sphere) and not sphere.is_queued_for_deletion(), "the sphere flies on")
 	_teardown()

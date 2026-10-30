@@ -44,3 +44,11 @@ Run it with:
 - Uryu: melee x1.08, specials x1.12, weight 90 to 95.
 - Byakuya: melee x1.17, specials x1.12, weight 85 to 95.
 - Ichigo is unchanged.
+
+
+## After the skill rework (8 matches per pair, CPU level 3)
+
+Ichigo 31%, Uryu 40%, Byakuya 56%, Yhwach 73% (before the last tuning: 38 / 29 / 56 / 77).
+Tuned: Uryu's arrows hit a little harder, Yhwach's counter strike was weakened and the CPU
+counters less often. Yhwach is still the strongest; the next knobs are his weight and the
+form's damage multiplier. 8 matches per pair is noisy, so read these as a rough guide.

@@ -18,12 +18,15 @@ func enter(_previous: StringName) -> void:
 	fighter.face_input()
 	_aerial = not fighter.is_on_floor()
 	_move = fighter.take_queued_move()
-	if _move == null:
+	var chosen_by_button := _move == null
+	if chosen_by_button:
 		_move = fighter.pick_move(_aerial)
 	_special = _move as SpecialData
 	_frame = 0
 	_charge = 0
 	_released_charge = 0.0
+	if chosen_by_button and _special != null:
+		fighter.try_spend_reiatsu(_special.cost)
 	if _special != null and _special.flip_facing:
 		fighter.facing = -fighter.facing
 	if _special != null and _special.cinematic_frames > 0:
@@ -32,6 +35,7 @@ func enter(_previous: StringName) -> void:
 
 func exit() -> void:
 	fighter.special_charge = 0.0
+	fighter.set_counter(null)
 	fighter.hitbox.deactivate()
 	fighter.set_attack_visual(&"", &"")
 
@@ -44,9 +48,18 @@ func physics_update(delta: float) -> StringName:
 	if follow != &"":
 		return follow
 	_advance_move()
+	_update_counter()
 	if _frame >= _move.total_frames():
 		return &"Idle" if fighter.is_on_floor() else &"Fall"
 	return &""
+
+
+## A counter stance catches hits during its active frames.
+func _update_counter() -> void:
+	if _special == null or _special.counter_move == null:
+		return
+	var in_window := _frame > _move.startup_frames and _frame <= _move.startup_frames + _move.active_frames
+	fighter.set_counter(_special.counter_move if in_window else null)
 
 
 ## Moves the fighter for this tick. Returns a state name if the attack is cut short.
