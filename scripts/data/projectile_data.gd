@@ -21,3 +21,5 @@ extends Resource
 @export var trap: bool = false
 ## A commandable projectile (a petal cloud) can be sent flying by a command move.
 @export var commandable: bool = false
+## An absorbing projectile (a petal wall, a void sphere) destroys enemy projectiles that touch it.
+@export var absorbs: bool = false

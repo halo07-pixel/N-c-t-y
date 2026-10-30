@@ -15,6 +15,7 @@ const MAX_LEVEL := 4
 const STAGE_SAFE_HALF_WIDTH := 150.0
 const FLOOR_Y := 60.0
 const MELEE_RANGE := 38.0
+var _follow_up_in: int = 0
 const TRAP_MIN := 110.0
 const TRAP_CHANCE := 0.35
 const RANGED_MIN := 90.0
@@ -56,6 +57,9 @@ func get_frame() -> InputFrame:
 	if _special_hold_left > 0:
 		_special_hold_left -= 1
 		frame.special_held = true
+	if _follow_up_in > 0:
+		_follow_up_in -= 1
+		frame.special_just_pressed = _follow_up_in == 0 # press special again: the follow-up
 	if _is_off_stage():
 		_recover(frame)
 	elif _guard_frames_left > 0:
@@ -158,6 +162,8 @@ func _decide(frame: InputFrame, gap: float, rise: float) -> void:
 			frame.special_held = false
 			return
 		var charge_special := fighter.current_specials().neutral
+		if level >= 2 and charge_special != null and charge_special.follow_up != null and _rng.randf() < 0.6:
+			_follow_up_in = _rng.randi_range(16, 36)
 		if level >= 2 and charge_special != null and charge_special.is_chargeable():
 			_special_hold_left = _rng.randi_range(0, charge_special.charge_max_frames)
 

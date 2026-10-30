@@ -54,6 +54,8 @@ static func draw(
 			_petals(item, size, color, age)
 		&"orb":
 			_orb(item, size, color, age)
+		&"wall":
+			_wall(item, size, color, age)
 		&"mine":
 			_mine(item, size, color, age)
 		_:
@@ -126,3 +128,21 @@ static func _mine(item: CanvasItem, size: Vector2, color: Color, age: float) -> 
 		var a := spin + float(i) * TAU / 4.0
 		item.draw_line(Vector2(cos(a), sin(a)) * radius * 0.25, Vector2(cos(a), sin(a)) * radius * 0.8, _alpha(color, 0.9), 1.0)
 	item.draw_circle(Vector2.ZERO, 1.6, _alpha(Color.WHITE, 0.7))
+
+
+## A standing wall of petals: a translucent column with petals drifting up through it.
+static func _wall(item: CanvasItem, size: Vector2, color: Color, age: float) -> void:
+	item.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	var half := size * 0.5
+	item.draw_rect(Rect2(-half, size), _alpha(color, 0.12))
+	item.draw_line(Vector2(-half.x, -half.y), Vector2(-half.x, half.y), _alpha(color, 0.5), 1.0)
+	item.draw_line(Vector2(half.x, -half.y), Vector2(half.x, half.y), _alpha(color, 0.5), 1.0)
+	for i in 14:
+		var t := fposmod(age * 0.7 + float(i) * 0.37, 1.0)
+		var x := sin(float(i) * 2.4 + age * 3.0) * half.x
+		var y := half.y - t * size.y
+		var petal := PackedVector2Array()
+		for step in 6:
+			var a := float(step) * TAU / 6.0
+			petal.append(Vector2(x, y) + Vector2(cos(a) * 3.0, sin(a) * 1.3).rotated(age * 4.0 + float(i)))
+		item.draw_colored_polygon(petal, _alpha(color, 0.85))

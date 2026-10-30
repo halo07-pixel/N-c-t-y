@@ -4,6 +4,7 @@ extends TestCase
 const STAGE_SCENE: PackedScene = preload("res://scenes/stages/test_stage.tscn")
 const FIGHTER_SCENE: PackedScene = preload("res://scenes/fighter/fighter.tscn")
 const SWORDSMAN: CharacterData = preload("res://resources/characters/swordsman.tres")
+const NOBLE: CharacterData = preload("res://resources/characters/noble.tres")
 const ARCHER: CharacterData = preload("res://resources/characters/archer.tres")
 
 var _stage: Stage
@@ -261,4 +262,55 @@ func test_the_cpu_lays_traps_only_up_to_the_limit() -> void:
 		await wait_frames(1)
 		placed = maxi(placed, _a.live_traps().size())
 	check(placed <= 2, "the limit holds for the CPU (%d)" % placed)
+	_teardown()
+
+
+
+# --- Byakuya -----------------------------------------------------------------------
+
+func test_byakuyas_kit_and_the_form_makes_it_free() -> void:
+	for set: SpecialSet in [NOBLE.specials, NOBLE.bankai_specials]:
+		check(set.neutral.projectiles[0].commandable and set.neutral.follow_up.command_speed > 0.0, "petals can be commanded")
+		check(set.forward.follow_up != null and set.forward.follow_up.flip_facing, "Flash Step ends behind the enemy")
+		check(set.up.follow_up != null, "Sky Flash has a Blade Drop")
+		check(set.down.projectiles[0].absorbs and set.down.limit_active == 1, "a single petal wall")
+	check(NOBLE.specials.neutral.follow_up_cost > 0.0, "commanding costs Reiatsu normally")
+	check_eq(NOBLE.bankai_specials.neutral.follow_up_cost, 0.0, "free in the form")
+	check(NOBLE.bankai_specials.neutral.projectiles.size() == 3, "the form releases more petals")
+
+
+func test_commanding_the_petals_sends_them_at_the_enemy() -> void:
+	_build(NOBLE)
+	_a.set_reiatsu(100.0)
+	await wait_frames(30)
+	_input.tap_special()
+	await wait_frames(16)
+	check(_shots.size() >= 1, "petals drift out")
+	var slow: float = absf(_shots[0]._velocity.x)
+	_input.tap_special()
+	await wait_frames(6)
+	check(absf(_shots[0]._velocity.x) > slow * 1.5, "commanded: they fly much faster")
+	check(_a.reiatsu < 70.0, "half a block was paid (%d left)" % int(_a.reiatsu))
+	_teardown()
+
+
+func test_the_petal_wall_destroys_enemy_projectiles_and_only_one_stands() -> void:
+	_build(NOBLE)
+	await wait_frames(30)
+	_input.held_move = Vector2(0.0, 1.0)
+	_input.tap_special()
+	await wait_frames(25)
+	_input.held_move = Vector2.ZERO
+	check_eq(_a.live_traps().size(), 1, "a wall stands")
+	var wall: Projectile = _shots[0]
+	var arrow := Projectile.new()
+	arrow.launch(ARCHER.specials.neutral.projectiles[0], ARCHER.specials.neutral, 2, -1, 1.0, wall.position + Vector2(40.0, 8.0))
+	tree.root.add_child(arrow)
+	_shots.append(arrow)
+	await wait_frames(20)
+	check(not is_instance_valid(arrow) or arrow.is_queued_for_deletion(), "the arrow was swallowed")
+	_input.held_move = Vector2(0.0, 1.0)
+	_input.tap_special()
+	await wait_frames(40)
+	check_eq(_a.live_traps().size(), 1, "a new wall replaces the old one")
 	_teardown()

@@ -217,6 +217,12 @@ func _play_scenario(scenario: String) -> void:
 			await _frames(30)
 			_bot_input.held_move = Vector2.ZERO
 			await _frames(20)
+		"wall": # Byakuya's petal wall
+			_bot_input.held_move = Vector2(0.0, 1.0)
+			_bot_input.tap_special()
+			await _frames(30)
+			_bot_input.held_move = Vector2.ZERO
+			await _frames(20)
 		"boss":
 			await _frames(60)
 		"boss_ult":

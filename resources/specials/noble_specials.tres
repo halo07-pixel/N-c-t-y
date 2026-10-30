@@ -156,19 +156,20 @@ follow_up_window = 30
 
 [sub_resource type="Resource" id="P_noble_down_0"]
 script = ExtResource("3")
-offset = Vector2(26, -8)
+offset = Vector2(40, -22)
 velocity = Vector2(0, 0)
-lifetime_frames = 240
-size = Vector2(26, 16)
-pierce = false
+lifetime_frames = 150
+size = Vector2(14, 44)
+pierce = true
 color = Color(1.0, 0.6, 0.8, 1)
-art = &"petal2"
-style = &"petal"
+art = &""
+style = &"wall"
+absorbs = true
 trap = true
 
 [sub_resource type="Resource" id="S_noble_down"]
 script = ExtResource("2")
-display_name = "Petal Trap"
+display_name = "Petal Wall"
 direction = &"down"
 damage = 7.8
 base_knockback = 160
@@ -184,8 +185,8 @@ teleport = Vector2(0, 0)
 ignore_gravity = false
 cinematic_frames = 0
 title = ""
-limit_active = 2
-repeat_cost = 50
+limit_active = 1
+repeat_cost = 0
 projectiles = Array[ExtResource("3")]([SubResource("P_noble_down_0")])
 
 [resource]

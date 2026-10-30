@@ -10,6 +10,7 @@ const OFFSCREEN_LIMIT := 1600.0
 const CORE_SCALE := 0.55
 const MIN_ART_SCALE := 0.35
 const TRAP_GROUP := &"traps"
+const SHOT_GROUP := &"shots"
 const COMMAND_GROUP := &"commandable"
 const COMMAND_DAMAGE_SCALE := 1.3
 const COMMAND_MIN_LIFE := 50
@@ -78,6 +79,7 @@ func command(direction: int, speed: float) -> void:
 
 
 func _ready() -> void:
+	add_to_group(SHOT_GROUP)
 	if _data != null and _data.commandable:
 		add_to_group(COMMAND_GROUP)
 	if is_trap():
@@ -101,6 +103,8 @@ func _physics_process(delta: float) -> void:
 		_freeze_left -= 1
 		return
 	position += _velocity * delta
+	if _data.absorbs:
+		_absorb_enemy_shots()
 	_age += delta
 	if _data.style != &"" and GameSettings.screen_effects:
 		_trail.append(position)
@@ -109,6 +113,19 @@ func _physics_process(delta: float) -> void:
 	_frames_left -= 1
 	if _frames_left <= 0 or position.length() > OFFSCREEN_LIMIT:
 		queue_free()
+
+
+## Destroys every enemy projectile overlapping this one (traps and other absorbers excepted).
+func _absorb_enemy_shots() -> void:
+	var mine := Rect2(position - _size * 0.5, _size)
+	for node in get_tree().get_nodes_in_group(SHOT_GROUP):
+		var other := node as Projectile
+		if other == null or other.owner_id == owner_id or other.is_trap() or other.is_queued_for_deletion():
+			continue
+		if other._data.absorbs:
+			continue
+		if mine.intersects(Rect2(other.position - other._size * 0.5, other._size)):
+			other.queue_free()
 
 
 func _draw() -> void:
