@@ -419,8 +419,8 @@ func _lowest_foot_y() -> float:
 
 ## The streak follows the blade while a swing is active and for a moment after.
 func _update_trail() -> void:
-	var swinging := _pose == &"Attack" and _attack_kind != &"" and not _attack_special \
-		and _attack_phase != &"startup" and GameSettings.screen_effects
+	var swinging := _pose == &"Attack" and _attack_kind != &"" and _attack_phase != &"startup" \
+		and GameSettings.screen_effects and not _weapon.is_bow()
 	if swinging:
 		var hilt := _weapon.to_global(Vector2.ZERO)
 		_trail.add_sample(_weapon.to_global(_weapon.tip()), hilt)

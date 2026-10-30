@@ -241,3 +241,14 @@ under its middle, so nobody can hover under the stage forever.
 - **FxProfile** (`resources/fx/*_fx.tres`, `CharacterData.fx_profile`): palette, impact style
   (slash / shards / petals / ink) and spark scale per character. Hit sparks already use it; later
   stages (trails, auras, transform presentation) read the same profile.
+
+## Combat effects (stage 2)
+
+- **Hit bursts** follow the attacker's `FxProfile.impact_style`: slash (crossing cuts), shards,
+  petals, or ink (the dark pulls in, then bursts). Light, solid and heavy hits (`HitSpark.tier_for`)
+  add more layers.
+- **Weapon trail** has a soft edge and a bright core, scales with the effects level, and now also
+  follows specials with a blade (not bows).
+- **Projectiles** flash when they appear and when they fade out (`Events.projectile_flash`).
+- **KO burst** uses the victim's colours with a second accent ring; the final-KO slow motion is
+  stronger and longer on higher effect levels.

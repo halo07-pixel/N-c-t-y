@@ -10,6 +10,7 @@ func _ready() -> void:
 	Events.fighter_guarded.connect(_on_guarded)
 	Events.fighter_dodged.connect(_on_dodged)
 	Events.fighter_shunpo.connect(_on_shunpo)
+	Events.projectile_flash.connect(_on_projectile_flash)
 
 
 func _on_hit_impact(
@@ -25,6 +26,8 @@ func _on_hit_impact(
 	if profile != null:
 		spark.color = profile.primary.lerp(profile.accent, 0.35)
 		spark.amount = GameSettings.effect_amount() * profile.spark_scale
+		spark.style = profile.impact_style
+		spark.accent = profile.accent
 	else:
 		spark.color = MatchHud.PLAYER_COLORS.get(attacker_id, Color.WHITE).lerp(Color.WHITE, 0.5)
 		spark.amount = GameSettings.effect_amount()
@@ -79,3 +82,18 @@ func _on_shunpo(_id: int, start: Vector2, direction: int) -> void:
 	puff.position = start
 	puff.strength = 0.8
 	FxBudget.spawn(self, puff)
+
+
+## A small flash where a projectile appears or fades out.
+func _on_projectile_flash(flash_position: Vector2, direction: Vector2, color: Color, dissolve: bool) -> void:
+	if not GameSettings.screen_effects:
+		return
+	var spark := HitSpark.new()
+	spark.position = flash_position
+	spark.direction = direction if direction != Vector2.ZERO else Vector2.RIGHT
+	spark.power = 0.3 if dissolve else 0.2
+	spark.color = color
+	spark.accent = Color.WHITE
+	spark.style = &"shards" if dissolve else &"slash"
+	spark.amount = GameSettings.effect_amount() * 0.55
+	FxBudget.spawn(self, spark)

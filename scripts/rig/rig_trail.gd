@@ -51,12 +51,17 @@ func _draw() -> void:
 		var older: Dictionary = _samples[index - 1]
 		var newer: Dictionary = _samples[index]
 		var fade := 1.0 - clampf(float(newer["age"]) / LIFETIME, 0.0, 1.0)
-		var tint := Color(color.r, color.g, color.b, 0.75 * fade)
+		var strength := clampf(GameSettings.effect_amount(), 0.4, 1.4)
+		var tint := Color(color.r, color.g, color.b, 0.6 * fade * strength)
 		# Two triangles, not one quad: a swinging blade can cross over itself, which a
 		# single polygon cannot draw. Skip triangles with no area (the blade did not move).
 		_triangle(older["base"], older["tip"], newer["tip"], tint)
 		_triangle(older["base"], newer["tip"], newer["base"], tint)
-		draw_line(older["tip"], newer["tip"], Color(1.0, 1.0, 1.0, fade), 1.2)
+		# A soft outer edge beyond the tip, a bright core line along it and a short tail streak.
+		var out_a: Vector2 = older["tip"] + (older["tip"] - older["base"]).normalized() * 2.5
+		var out_b: Vector2 = newer["tip"] + (newer["tip"] - newer["base"]).normalized() * 2.5
+		draw_line(out_a, out_b, Color(color.r, color.g, color.b, 0.3 * fade * strength), 3.0)
+		draw_line(older["tip"], newer["tip"], Color(1.0, 1.0, 1.0, fade), 1.2 + 0.6 * strength)
 
 
 func _triangle(a: Vector2, b: Vector2, c: Vector2, tint: Color) -> void:

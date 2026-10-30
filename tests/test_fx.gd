@@ -209,3 +209,49 @@ func test_hits_and_landings_spawn_effects_only_when_enabled() -> void:
 	check_eq(fx.get_child_count(), 2, "nothing appears with effects off")
 	fx.queue_free()
 	GameSettings.screen_effects = before
+
+
+func test_hit_tiers_and_impact_styles() -> void:
+	check_eq(HitSpark.tier_for(0.2), 0, "a light hit")
+	check_eq(HitSpark.tier_for(0.5), 1, "a solid hit")
+	check_eq(HitSpark.tier_for(0.9), 2, "a heavy hit")
+	var styles: Array[StringName] = []
+	for path in MatchConfig.ROSTER_PATHS:
+		styles.append((load(path) as CharacterData).fx_profile.impact_style)
+	check_eq(styles.size(), 3, "three roster characters")
+	check(styles[0] != styles[1] and styles[1] != styles[2] and styles[0] != styles[2], "each bursts differently")
+
+
+func test_every_impact_style_draws() -> void:
+	for style: StringName in [&"slash", &"shards", &"petals", &"ink"]:
+		for power in [0.2, 0.9]:
+			var spark := HitSpark.new()
+			spark.style = style
+			spark.power = power
+			tree.root.add_child(spark)
+			await wait_frames(6)
+			check(is_instance_valid(spark), "%s at %.1f draws" % [style, power])
+			if is_instance_valid(spark):
+				spark.free()
+
+
+func test_the_final_ko_slows_more_on_higher_levels() -> void:
+	check(MatchFx.slowmo_scale(GameSettings.EffectsLevel.HIGH) < MatchFx.slowmo_scale(GameSettings.EffectsLevel.NORMAL), "slower on high")
+	check(MatchFx.slowmo_scale(GameSettings.EffectsLevel.NORMAL) < MatchFx.slowmo_scale(GameSettings.EffectsLevel.LOW), "slower on normal than low")
+	check(MatchFx.slowmo_seconds(GameSettings.EffectsLevel.HIGH) > MatchFx.slowmo_seconds(GameSettings.EffectsLevel.LOW), "and for longer")
+
+
+func test_a_projectile_announces_its_appearance_and_fade() -> void:
+	var flashes: Array = []
+	var listener := func(_p: Vector2, _d: Vector2, _c: Color, dissolve: bool) -> void: flashes.append(dissolve)
+	Events.projectile_flash.connect(listener)
+	var data := (load("res://resources/characters/swordsman.tres") as CharacterData).specials.neutral
+	var shot := Projectile.new()
+	shot.launch(data.projectiles[0], data, 1, 1, 1.0, Vector2.ZERO)
+	tree.root.add_child(shot)
+	await wait_frames(data.projectiles[0].lifetime_frames + 5)
+	Events.projectile_flash.disconnect(listener)
+	check(flashes.has(false), "a flash when it appears")
+	check(flashes.has(true), "and one when it fades")
+	if is_instance_valid(shot):
+		shot.free()

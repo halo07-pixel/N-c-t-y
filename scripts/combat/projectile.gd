@@ -86,6 +86,8 @@ func _ready() -> void:
 		add_to_group(TRAP_GROUP)
 	area_entered.connect(_on_area_entered)
 	Events.ultimate_started.connect(_on_ultimate_started)
+	if _data != null and _data.style != &"" and not _data.trap:
+		Events.projectile_flash.emit(position, _velocity.normalized(), _data.color, false)
 	if _data != null and _data.style != &"":
 		var additive := CanvasItemMaterial.new()
 		additive.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
@@ -112,6 +114,8 @@ func _physics_process(delta: float) -> void:
 			_trail.pop_front()
 	_frames_left -= 1
 	if _frames_left <= 0 or position.length() > OFFSCREEN_LIMIT:
+		if _data.style != &"" and not _data.trap and position.length() <= OFFSCREEN_LIMIT:
+			Events.projectile_flash.emit(position, _velocity.normalized(), _data.color, true)
 		queue_free()
 
 

@@ -39,6 +39,15 @@ static func burst_screen_position(
 	)
 
 
+## The final KO slows time more, and for longer, on higher effect levels.
+static func slowmo_scale(level: int) -> float:
+	return 0.5 if level <= GameSettings.EffectsLevel.LOW else (0.35 if level == GameSettings.EffectsLevel.NORMAL else 0.25)
+
+
+static func slowmo_seconds(level: int) -> float:
+	return 0.6 if level <= GameSettings.EffectsLevel.LOW else (SLOWMO_SECONDS if level == GameSettings.EffectsLevel.NORMAL else 1.2)
+
+
 ## True when the match ended on the same frame as a KO (not by the clock).
 static func is_final_ko(frame: int, last_ko_frame: int) -> bool:
 	return frame - last_ko_frame <= FINAL_KO_WINDOW_FRAMES
@@ -58,6 +67,11 @@ func _on_fighter_ko(player_id: int, ko_position: Vector2) -> void:
 	)
 	burst.scale = RenderScale.ui()
 	burst.color = MatchHud.PLAYER_COLORS.get(player_id, Color.WHITE).lerp(Color.WHITE, 0.4)
+	burst.amount = GameSettings.effect_amount()
+	var character := MatchConfig.character_for(player_id)
+	if character != null and character.fx_profile != null:
+		burst.color = character.fx_profile.primary
+		burst.accent = character.fx_profile.accent
 	_layer.add_child(burst)
 
 
@@ -67,9 +81,9 @@ func _on_match_ended(_winner_id: int) -> void:
 	if not is_final_ko(Engine.get_physics_frames(), _last_ko_frame):
 		return
 	_slowmo_active = true
-	Engine.time_scale = SLOWMO_SCALE
+	Engine.time_scale = slowmo_scale(GameSettings.effects_level)
 	# process_always, process_in_physics, ignore_time_scale: the timer runs in real time.
-	get_tree().create_timer(SLOWMO_SECONDS, true, false, true).timeout.connect(_end_slowmo)
+	get_tree().create_timer(slowmo_seconds(GameSettings.effects_level), true, false, true).timeout.connect(_end_slowmo)
 
 
 func _end_slowmo() -> void:
