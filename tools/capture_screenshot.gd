@@ -196,6 +196,21 @@ func _play_scenario(scenario: String) -> void:
 			_bot_input.held_move = Vector2(1.0, 0.0)
 			_bot_input.tap_guard()
 			await _frames(5)
+		"charge": # charging a special: the glow
+			_fighters[0].set_reiatsu(150.0)
+			await _frames(30)
+			_bot_input.held_special = true
+			_bot_input.tap_special()
+			await _frames(40)
+		"charged_shot": # a fully charged special in flight
+			_fighters[0].set_reiatsu(150.0)
+			await _frames(30)
+			_bot_input.held_special = true
+			_bot_input.tap_special()
+			await _frames(65)
+			_bot_input.held_special = false
+			await _until(func() -> bool: return _count_projectiles() > 0)
+			await _frames(14)
 		"boss":
 			await _frames(60)
 		"boss_ult":

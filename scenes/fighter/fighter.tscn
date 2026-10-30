@@ -9,7 +9,6 @@
 [ext_resource type="Script" path="res://scripts/fighter/states/attack_state.gd" id="8"]
 [ext_resource type="Script" path="res://scripts/fighter/states/hitstun_state.gd" id="9"]
 [ext_resource type="Script" path="res://scripts/fighter/states/ko_state.gd" id="10"]
-[ext_resource type="Script" path="res://scripts/fighter/states/charge_state.gd" id="13"]
 [ext_resource type="Script" path="res://scripts/fighter/states/transform_state.gd" id="14"]
 [ext_resource type="Script" path="res://scripts/fighter/states/guard_state.gd" id="20"]
 [ext_resource type="Script" path="res://scripts/fighter/states/shunpo_state.gd" id="21"]
@@ -63,9 +62,6 @@ script = ExtResource("9")
 
 [node name="Ko" type="Node" parent="StateMachine"]
 script = ExtResource("10")
-
-[node name="Charge" type="Node" parent="StateMachine"]
-script = ExtResource("13")
 
 [node name="Transform" type="Node" parent="StateMachine"]
 script = ExtResource("14")

@@ -81,21 +81,27 @@ func test_every_character_has_a_complete_kit() -> void:
 		check(character.bankai_specials.neutral != character.specials.neutral, "Bankai swaps the moves")
 
 
-func test_charging_gains_reiatsu_only_while_held() -> void:
+func test_reiatsu_refills_by_itself_and_faster_in_the_form() -> void:
 	_build_world(SWORDSMAN, SWORDSMAN, -90.0, 120.0)
-	_a.start_bankai() # charging Reiatsu is a transformed-only action
 	await wait_frames(30)
-	_input_a.tap_charge()
-	_input_a.held_charge = true
-	await wait_frames(30)
-	check_eq(_a.get_state_name(), &"Charge", "charging")
-	check(_a.reiatsu > 30.0, "gained Reiatsu while held")
-	_input_a.held_charge = false
-	await wait_frames(3)
-	var after_release := _a.reiatsu
-	await wait_frames(20)
-	check_eq(_a.get_state_name(), &"Idle", "stopped charging")
-	check_eq(_a.reiatsu, after_release, "no gain after release")
+	_a.set_reiatsu(0.0)
+	await wait_frames(60)
+	var normal_gain := _a.reiatsu
+	check(normal_gain > 5.0, "Reiatsu comes back on its own")
+	_a.set_reiatsu(0.0)
+	_a.start_bankai()
+	await wait_frames(60)
+	check(_a.reiatsu > normal_gain * 1.5, "and faster while transformed")
+	_teardown_world()
+
+
+func test_reiatsu_pays_in_blocks() -> void:
+	_build_world(SWORDSMAN, SWORDSMAN, -90.0, 120.0)
+	_a.set_reiatsu(150.0)
+	check(_a.try_spend_reiatsu(Reiatsu.BLOCK), "a block can be paid")
+	check_near(_a.reiatsu, 50.0, 0.001, "and is taken")
+	check(not _a.try_spend_reiatsu(Reiatsu.BLOCK), "not enough for a second one")
+	check_near(_a.reiatsu, 50.0, 0.001, "nothing is taken when it cannot be paid")
 	_teardown_world()
 
 
@@ -156,7 +162,7 @@ func test_transformation_needs_a_full_gauge() -> void:
 	_input_a.tap_charge()
 	await wait_frames(3)
 	check(not _a.is_bankai(), "no transformation without a full gauge")
-	check(_a.get_state_name() != &"Transform" and _a.get_state_name() != &"Charge", "and nothing else starts either")
+	check(_a.get_state_name() != &"Transform", "and nothing else starts either")
 	_teardown_world()
 
 
@@ -239,7 +245,7 @@ func test_ultimate_spends_everything_and_freezes_the_opponent() -> void:
 	await wait_frames(30)
 	_input_a.tap_charge()
 	await wait_frames(3)
-	check_eq(_a.reiatsu, 0.0, "spent all Reiatsu")
+	check(_a.reiatsu < 2.0, "spent all Reiatsu (only the regen of a few frames is back)")
 	check_eq(_a.get_state_name(), &"Attack", "performing the ultimate")
 	check_eq(_ultimate_events, [1] as Array[int], "announced once")
 	check(_b.hitlag_left > 30, "the opponent is frozen")

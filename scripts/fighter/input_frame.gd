@@ -9,6 +9,7 @@ var down_just_pressed: bool = false
 var down_held: bool = false
 var attack_just_pressed: bool = false
 var special_just_pressed: bool = false
+var special_held: bool = false
 var guard_just_pressed: bool = false
 var guard_held: bool = false
 var charge_held: bool = false

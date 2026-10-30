@@ -186,16 +186,20 @@ func _player_label(player_id: int) -> String:
 	return label
 
 
-## The Reiatsu meter: full means the ultimate (usable while transformed).
+## The Reiatsu meter as three blocks that fill one after the other; all three lit means the
+## ultimate is possible (while transformed).
 func _draw_reiatsu_bar(player_id: int, center_x: float) -> void:
 	var value: float = _reiatsu.get(player_id, 0.0)
+	var gap := 2.0
+	var cell := (BAR_WIDTH - gap * float(Reiatsu.BLOCKS - 1)) / float(Reiatsu.BLOCKS)
 	var left := center_x - BAR_WIDTH * 0.5
-	var area := Rect2(left, 258.0, BAR_WIDTH, BAR_HEIGHT)
-	_canvas.draw_rect(area.grow(1.0), OUTLINE)
-	_canvas.draw_rect(area, BAR_BACK)
-	var fill_color := BAR_READY if value >= Reiatsu.ULTIMATE_COST else BAR_NORMAL
-	var fill := Rect2(left, area.position.y, BAR_WIDTH * value / Reiatsu.MAX, BAR_HEIGHT)
-	_canvas.draw_rect(fill, fill_color)
+	for index in Reiatsu.BLOCKS:
+		var area := Rect2(left + (cell + gap) * float(index), 258.0, cell, BAR_HEIGHT)
+		_canvas.draw_rect(area.grow(1.0), OUTLINE)
+		_canvas.draw_rect(area, BAR_BACK)
+		var share := clampf((value - Reiatsu.BLOCK * float(index)) / Reiatsu.BLOCK, 0.0, 1.0)
+		var full := value >= Reiatsu.ULTIMATE_COST
+		_canvas.draw_rect(Rect2(area.position, Vector2(cell * share, BAR_HEIGHT)), BAR_READY if full or share >= 1.0 else BAR_NORMAL)
 
 
 ## The Combat Gauge above the Reiatsu bar; it pulses when a transformation is ready.

@@ -35,6 +35,8 @@ var gauge: float = 0.0
 var combo_count: int = 0
 var last_attacker_id: int = 0
 var guard_energy: float = GuardRules.ENERGY_MAX
+## 0..1 while a special is being charged (drawn as a glow around the fighter).
+var special_charge: float = 0.0
 var guard_age: int = 0
 var dodge_frames_left: int = 0
 var shunpo_cooldown: int = 0
@@ -69,6 +71,9 @@ func _ready() -> void:
 	add_child(shadow)
 	move_child(shadow, 1) # under the body
 	shadow.setup(self)
+	var glow := ChargeGlow.new()
+	add_child(glow)
+	glow.setup(self)
 	var shield := GuardShield.new()
 	add_child(shield)
 	shield.setup(self)
@@ -98,6 +103,7 @@ func _physics_process(delta: float) -> void:
 	_tick_bankai()
 	_tick_gauge()
 	_tick_defense()
+	_tick_reiatsu()
 	if _input_source != null:
 		input = _input_source.get_frame()
 	_tick_drop_through()
@@ -215,6 +221,7 @@ func _tick_defense() -> void:
 func _evade_hit(info: HitInfo) -> void:
 	var spot := global_position + Vector2(0.0, -14.0)
 	add_gauge(GuardRules.PERFECT_GAUGE)
+	add_reiatsu(Reiatsu.PERFECT_GAIN)
 	if is_guarding():
 		Events.fighter_guarded.emit(player_id, info.attacker_id, true, spot)
 	else:
@@ -304,6 +311,27 @@ func add_reiatsu(amount: float) -> void:
 	set_reiatsu(reiatsu + amount)
 
 
+func can_afford(cost: float) -> bool:
+	return reiatsu >= cost - 0.001
+
+
+## Pays `cost` when affordable and says whether it did.
+func try_spend_reiatsu(cost: float) -> bool:
+	if cost <= 0.0:
+		return true
+	if not can_afford(cost):
+		return false
+	spend_reiatsu(cost)
+	return true
+
+
+func _tick_reiatsu() -> void:
+	if reiatsu >= Reiatsu.MAX:
+		return
+	var rate := Reiatsu.REGEN_PER_FRAME * (Reiatsu.FORM_REGEN_MULTIPLIER if is_bankai() else 1.0)
+	add_reiatsu(rate)
+
+
 func spend_reiatsu(amount: float) -> void:
 	set_reiatsu(reiatsu - amount)
 
@@ -335,7 +363,7 @@ func charge_press_state() -> StringName:
 		return &"Attack"
 	if can_bankai():
 		return &"Transform"
-	return &"Charge" if is_bankai() else &""
+	return &""
 
 
 func start_bankai() -> void:
@@ -389,6 +417,11 @@ func pick_move(aerial: bool) -> MoveData:
 	return data.moveset.select(aerial, input.move)
 
 
+## Queues a move for the attack state to play next (an ultimate or a follow-up).
+func queue_move(move: MoveData) -> void:
+	_queued_move = move
+
+
 ## An ultimate queued by charge_press_state(); consumed once by the attack state.
 func take_queued_move() -> MoveData:
 	var move := _queued_move
@@ -396,9 +429,15 @@ func take_queued_move() -> MoveData:
 	return move
 
 
-func spawn_projectile(projectile_data: ProjectileData, move: MoveData) -> void:
+## `charge` (0..1) is how long the special was charged; it scales the projectile (see SpecialData).
+func spawn_projectile(projectile_data: ProjectileData, move: MoveData, charge: float = 0.0) -> void:
 	var projectile := Projectile.new()
-	projectile.launch(projectile_data, move, player_id, facing, damage_multiplier, global_position)
+	var special := move as SpecialData
+	var scales := special.charge_scales(charge) if special != null else {"damage": 1.0, "size": 1.0, "speed": 1.0, "pierce": false}
+	projectile.launch(
+		projectile_data, move, player_id, facing, damage_multiplier * scales["damage"], global_position,
+		scales["size"], scales["speed"], scales["pierce"]
+	)
 	if projectile_data.style == &"":
 		projectile.set_art(_body.effect_texture(projectile_data.art))
 	projectile.hit_landed.connect(_on_projectile_hit)

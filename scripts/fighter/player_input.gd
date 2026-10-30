@@ -16,6 +16,7 @@ func get_frame() -> InputFrame:
 	frame.down_held = Input.is_action_pressed(_action(&"down"))
 	frame.attack_just_pressed = Input.is_action_just_pressed(_action(&"attack"))
 	frame.special_just_pressed = Input.is_action_just_pressed(_action(&"special"))
+	frame.special_held = Input.is_action_pressed(_action(&"special"))
 	frame.guard_just_pressed = Input.is_action_just_pressed(_action(&"guard"))
 	frame.guard_held = Input.is_action_pressed(_action(&"guard"))
 	frame.charge_held = Input.is_action_pressed(_action(&"charge"))

@@ -21,20 +21,25 @@ var _frames_left: int = 0
 var _freeze_left: int = 0
 var _already_hit: Array[Hurtbox] = []
 var _art: Texture2D
+var _size: Vector2 = Vector2.ONE
+var _pierce: bool = false
 var _age: float = 0.0
 var _trail: Array[Vector2] = []
 
 
 ## Sets everything up; call before adding to the scene tree.
 func launch(
-	data: ProjectileData, move: MoveData, id: int, facing: int, damage_scale: float, origin: Vector2
+	data: ProjectileData, move: MoveData, id: int, facing: int, damage_scale: float, origin: Vector2,
+	size_scale: float = 1.0, speed_scale: float = 1.0, force_pierce: bool = false
 ) -> void:
 	_data = data
 	_move = move
 	owner_id = id
 	_facing = facing
 	_damage_scale = damage_scale
-	_velocity = Vector2(data.velocity.x * float(facing), data.velocity.y)
+	_size = data.size * size_scale
+	_pierce = data.pierce or force_pierce
+	_velocity = Vector2(data.velocity.x * float(facing), data.velocity.y) * speed_scale
 	_frames_left = data.lifetime_frames
 	top_level = true
 	position = origin + Vector2(data.offset.x * float(facing), data.offset.y)
@@ -42,7 +47,7 @@ func launch(
 	collision_mask = HURTBOX_LAYER_VALUE
 	monitorable = false
 	var rectangle := RectangleShape2D.new()
-	rectangle.size = data.size
+	rectangle.size = _size
 	var shape := CollisionShape2D.new()
 	shape.shape = rectangle
 	add_child(shape)
@@ -92,12 +97,12 @@ func _draw() -> void:
 		for point in _trail:
 			local_trail.append(point - position)
 		var angle := _velocity.angle() if _velocity != Vector2.ZERO else (0.0 if _facing > 0 else PI)
-		ProjectileArt.draw(self, _data.style, _data.size, _data.color, angle, _age, local_trail)
+		ProjectileArt.draw(self, _data.style, _size, _data.color, angle, _age, local_trail)
 		return
 	if _art != null:
 		_draw_art()
 		return
-	var half := _data.size * 0.5
+	var half := _size * 0.5
 	var outer := PackedVector2Array([
 		Vector2(-half.x, 0.0), Vector2(0.0, -half.y), Vector2(half.x, 0.0), Vector2(0.0, half.y)
 	])
@@ -112,7 +117,7 @@ func _draw() -> void:
 ## turned along the flight direction and mirrored when flying left.
 func _draw_art() -> void:
 	var texture_size := _art.get_size()
-	var fit := minf(_data.size.x / texture_size.x, _data.size.y / texture_size.y)
+	var fit := minf(_size.x / texture_size.x, _size.y / texture_size.y)
 	var drawn := texture_size * maxf(fit, MIN_ART_SCALE)
 	var angle := _velocity.angle() if _velocity != Vector2.ZERO else (0.0 if _facing > 0 else PI)
 	var flip := -1.0 if absf(angle) > PI * 0.5 else 1.0
@@ -142,5 +147,5 @@ func _on_area_entered(area: Area2D) -> void:
 	if not hurtbox.evading:
 		hit_landed.emit(info)
 	hurtbox.receive_hit(info)
-	if not _data.pierce:
+	if not _pierce:
 		queue_free()

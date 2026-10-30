@@ -6,6 +6,7 @@ var held_move: Vector2 = Vector2.ZERO
 var down_held: bool = false
 var held_charge: bool = false
 var held_guard: bool = false
+var held_special: bool = false
 
 var _pending_up: bool = false
 var _pending_down: bool = false
@@ -51,6 +52,7 @@ func get_frame() -> InputFrame:
 	frame.special_just_pressed = _pending_special
 	frame.charge_just_pressed = _pending_charge
 	frame.charge_held = held_charge or _pending_charge
+	frame.special_held = held_special or _pending_special
 	frame.guard_just_pressed = _pending_guard
 	frame.guard_held = held_guard or _pending_guard
 	_pending_guard = false

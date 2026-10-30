@@ -18,10 +18,6 @@ const MELEE_RANGE := 38.0
 const RANGED_MIN := 90.0
 const RANGED_MAX := 230.0
 const FACING_NUDGE := 0.4 # small push: faces the target without counting as "forward"
-const CHARGE_FRAMES := 70
-const SAFE_CHARGE_DISTANCE := 150.0
-const CHARGE_ABORT_DISTANCE := 100.0
-const CHARGE_CHANCE := 0.6
 const DEFEND_RANGE := 55.0
 const DEFEND_COOLDOWN := 30
 
@@ -32,7 +28,7 @@ var level: int = 2
 var _rng := RandomNumberGenerator.new()
 var _cooldown: int = 0
 var _retreat_frames: int = 0
-var _charge_frames_left: int = 0
+var _special_hold_left: int = 0
 var _recover_cooldown: int = 0
 var _guard_frames_left: int = 0
 var _defend_cooldown: int = 0
@@ -55,12 +51,13 @@ func get_frame() -> InputFrame:
 	var state := fighter.get_state_name()
 	if state == &"Hitstun" or state == &"Transform":
 		return frame
+	if _special_hold_left > 0:
+		_special_hold_left -= 1
+		frame.special_held = true
 	if _is_off_stage():
 		_recover(frame)
 	elif _guard_frames_left > 0:
 		_keep_guarding(frame)
-	elif _charge_frames_left > 0:
-		_keep_charging(frame)
 	elif _try_defend(frame):
 		pass
 	else:
@@ -122,16 +119,6 @@ func _keep_guarding(frame: InputFrame) -> void:
 	_guard_frames_left -= 1
 
 
-func _keep_charging(frame: InputFrame) -> void:
-	var distance := absf(target.global_position.x - fighter.global_position.x)
-	if distance < CHARGE_ABORT_DISTANCE or fighter.reiatsu >= Reiatsu.ULTIMATE_COST:
-		_charge_frames_left = 0
-		return
-	frame.charge_held = true
-	frame.charge_just_pressed = _charge_frames_left == CHARGE_FRAMES
-	_charge_frames_left -= 1
-
-
 func _fight(frame: InputFrame) -> void:
 	var gap := target.global_position.x - fighter.global_position.x
 	var rise := target.global_position.y - fighter.global_position.y
@@ -162,7 +149,11 @@ func _decide(frame: InputFrame, gap: float, rise: float) -> void:
 		_melee(frame, toward, distance, rise)
 	elif distance >= RANGED_MIN and distance <= RANGED_MAX and _rng.randf() < params["special"]:
 		frame.special_just_pressed = true
+		frame.special_held = true
 		frame.move.x = FACING_NUDGE * toward # neutral special, facing the target
+		var charge_special := fighter.current_specials().neutral
+		if level >= 2 and charge_special != null and charge_special.is_chargeable():
+			_special_hold_left = _rng.randi_range(0, charge_special.charge_max_frames)
 
 
 func _melee(frame: InputFrame, toward: float, distance: float, rise: float) -> void:
@@ -183,11 +174,5 @@ func _manage_reiatsu(frame: InputFrame, distance: float) -> bool:
 		return true
 	if fighter.can_bankai() and distance > 60.0 and fighter.is_on_floor():
 		frame.charge_just_pressed = true
-		return true
-	var wants_charge := (
-		fighter.is_bankai() and fighter.reiatsu < Reiatsu.ULTIMATE_COST and distance > SAFE_CHARGE_DISTANCE
-	)
-	if wants_charge and fighter.is_on_floor() and _rng.randf() < CHARGE_CHANCE:
-		_charge_frames_left = CHARGE_FRAMES
 		return true
 	return false

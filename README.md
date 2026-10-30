@@ -169,7 +169,7 @@ it fills from damage dealt (more in a combo), damage taken, KOs and lost stocks,
 about 6 s without combat. At 100 the charge key transforms (camera zoom, opponents frozen, title
 from `CharacterData.transform_title`). The form lasts 15 s, +0.5 s per hit (cap 30 s), gives
 +25% damage / +15% speed and the Bankai special set, then the gauge restarts from 0. The
-Reiatsu bar (0-300) now only powers the ultimate, which is usable only while transformed.
+ultimate is usable only while transformed and costs all three Reiatsu blocks (see below).
 Yhwach starts with half a gauge. The CPU transforms on its own.
 
 ## Transformed look
@@ -191,3 +191,19 @@ attacks. All numbers are in `scripts/combat/guard_rules.gd`.
 
 `tools/balance_sim.gd` plays CPU against CPU headlessly and reports win rates and how fast the
 Combat Gauge fills; the latest numbers and the changes they led to are in `docs/BALANCE.md`.
+
+## Reiatsu and the skill framework
+
+Reiatsu is three blocks (`scripts/combat/reiatsu.gd`) that refill by themselves (a block every 8 s,
+twice as fast while transformed; dealing, taking and perfect guards add a little). They pay for the
+powerful parts of special moves, which are pure data on `SpecialData`:
+
+- **Charge:** hold the special button at the end of the wind-up (`charge_max_frames`); the longer,
+  the bigger, faster and stronger the projectile. A full charge pierces and costs `charge_cost`;
+  without the Reiatsu a charge stops at 60%.
+- **Follow-up:** press special again after the active frames begin to play `follow_up` for
+  `follow_up_cost` (`flip_facing` turns the fighter around for a slash back).
+
+Ichigo is the first character with the new kit: a chargeable Getsuga, Dash Slash + Return Slash,
+Rising Cut + Dive Slash and a Ground Slam shockwave. In the form the costs are zero and the Getsuga
+fires two waves. The other characters will follow.

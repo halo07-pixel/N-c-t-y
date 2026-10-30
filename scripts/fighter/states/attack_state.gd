@@ -8,6 +8,10 @@ var _move: MoveData
 var _special: SpecialData
 var _frame: int = 0
 var _aerial: bool = false
+var _charge: int = 0
+var _released_charge: float = 0.0
+
+const FREE_CHARGE_FALLBACK := 0.6
 
 
 func enter(_previous: StringName) -> void:
@@ -18,11 +22,16 @@ func enter(_previous: StringName) -> void:
 		_move = fighter.pick_move(_aerial)
 	_special = _move as SpecialData
 	_frame = 0
+	_charge = 0
+	_released_charge = 0.0
+	if _special != null and _special.flip_facing:
+		fighter.facing = -fighter.facing
 	if _special != null and _special.cinematic_frames > 0:
 		Events.ultimate_started.emit(fighter.player_id, _special.cinematic_frames, _special.title)
 
 
 func exit() -> void:
+	fighter.special_charge = 0.0
 	fighter.hitbox.deactivate()
 	fighter.set_attack_visual(&"", &"")
 
@@ -31,6 +40,9 @@ func physics_update(delta: float) -> StringName:
 	var cut_short := _apply_movement(delta)
 	if cut_short != &"":
 		return cut_short
+	var follow := _check_follow_up()
+	if follow != &"":
+		return follow
 	_advance_move()
 	if _frame >= _move.total_frames():
 		return &"Idle" if fighter.is_on_floor() else &"Fall"
@@ -55,9 +67,44 @@ func _apply_movement(delta: float) -> StringName:
 	return &""
 
 
+## Pressing special again after the active frames begin plays the follow-up, if it can be paid.
+func _check_follow_up() -> StringName:
+	if _special == null or _special.follow_up == null or not fighter.input.special_just_pressed:
+		return &""
+	var first := _move.startup_frames
+	if _frame <= first or _frame > first + _special.follow_up_window:
+		return &""
+	if not fighter.try_spend_reiatsu(_special.follow_up_cost):
+		return &""
+	fighter.queue_move(_special.follow_up)
+	return &"Attack"
+
+
+## At the end of the wind-up of a chargeable special: keep the move waiting while the special
+## button is held, until the charge is full (or as far as the fighter can pay for).
+func _hold_charge() -> bool:
+	var share := _special.max_charge_share(fighter.can_afford(_special.charge_cost))
+	var level := float(_charge) / float(_special.charge_max_frames)
+	if fighter.input.special_held and level < share:
+		_charge += 1
+		fighter.special_charge = float(_charge) / float(_special.charge_max_frames)
+		return true
+	if _charge > 0:
+		_released_charge = clampf(level, 0.0, 1.0)
+		if _released_charge >= 0.999 and not fighter.try_spend_reiatsu(_special.charge_cost):
+			_released_charge = FREE_CHARGE_FALLBACK
+		fighter.special_charge = 0.0
+		_charge = 0
+	return false
+
+
 func _advance_move() -> void:
 	var active_start := _move.startup_frames
 	var active_end := _move.startup_frames + _move.active_frames
+	if _special != null and _special.is_chargeable() and _frame == active_start and _released_charge == 0.0:
+		if _hold_charge():
+			fighter.set_attack_visual(_move.direction, &"startup", _aerial, true)
+			return
 	if _frame == active_start:
 		_begin_active()
 	elif _frame == active_end:
@@ -80,7 +127,7 @@ func _begin_active() -> void:
 		fighter.velocity.y = _special.self_velocity.y
 		_aerial = true # leaving the ground on purpose must not cancel the move
 	for projectile_data in _special.projectiles:
-		fighter.spawn_projectile(projectile_data, _special)
+		fighter.spawn_projectile(projectile_data, _special, _released_charge)
 
 
 ## Dashes keep pushing for the whole active window; air dashes ignore gravity.

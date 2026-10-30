@@ -4,28 +4,89 @@
 [ext_resource type="Script" path="res://scripts/data/special_data.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/data/projectile_data.gd" id="3"]
 
-[sub_resource type="Resource" id="P_swordsmanb_neutral_0"]
+[sub_resource type="Resource" id="P_swordsmanb_getsuga"]
 script = ExtResource("3")
 offset = Vector2(16, -18)
-velocity = Vector2(338, 0)
-lifetime_frames = 91
-size = Vector2(31, 20)
-pierce = true
-color = Color(0.55, 0.9, 1.0, 1)
+velocity = Vector2(300, 0)
+lifetime_frames = 70
+size = Vector2(26, 16)
+pierce = false
+color = Color(1.0, 0.25, 0.2, 1.0)
 art = &"wave_a"
 style = &"crescent"
 
+[sub_resource type="Resource" id="P_swordsmanb_getsuga2"]
+script = ExtResource("3")
+offset = Vector2(6, -14)
+velocity = Vector2(240, 0)
+lifetime_frames = 60
+size = Vector2(16, 10)
+pierce = false
+color = Color(1.0, 0.6, 0.3, 1.0)
+art = &"wave_a"
+style = &"crescent"
+
+[sub_resource type="Resource" id="P_swordsmanb_slam"]
+script = ExtResource("3")
+offset = Vector2(22, -6)
+velocity = Vector2(210, 0)
+lifetime_frames = 28
+size = Vector2(30, 10)
+pierce = true
+color = Color(1.0, 0.5, 0.2, 1.0)
+art = &""
+style = &"crescent"
+
+[sub_resource type="Resource" id="S_swordsmanb_return"]
+script = ExtResource("2")
+display_name = "Return Slash +"
+direction = &"forward"
+damage = 9.0
+base_knockback = 190.0
+knockback_growth = 110.0
+angle_degrees = 40.0
+startup_frames = 3
+active_frames = 4
+recovery_frames = 16
+hitbox_size = Vector2(34, 18)
+hitbox_offset = Vector2(22, -16)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+flip_facing = true
+
+[sub_resource type="Resource" id="S_swordsmanb_dive"]
+script = ExtResource("2")
+display_name = "Dive Slash +"
+direction = &"down"
+damage = 10.0
+base_knockback = 200.0
+knockback_growth = 120.0
+angle_degrees = -70.0
+startup_frames = 3
+active_frames = 10
+recovery_frames = 16
+hitbox_size = Vector2(30, 34)
+hitbox_offset = Vector2(12, -14)
+self_velocity = Vector2(60, 420)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+
 [sub_resource type="Resource" id="S_swordsmanb_neutral"]
 script = ExtResource("2")
-display_name = "Crescent Wave +"
+display_name = "Getsuga Tensho +"
 direction = &"neutral"
-damage = 9.0
+damage = 10.0
 base_knockback = 180.0
 knockback_growth = 80.0
 angle_degrees = 30.0
-startup_frames = 8
+startup_frames = 7
 active_frames = 2
-recovery_frames = 18
+recovery_frames = 16
 hitbox_size = Vector2(0, 0)
 hitbox_offset = Vector2(0, 0)
 self_velocity = Vector2(0, 0)
@@ -33,7 +94,13 @@ teleport = Vector2(0, 0)
 ignore_gravity = false
 cinematic_frames = 0
 title = ""
-projectiles = Array[ExtResource("3")]([SubResource("P_swordsmanb_neutral_0")])
+projectiles = Array[ExtResource("3")]([SubResource("P_swordsmanb_getsuga"), SubResource("P_swordsmanb_getsuga2")])
+charge_max_frames = 40
+charge_cost = 0.0
+charge_damage_scale = 1.8
+charge_size_scale = 1.7
+charge_speed_scale = 1.25
+charge_pierce = true
 
 [sub_resource type="Resource" id="S_swordsmanb_forward"]
 script = ExtResource("2")
@@ -45,14 +112,16 @@ knockback_growth = 120.0
 angle_degrees = 40.0
 startup_frames = 4
 active_frames = 4
-recovery_frames = 20
-hitbox_size = Vector2(39, 23)
+recovery_frames = 18
+hitbox_size = Vector2(30, 18)
 hitbox_offset = Vector2(22, -16)
-self_velocity = Vector2(400, 0)
+self_velocity = Vector2(340, 0)
 teleport = Vector2(0, 0)
 ignore_gravity = true
 cinematic_frames = 0
 title = ""
+follow_up = SubResource("S_swordsmanb_return")
+follow_up_cost = 0.0
 
 [sub_resource type="Resource" id="S_swordsmanb_up"]
 script = ExtResource("2")
@@ -64,33 +133,37 @@ knockback_growth = 110.0
 angle_degrees = 85.0
 startup_frames = 3
 active_frames = 4
-recovery_frames = 22
-hitbox_size = Vector2(34, 44)
+recovery_frames = 20
+hitbox_size = Vector2(26, 34)
 hitbox_offset = Vector2(4, -40)
-self_velocity = Vector2(50, -418)
+self_velocity = Vector2(40, -380)
 teleport = Vector2(0, 0)
 ignore_gravity = false
 cinematic_frames = 0
 title = ""
+follow_up = SubResource("S_swordsmanb_dive")
+follow_up_cost = 0.0
+follow_up_window = 30
 
 [sub_resource type="Resource" id="S_swordsmanb_down"]
 script = ExtResource("2")
-display_name = "Spin Cleave +"
+display_name = "Ground Slam +"
 direction = &"down"
-damage = 7.0
+damage = 8.0
 base_knockback = 190.0
 knockback_growth = 100.0
 angle_degrees = 80.0
 startup_frames = 5
-active_frames = 4
+active_frames = 3
 recovery_frames = 20
-hitbox_size = Vector2(73, 31)
-hitbox_offset = Vector2(0, -14)
+hitbox_size = Vector2(52, 20)
+hitbox_offset = Vector2(14, -10)
 self_velocity = Vector2(0, 0)
 teleport = Vector2(0, 0)
 ignore_gravity = false
 cinematic_frames = 0
 title = ""
+projectiles = Array[ExtResource("3")]([SubResource("P_swordsmanb_slam")])
 
 [resource]
 script = ExtResource("1")
