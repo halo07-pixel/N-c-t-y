@@ -26,6 +26,9 @@ signal fighter_launched(victim_id: int, speed: float, direction: Vector2)
 signal hit_impact(position: Vector2, direction: Vector2, damage: float, launch_speed: float, attacker_id: int)
 ## Dust kicked up by a landing or a jump; strength 0..1.
 @warning_ignore("unused_signal")
+signal fighter_cooldowns_changed(player_id: int, fractions: PackedFloat32Array)
+
+@warning_ignore("unused_signal")
 signal projectile_flash(position: Vector2, direction: Vector2, color: Color, dissolve: bool)
 
 @warning_ignore("unused_signal")

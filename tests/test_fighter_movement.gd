@@ -73,7 +73,7 @@ func test_jump_rises_then_lands_and_refills_the_air_jump() -> void:
 	await wait_frames(120)
 	check(_fighter.is_on_floor(), "landed")
 	check_eq(_fighter.get_state_name(), &"Idle", "state is Idle after landing")
-	check_eq(_fighter.air_jumps_left, CHARACTER.max_air_jumps, "air jump refilled on landing")
+	check_eq(_fighter.air_jump_count, 0, "air jumps refilled on landing")
 	_teardown_world()
 
 
@@ -90,20 +90,25 @@ func test_single_jump_height_matches_the_physics() -> void:
 	_teardown_world()
 
 
-func test_only_one_air_jump_is_allowed() -> void:
+func test_air_jumps_have_no_limit_but_wait_and_weaken() -> void:
 	_build_world(Vector2(-70.0, 40.0))
 	await wait_frames(30)
 	_input.tap_up()
 	await wait_frames(10)
 	_input.tap_up()
 	await wait_frames(2)
-	check_eq(_fighter.air_jumps_left, 0, "air jump used")
+	check_eq(_fighter.air_jump_count, 1, "the first air jump")
 	check(_fighter.velocity.y < 0.0, "rising again after the air jump")
-	await wait_frames(30)
-	var speed_before := _fighter.velocity.y
+	var first_strength := _fighter.air_jump_strength(0)
 	_input.tap_up()
-	await wait_frames(1)
-	check(_fighter.velocity.y >= speed_before, "a third jump press does nothing")
+	await wait_frames(2)
+	check_eq(_fighter.air_jump_count, 1, "pressing again at once does nothing (it has to wait)")
+	await wait_frames(Fighter.AIR_JUMP_COOLDOWN_FRAMES + 2)
+	_input.tap_up()
+	await wait_frames(2)
+	check_eq(_fighter.air_jump_count, 2, "after the wait there is another one")
+	check(_fighter.air_jump_strength(1) < first_strength, "each further jump is weaker")
+	check(_fighter.air_jump_strength(40) >= Fighter.AIR_JUMP_MIN_STRENGTH, "but never below the floor")
 	_teardown_world()
 
 
@@ -161,5 +166,5 @@ func test_respawn_resets_motion_and_position() -> void:
 	_fighter.respawn_at(_stage.get_spawn_position(1))
 	check_eq(_fighter.velocity, Vector2.ZERO, "velocity cleared")
 	check_eq(_fighter.global_position, _stage.get_spawn_position(1), "moved to the spawn")
-	check_eq(_fighter.air_jumps_left, CHARACTER.max_air_jumps, "jumps refilled")
+	check_eq(_fighter.air_jump_count, 0, "jumps refilled")
 	_teardown_world()

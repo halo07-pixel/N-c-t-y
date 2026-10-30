@@ -28,6 +28,7 @@ var _stocks: Dictionary = {}
 var _reiatsu: Dictionary = {}
 var _bankai: Dictionary = {}
 var _gauge: Dictionary = {}
+var _cooldowns: Dictionary = {}
 var _transform_title: String = ""
 var _transform_frames: int = 0
 var _transform_total: int = 0
@@ -56,6 +57,7 @@ func _ready() -> void:
 	Events.fighter_reiatsu_changed.connect(_on_reiatsu_changed)
 	Events.fighter_bankai_changed.connect(_on_bankai_changed)
 	Events.fighter_gauge_changed.connect(_on_gauge_changed)
+	Events.fighter_cooldowns_changed.connect(_on_cooldowns_changed)
 	Events.transform_started.connect(_on_transform_started)
 	Events.stocks_changed.connect(_on_stocks_changed)
 	Events.match_time_changed.connect(_on_time_changed)
@@ -106,6 +108,11 @@ func _on_sudden_death_started() -> void:
 func _on_match_ended(winner_id: int) -> void:
 	_result_shown = true
 	_winner_id = winner_id
+	_canvas.queue_redraw()
+
+
+func _on_cooldowns_changed(player_id: int, fractions: PackedFloat32Array) -> void:
+	_cooldowns[player_id] = fractions
 	_canvas.queue_redraw()
 
 
@@ -175,6 +182,7 @@ func _draw_player_panel(player_id: int, center_x: float) -> void:
 		_canvas.draw_rect(pip_rect, color)
 	_draw_gauge_bar(player_id, center_x)
 	_draw_reiatsu_bar(player_id, center_x)
+	_draw_cooldown_pips(player_id, center_x)
 
 
 func _player_label(player_id: int) -> String:
@@ -200,6 +208,20 @@ func _draw_reiatsu_bar(player_id: int, center_x: float) -> void:
 		var share := clampf((value - Reiatsu.BLOCK * float(index)) / Reiatsu.BLOCK, 0.0, 1.0)
 		var full := value >= Reiatsu.ULTIMATE_COST
 		_canvas.draw_rect(Rect2(area.position, Vector2(cell * share, BAR_HEIGHT)), BAR_READY if full or share >= 1.0 else BAR_NORMAL)
+
+
+## Four small pips under the Reiatsu bar, one per special slot (neutral, forward, up, down): full
+## when ready, draining while on cooldown.
+func _draw_cooldown_pips(player_id: int, center_x: float) -> void:
+	var fractions: PackedFloat32Array = _cooldowns.get(player_id, PackedFloat32Array([0.0, 0.0, 0.0, 0.0]))
+	var gap := 2.0
+	var cell := (BAR_WIDTH - gap * 3.0) / 4.0
+	var left := center_x - BAR_WIDTH * 0.5
+	for index in 4:
+		var area := Rect2(left + (cell + gap) * float(index), 258.0 + BAR_HEIGHT + 3.0, cell, 2.0)
+		_canvas.draw_rect(area, BAR_BACK)
+		var ready := 1.0 - (fractions[index] if index < fractions.size() else 0.0)
+		_canvas.draw_rect(Rect2(area.position, Vector2(cell * ready, area.size.y)), BAR_READY if ready >= 0.999 else BAR_NORMAL)
 
 
 ## The Combat Gauge above the Reiatsu bar; it pulses when a transformation is ready.

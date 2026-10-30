@@ -40,6 +40,7 @@ charge_size_scale = 1.6
 charge_speed_scale = 1.3
 charge_pierce = true
 projectiles = Array[ExtResource("3")]([SubResource("P_archer_neutral_0")])
+cooldown_frames = 24
 
 [sub_resource type="Resource" id="P_archer_forward_0"]
 script = ExtResource("3")
@@ -93,6 +94,7 @@ ignore_gravity = false
 cinematic_frames = 0
 title = ""
 projectiles = Array[ExtResource("3")]([SubResource("P_archer_forward_0"), SubResource("P_archer_forward_1"), SubResource("P_archer_forward_2")])
+cooldown_frames = 90
 
 [sub_resource type="Resource" id="P_archer_skyshot_0"]
 script = ExtResource("3")
@@ -146,6 +148,7 @@ title = ""
 follow_up = SubResource("S_archer_skyshot")
 follow_up_cost = 50
 follow_up_window = 30
+cooldown_frames = 300
 
 [sub_resource type="Resource" id="P_archer_down_0"]
 script = ExtResource("3")
@@ -180,6 +183,7 @@ title = ""
 limit_active = 2
 repeat_cost = 50
 projectiles = Array[ExtResource("3")]([SubResource("P_archer_down_0")])
+cooldown_frames = 150
 
 [resource]
 script = ExtResource("1")

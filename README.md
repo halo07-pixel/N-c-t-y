@@ -275,3 +275,13 @@ petals, Yhwach the dark closing in from the sides with a shadow spreading along 
 `tools/fx_stress.gd` (a CPU-vs-CPU match at each effects level). Tests check that a flood of
 hits never exceeds the `FxBudget` cap, that everything cleans itself up, and that the transform
 dimming stays below the HUD.
+
+## Cooldowns and air mobility
+
+- Every special slot (neutral, forward, up, down) has `SpecialData.cooldown_frames`; the HUD shows
+  four pips under the Reiatsu bar (full = ready). Follow-ups and normal attacks have none. The form
+  shortens cooldowns to 60%; an up special used on the ground has 40% of the air cooldown.
+- A Reiatsu block refreshes a cooling-down **up** special (a comeback tool). A respawn clears all
+  cooldowns, and a perfect dodge or perfect guard gives back the up special and the Shunpo.
+- Air jumps have no limit, only a half-second wait; after the free jumps each one is 20% weaker
+  (never below 40%), and landing or being hit resets that. The air Shunpo has a 1.5 s cooldown.

@@ -213,6 +213,7 @@ func test_a_second_trap_costs_reiatsu_and_the_limit_replaces_the_oldest() -> voi
 	await wait_frames(30)
 	_input.held_move = Vector2(0.0, 1.0)
 	for i in 3:
+		_a.skill_cooldowns.clear() # this test is about the trap limit, not the cooldown
 		_input.tap_special()
 		await wait_frames(40)
 		if i == 0:
@@ -231,6 +232,7 @@ func test_without_reiatsu_a_new_trap_replaces_the_old_one() -> void:
 	_input.held_move = Vector2(0.0, 1.0)
 	_input.tap_special()
 	await wait_frames(40)
+	_a.skill_cooldowns.clear()
 	_input.tap_special()
 	await wait_frames(40)
 	check_eq(_a.live_traps().size(), 1, "the first trap was replaced")
@@ -398,30 +400,80 @@ func test_the_void_sphere_swallows_enemy_arrows() -> void:
 
 # --- Recovery ----------------------------------------------------------------------
 
-func test_an_up_special_can_be_used_once_per_time_in_the_air() -> void:
+func test_an_up_special_goes_on_cooldown_and_a_block_refreshes_it() -> void:
 	_build(NOBLE)
 	_a.global_position = Vector2(-300.0, -60.0)
+	_a.set_reiatsu(0.0)
 	await wait_frames(4)
 	_input.held_move = Vector2(0.0, -1.0)
 	_input.tap_special()
 	await wait_frames(3)
-	check(_a.air_up_special_used, "the first one is used")
+	check(not _a.skill_ready(&"up"), "the up special is on cooldown")
+	check(_a.skill_cooldown_fraction(&"up") > 0.9, "just started")
+	check(not _a.can_use_up_special(), "no second one without a block")
+	_a.set_reiatsu(150.0)
+	check(_a.can_use_up_special(), "a Reiatsu block refreshes it")
 	await wait_frames(40)
-	var before := _a.global_position
+	var before := _a.reiatsu
 	_input.tap_special()
-	await wait_frames(8)
-	check(not _a.can_use_up_special(), "a second one in the same fall is refused")
+	await wait_frames(4)
+	check(_a.reiatsu < before - 60.0, "the refresh cost a block (%d -> %d)" % [int(before), int(_a.reiatsu)])
 	_input.held_move = Vector2.ZERO
 	_teardown()
 
 
-func test_the_up_special_comes_back_after_landing() -> void:
+func test_the_cooldown_runs_out_and_the_ground_one_is_shorter() -> void:
 	_build(NOBLE)
 	await wait_frames(30)
-	_a.air_up_special_used = true
-	_a.notify_landed()
-	check(_a.can_use_up_special(), "available again after landing")
+	var special := NOBLE.specials.up
+	_a.begin_special_use(special, true)
+	var in_air: int = _a.skill_cooldowns[&"up"]
+	_a.begin_special_use(special, false)
+	var on_ground: int = _a.skill_cooldowns[&"up"]
+	check(on_ground < in_air, "shorter when used on the ground (%d < %d)" % [on_ground, in_air])
+	check_eq(in_air, special.cooldown_frames, "the air cooldown is the data value")
+	_a.skill_cooldowns[&"up"] = 2
+	await wait_frames(4)
+	check(_a.skill_ready(&"up"), "ready again when it runs out")
 	_teardown()
+
+
+func test_the_form_shortens_cooldowns_and_a_respawn_clears_them() -> void:
+	_build(NOBLE)
+	await wait_frames(30)
+	var special := NOBLE.specials.up
+	_a.begin_special_use(special, true)
+	var normal: int = _a.skill_cooldowns[&"up"]
+	_a.start_bankai()
+	_a.begin_special_use(special, true)
+	check(int(_a.skill_cooldowns[&"up"]) < normal, "shorter in the form")
+	_a.respawn_at(Vector2(0.0, -70.0))
+	check(_a.skill_ready(&"up") and _a.shunpo_cooldown == 0, "a respawn clears the cooldowns")
+	_teardown()
+
+
+func test_a_perfect_dodge_gives_the_movement_skills_back() -> void:
+	_build(NOBLE)
+	await wait_frames(30)
+	_a.begin_special_use(NOBLE.specials.up, true)
+	_a.shunpo_cooldown = 60
+	_a.dodge_frames_left = 5
+	_a.hurtbox.evading = true
+	var info := HitInfo.new()
+	info.attacker_id = 2
+	info.damage = 5.0
+	info.direction = Vector2.RIGHT
+	_a.hurtbox.receive_hit(info)
+	check(_a.skill_ready(&"up") and _a.shunpo_cooldown == 0, "the dodge refunds the up special and the Shunpo")
+	_teardown()
+
+
+func test_every_special_slot_has_a_cooldown_in_the_data() -> void:
+	for character: CharacterData in [SWORDSMAN, ARCHER, NOBLE, EMPEROR]:
+		for set: SpecialSet in [character.specials, character.bankai_specials]:
+			for slot: SpecialData in [set.neutral, set.forward, set.up, set.down]:
+				check(slot.cooldown_frames > 0, "%s %s has a cooldown" % [character.display_name, slot.display_name])
+	check(EMPEROR.specials.up.cooldown_frames >= SWORDSMAN.specials.up.cooldown_frames, "the boss's up special is not quicker")
 
 
 func test_a_teleport_up_cancels_the_fall() -> void:

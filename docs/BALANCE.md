@@ -52,3 +52,9 @@ Ichigo 31%, Uryu 40%, Byakuya 56%, Yhwach 73% (before the last tuning: 38 / 29 /
 Tuned: Uryu's arrows hit a little harder, Yhwach's counter strike was weakened and the CPU
 counters less often. Yhwach is still the strongest; the next knobs are his weight and the
 form's damage multiplier. 8 matches per pair is noisy, so read these as a rough guide.
+
+## After the cooldown rework (8 matches per pair, CPU level 3)
+
+Ichigo 50%, Uryu 42%, Byakuya 54%, Yhwach 54% (before: 31 / 40 / 56 / 73). Per-skill cooldowns
+slowed the strongest repeatable pressure, which mostly lowered Yhwach. Uryu is still the lowest;
+his Spirit Arrow (24 frames) and Triple Shot cooldowns are the first knobs. Noisy, so a rough guide.

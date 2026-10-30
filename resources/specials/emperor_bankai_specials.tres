@@ -41,6 +41,7 @@ charge_size_scale = 1.5
 charge_speed_scale = 1.25
 charge_pierce = true
 projectiles = Array[ExtResource("3")]([SubResource("P_emperorb_neutral_0")])
+cooldown_frames = 120
 
 [sub_resource type="Resource" id="S_emperorb_stab"]
 script = ExtResource("2")
@@ -82,6 +83,7 @@ title = ""
 follow_up = SubResource("S_emperorb_stab")
 follow_up_cost = 0
 follow_up_window = 28
+cooldown_frames = 150
 
 [sub_resource type="Resource" id="S_emperorb_fall"]
 script = ExtResource("2")
@@ -123,6 +125,7 @@ title = ""
 follow_up = SubResource("S_emperorb_fall")
 follow_up_cost = 0
 follow_up_window = 30
+cooldown_frames = 360
 
 [sub_resource type="Resource" id="S_emperorb_riposte"]
 script = ExtResource("2")
@@ -163,6 +166,7 @@ cinematic_frames = 0
 title = ""
 counter_move = SubResource("S_emperorb_riposte")
 cost = 0
+cooldown_frames = 300
 
 [resource]
 script = ExtResource("1")

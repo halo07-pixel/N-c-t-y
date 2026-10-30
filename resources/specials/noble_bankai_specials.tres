@@ -82,6 +82,7 @@ follow_up = SubResource("S_nobleb_command")
 follow_up_cost = 0
 follow_up_window = 45
 projectiles = Array[ExtResource("3")]([SubResource("P_nobleb_neutral_0"), SubResource("P_nobleb_neutral_1"), SubResource("P_nobleb_neutral_2")])
+cooldown_frames = 90
 
 [sub_resource type="Resource" id="S_nobleb_behind"]
 script = ExtResource("2")
@@ -124,6 +125,7 @@ title = ""
 follow_up = SubResource("S_nobleb_behind")
 follow_up_cost = 0
 follow_up_window = 30
+cooldown_frames = 120
 
 [sub_resource type="Resource" id="P_nobleb_drop_0"]
 script = ExtResource("3")
@@ -177,6 +179,7 @@ title = ""
 follow_up = SubResource("S_nobleb_drop")
 follow_up_cost = 0
 follow_up_window = 30
+cooldown_frames = 300
 
 [sub_resource type="Resource" id="P_nobleb_down_0"]
 script = ExtResource("3")
@@ -212,6 +215,7 @@ title = ""
 limit_active = 1
 repeat_cost = 0
 projectiles = Array[ExtResource("3")]([SubResource("P_nobleb_down_0")])
+cooldown_frames = 240
 
 [resource]
 script = ExtResource("1")

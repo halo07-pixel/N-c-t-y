@@ -197,7 +197,7 @@ func test_shunpo_has_a_cooldown() -> void:
 	_teardown_world()
 
 
-func test_air_shunpo_only_once_per_jump() -> void:
+func test_air_shunpo_has_a_longer_cooldown_instead_of_a_limit() -> void:
 	_build_world()
 	await wait_frames(30)
 	_a.global_position = Vector2(-40.0, -40.0)
@@ -207,9 +207,10 @@ func test_air_shunpo_only_once_per_jump() -> void:
 	_input_a.tap_guard()
 	await wait_frames(3)
 	check_eq(_a.get_state_name(), &"Shunpo", "Shunpo in the air")
-	check(_a.air_shunpo_used, "the air Shunpo is spent")
+	check(_a.shunpo_cooldown > GuardRules.SHUNPO_COOLDOWN, "the air cooldown is longer than on the ground")
+	check(not _a.can_shunpo(), "no second one right away")
 	_a.shunpo_cooldown = 0
-	check(not _a.can_shunpo(), "no second one before landing")
+	check(_a.can_shunpo(), "but there is no limit once the cooldown is over")
 	_input_a.held_move = Vector2.ZERO
 	_teardown_world()
 

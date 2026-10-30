@@ -35,6 +35,10 @@ extends MoveData
 ## Turns the fighter around when the move starts (a slash back through the opponent).
 @export var flip_facing: bool = false
 
+@export_group("Cooldown")
+## Frames before this slot (neutral, forward, up, down) can be used again. Follow-ups have none.
+@export var cooldown_frames: int = 0
+
 @export_group("Trap")
 ## More than zero limits how many of this move's traps a fighter can have at once.
 @export var limit_active: int = 0

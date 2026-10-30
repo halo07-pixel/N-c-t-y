@@ -28,3 +28,5 @@ const SHUNPO_DISTANCE := 60.0
 const SHUNPO_FRAMES := 12
 const SHUNPO_DODGE_FRAMES := 8
 const SHUNPO_COOLDOWN := 40
+## In the air the Shunpo takes longer to come back (instead of once per jump).
+const SHUNPO_AIR_COOLDOWN := 90

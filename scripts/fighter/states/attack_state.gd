@@ -27,8 +27,7 @@ func enter(_previous: StringName) -> void:
 	_released_charge = 0.0
 	if chosen_by_button and _special != null:
 		fighter.try_spend_reiatsu(_special.cost)
-		if _special.direction == &"up":
-			fighter.air_up_special_used = true
+		fighter.begin_special_use(_special, _aerial)
 	if _special != null and _special.flip_facing:
 		fighter.facing = -fighter.facing
 	if _special != null and _special.cinematic_frames > 0:

@@ -14,6 +14,13 @@ const SOFT_PLATFORM_LAYER_VALUE := 4 # physics layer 3
 const DROP_THROUGH_FRAMES := 20
 const DROP_THROUGH_PUSH_SPEED := 120.0
 const FLOOR_NORMAL_MAX_Y := -0.7
+const AIR_JUMP_COOLDOWN_FRAMES := 30
+const AIR_JUMP_DECAY := 0.8
+const AIR_JUMP_MIN_STRENGTH := 0.4
+const FORM_COOLDOWN_SCALE := 0.6
+const GROUND_UP_COOLDOWN_SCALE := 0.4
+const COOLDOWN_ANNOUNCE_EVERY := 3
+const SKILL_SLOTS: Array[StringName] = [&"neutral", &"forward", &"up", &"down"]
 const MAX_PERCENT := 999.0
 const RESPAWN_INVINCIBLE_FRAMES := 120
 const BLINK_PERIOD_FRAMES := 4
@@ -23,7 +30,9 @@ const BLINK_PERIOD_FRAMES := 4
 
 var input: InputFrame = InputFrame.new()
 var facing: int = 1
-var air_jumps_left: int = 0
+## Air jumps used since the last landing; each one after the free ones is weaker.
+var air_jump_count: int = 0
+var air_jump_cooldown: int = 0
 var is_fast_falling: bool = false
 var percent: float = 0.0
 var hitstun_frames_left: int = 0
@@ -42,9 +51,10 @@ var special_charge: float = 0.0
 var guard_age: int = 0
 var dodge_frames_left: int = 0
 var shunpo_cooldown: int = 0
-var air_shunpo_used: bool = false
-## An up special can be used once per time in the air (reset on landing and when hit).
-var air_up_special_used: bool = false
+## Frames left before each special slot (neutral, forward, up, down) can be used again.
+var skill_cooldowns: Dictionary = {}
+var _skill_cooldown_totals: Dictionary = {}
+var _refresh_pending: bool = false
 var damage_multiplier: float = 1.0
 var speed_scale: float = 1.0
 
@@ -94,7 +104,7 @@ func _ready() -> void:
 	Events.fighter_defeated.connect(_on_fighter_defeated)
 	Events.fighter_guarded.connect(_on_guarded_by_other)
 	gauge = clampf(data.starting_gauge, 0.0, CombatGauge.MAX)
-	air_jumps_left = data.max_air_jumps
+	air_jump_count = 0
 	_state_machine.state_changed.connect(_on_state_changed)
 	_state_machine.setup(self, &"Fall")
 	Events.fighter_percent_changed.emit(player_id, percent)
@@ -112,6 +122,7 @@ func _physics_process(delta: float) -> void:
 	_tick_gauge()
 	_tick_defense()
 	_tick_reiatsu()
+	_tick_cooldowns()
 	if _input_source != null:
 		input = _input_source.get_frame()
 	_tick_drop_through()
@@ -154,7 +165,7 @@ func _on_hit_received(info: HitInfo) -> void:
 		_block_hit(info)
 		return
 	set_percent(percent + info.damage)
-	air_up_special_used = false
+	refill_jumps() # being hit gives the air jumps back
 	last_attacker_id = info.attacker_id
 	combo_count = 0
 	add_gauge(info.damage * CombatGauge.GAIN_TAKEN)
@@ -204,18 +215,18 @@ func guard_press_state() -> StringName:
 
 
 func can_shunpo() -> bool:
-	return shunpo_cooldown <= 0 and (is_on_floor() or not air_shunpo_used)
+	return shunpo_cooldown <= 0
 
 
 func begin_shunpo() -> void:
 	dodge_frames_left = GuardRules.SHUNPO_DODGE_FRAMES
-	shunpo_cooldown = GuardRules.SHUNPO_COOLDOWN
+	shunpo_cooldown = GuardRules.SHUNPO_COOLDOWN if is_on_floor() else GuardRules.SHUNPO_AIR_COOLDOWN
 	is_fast_falling = false
-	if not is_on_floor():
-		air_shunpo_used = true
 
 
 func _tick_defense() -> void:
+	if air_jump_cooldown > 0:
+		air_jump_cooldown -= 1
 	if shunpo_cooldown > 0:
 		shunpo_cooldown -= 1
 	if dodge_frames_left > 0:
@@ -231,6 +242,9 @@ func _evade_hit(info: HitInfo) -> void:
 	if counter_move != null:
 		_counter_hit(info)
 		return
+	# A perfect dodge or guard gives the movement skills back: the comeback reward.
+	shunpo_cooldown = 0
+	skill_cooldowns[&"up"] = 0
 	var spot := global_position + Vector2(0.0, -14.0)
 	add_gauge(GuardRules.PERFECT_GAUGE)
 	add_reiatsu(Reiatsu.PERFECT_GAIN)
@@ -440,16 +454,75 @@ func current_specials() -> SpecialSet:
 
 
 ## The move for the button just pressed and the direction held.
-## An up special can be used on the ground, or once per time in the air.
+## An up special is available when its cooldown is over, or a Reiatsu block can refresh it.
 func can_use_up_special() -> bool:
-	return is_on_floor() or not air_up_special_used
+	return skill_ready(&"up") or can_afford(Reiatsu.BLOCK)
+
+
+func skill_ready(slot: StringName) -> bool:
+	return int(skill_cooldowns.get(slot, 0)) <= 0
+
+
+## 0 when ready, 1 right after use: how much of the cooldown is left.
+func skill_cooldown_fraction(slot: StringName) -> float:
+	var total := float(_skill_cooldown_totals.get(slot, 0))
+	if total <= 0.0:
+		return 0.0
+	return clampf(float(skill_cooldowns.get(slot, 0)) / total, 0.0, 1.0)
+
+
+## Starts the cooldown of a special that was just used. The form shortens it; an up special used
+## on the ground has a shorter one than in the air. A refresh (a Reiatsu block) was paid for here.
+func begin_special_use(special: SpecialData, aerial: bool) -> void:
+	var slot := special.direction
+	if _refresh_pending:
+		_refresh_pending = false
+		spend_reiatsu(Reiatsu.BLOCK)
+	if special.cooldown_frames <= 0:
+		return
+	var frames := float(special.cooldown_frames)
+	if is_bankai():
+		frames *= FORM_COOLDOWN_SCALE
+	if slot == &"up" and not aerial:
+		frames *= GROUND_UP_COOLDOWN_SCALE
+	skill_cooldowns[slot] = int(round(frames))
+	_skill_cooldown_totals[slot] = int(round(frames))
+	_announce_cooldowns()
+
+
+func reset_cooldowns() -> void:
+	skill_cooldowns.clear()
+	_skill_cooldown_totals.clear()
+	shunpo_cooldown = 0
+	air_jump_cooldown = 0
+	_announce_cooldowns()
+
+
+func _tick_cooldowns() -> void:
+	var any := false
+	for slot: StringName in skill_cooldowns.keys():
+		if int(skill_cooldowns[slot]) > 0:
+			skill_cooldowns[slot] = int(skill_cooldowns[slot]) - 1
+			any = true
+	if any and Engine.get_physics_frames() % COOLDOWN_ANNOUNCE_EVERY == 0:
+		_announce_cooldowns()
+
+
+func _announce_cooldowns() -> void:
+	var fractions := PackedFloat32Array()
+	for slot: StringName in SKILL_SLOTS:
+		fractions.append(skill_cooldown_fraction(slot))
+	Events.fighter_cooldowns_changed.emit(player_id, fractions)
 
 
 func pick_move(aerial: bool) -> MoveData:
 	if input.special_just_pressed:
 		var special := current_specials().select(input.move)
 		var affordable := special.cost <= 0.0 or can_afford(special.cost)
-		if affordable and (special.direction != &"up" or can_use_up_special()):
+		var ready := skill_ready(special.direction)
+		var refreshable := special.direction == &"up" and can_afford(Reiatsu.BLOCK)
+		if affordable and (ready or refreshable):
+			_refresh_pending = not ready
 			return special
 	return data.moveset.select(aerial, input.move)
 
@@ -542,6 +615,7 @@ func respawn_at(spawn_position: Vector2) -> void:
 	hitlag_left = 0
 	hitstun_frames_left = 0
 	refill_jumps()
+	reset_cooldowns()
 	_end_drop_through()
 	grant_invincibility(RESPAWN_INVINCIBLE_FRAMES, true)
 	_state_machine.transition_to(&"Fall")
@@ -598,25 +672,35 @@ func start_jump() -> void:
 	Events.dust_puff.emit(global_position, 0.55)
 
 
+## Air jumps have no limit, only a short wait between them (and each one is weaker).
 func can_air_jump() -> bool:
-	return air_jumps_left > 0
+	return air_jump_cooldown <= 0
+
+
+## Share of the full air-jump strength for the jump after `used` jumps: the free jumps are full,
+## each further one is 20% weaker, never below 40%.
+func air_jump_strength(used: int) -> float:
+	var free_jumps := data.max_air_jumps
+	if used < free_jumps:
+		return 1.0
+	return maxf(AIR_JUMP_MIN_STRENGTH, pow(AIR_JUMP_DECAY, float(used - free_jumps + 1)))
 
 
 func start_air_jump() -> void:
-	air_jumps_left -= 1
-	velocity.y = -data.air_jump_velocity
+	velocity.y = -data.air_jump_velocity * air_jump_strength(air_jump_count)
+	air_jump_count += 1
+	air_jump_cooldown = AIR_JUMP_COOLDOWN_FRAMES
 	is_fast_falling = false
 	Events.fighter_jumped.emit(player_id, true)
 
 
 func refill_jumps() -> void:
-	air_jumps_left = data.max_air_jumps
+	air_jump_count = 0
+	air_jump_cooldown = 0
 
 
 func notify_landed() -> void:
 	refill_jumps()
-	air_shunpo_used = false
-	air_up_special_used = false
 	is_fast_falling = false
 	Events.fighter_landed.emit(player_id)
 	Events.dust_puff.emit(global_position, 1.0)
