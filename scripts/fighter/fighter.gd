@@ -43,6 +43,8 @@ var guard_age: int = 0
 var dodge_frames_left: int = 0
 var shunpo_cooldown: int = 0
 var air_shunpo_used: bool = false
+## An up special can be used once per time in the air (reset on landing and when hit).
+var air_up_special_used: bool = false
 var damage_multiplier: float = 1.0
 var speed_scale: float = 1.0
 
@@ -148,6 +150,7 @@ func _on_hit_received(info: HitInfo) -> void:
 		_block_hit(info)
 		return
 	set_percent(percent + info.damage)
+	air_up_special_used = false
 	last_attacker_id = info.attacker_id
 	combo_count = 0
 	add_gauge(info.damage * CombatGauge.GAIN_TAKEN)
@@ -433,10 +436,16 @@ func current_specials() -> SpecialSet:
 
 
 ## The move for the button just pressed and the direction held.
+## An up special can be used on the ground, or once per time in the air.
+func can_use_up_special() -> bool:
+	return is_on_floor() or not air_up_special_used
+
+
 func pick_move(aerial: bool) -> MoveData:
 	if input.special_just_pressed:
 		var special := current_specials().select(input.move)
-		if special.cost <= 0.0 or can_afford(special.cost):
+		var affordable := special.cost <= 0.0 or can_afford(special.cost)
+		if affordable and (special.direction != &"up" or can_use_up_special()):
 			return special
 	return data.moveset.select(aerial, input.move)
 
@@ -603,6 +612,7 @@ func refill_jumps() -> void:
 func notify_landed() -> void:
 	refill_jumps()
 	air_shunpo_used = false
+	air_up_special_used = false
 	is_fast_falling = false
 	Events.fighter_landed.emit(player_id)
 	Events.dust_puff.emit(global_position, 1.0)

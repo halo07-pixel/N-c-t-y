@@ -393,3 +393,74 @@ func test_the_void_sphere_swallows_enemy_arrows() -> void:
 	check(not is_instance_valid(arrow) or arrow.is_queued_for_deletion(), "the arrow was swallowed")
 	check(is_instance_valid(sphere) and not sphere.is_queued_for_deletion(), "the sphere flies on")
 	_teardown()
+
+
+
+# --- Recovery ----------------------------------------------------------------------
+
+func test_an_up_special_can_be_used_once_per_time_in_the_air() -> void:
+	_build(NOBLE)
+	_a.global_position = Vector2(-300.0, -60.0)
+	await wait_frames(4)
+	_input.held_move = Vector2(0.0, -1.0)
+	_input.tap_special()
+	await wait_frames(3)
+	check(_a.air_up_special_used, "the first one is used")
+	await wait_frames(40)
+	var before := _a.global_position
+	_input.tap_special()
+	await wait_frames(8)
+	check(not _a.can_use_up_special(), "a second one in the same fall is refused")
+	_input.held_move = Vector2.ZERO
+	_teardown()
+
+
+func test_the_up_special_comes_back_after_landing() -> void:
+	_build(NOBLE)
+	await wait_frames(30)
+	_a.air_up_special_used = true
+	_a.notify_landed()
+	check(_a.can_use_up_special(), "available again after landing")
+	_teardown()
+
+
+func test_a_teleport_up_cancels_the_fall() -> void:
+	_build(NOBLE)
+	_a.global_position = Vector2(-300.0, 0.0)
+	_a.velocity.y = 500.0
+	await wait_frames(2)
+	_input.held_move = Vector2(0.0, -1.0)
+	_input.tap_special()
+	await wait_frames(8)
+	check(_a.velocity.y < 200.0, "no longer plunging (%d)" % int(_a.velocity.y))
+	_input.held_move = Vector2.ZERO
+	_teardown()
+
+
+func test_the_cpu_gets_back_from_under_the_stage() -> void:
+	var returned := 0
+	for character: CharacterData in [NOBLE, SWORDSMAN, ARCHER, EMPEROR]:
+		for form in [false, true]:
+			_build(character)
+			var ai := AIInput.new()
+			_a.set_input_source(ai)
+			ai.bind(_a, _b, 3, 11)
+			_a.global_position = Vector2(150.0, 82.0)
+			_a.refill_jumps()
+			_a.velocity = Vector2.ZERO
+			if form:
+				_a.start_bankai()
+			var back := false
+			var out := false
+			for i in 600:
+				await wait_frames(1)
+				if _a.is_ko() or not _stage.is_inside_blast_zone(_a.global_position):
+					out = true
+					break
+				if _a.is_on_floor() and _a.global_position.y < 80.0:
+					back = true
+					break
+			check(back or out, "%s (form %s) ends up on the stage or out (%s)" % [character.display_name, str(form), "back" if back else "out"])
+			returned += 1 if back else 0
+			_teardown()
+	check(returned >= 4, "most characters get back (%d of 8)" % returned)

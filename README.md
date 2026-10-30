@@ -226,3 +226,10 @@ Ascension + Judgment Fall and Counter Stance (down special, one block): a hit th
 its active frames is negated and answered with Judgment Counter, facing the attacker
 (`SpecialData.counter_move`, `cost`). Without a block the down special is a normal attack.
 In the form everything is free and the stance lasts longer.
+
+## Recovery rules
+
+An up special (Sky Step, Sky Flash, Rising Cut, Ascension) can be used on the ground or once per
+time in the air; landing or being hit gives it back (`Fighter.air_up_special_used`). A teleport
+upward cancels the fall. The CPU recovers around the edge of the main platform instead of steering
+under its middle, so nobody can hover under the stage forever.

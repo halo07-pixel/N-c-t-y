@@ -14,6 +14,10 @@ const LEVELS := {
 const MAX_LEVEL := 4
 const STAGE_SAFE_HALF_WIDTH := 150.0
 const FLOOR_Y := 60.0
+const STAGE_EDGE := 160.0
+const EDGE_MARGIN := 15.0
+const EDGE_GRAB := 12.0
+const UNDER_STAGE_DEPTH := 28.0
 const MELEE_RANGE := 38.0
 var _follow_up_in: int = 0
 const TRAP_MIN := 110.0
@@ -80,17 +84,26 @@ func _is_off_stage() -> bool:
 	return absf(pos.x) > STAGE_SAFE_HALF_WIDTH or (pos.y > FLOOR_Y + 6.0 and not fighter.is_on_floor())
 
 
-## Get back to the stage: steer toward the middle, air jump, then use the up special.
+## Under the main platform the way back is around its edge, never toward the middle.
+func _is_under_stage() -> bool:
+	var pos := fighter.global_position
+	return absf(pos.x) < STAGE_EDGE + EDGE_MARGIN and pos.y > FLOOR_Y + UNDER_STAGE_DEPTH
+
+
+## Get back to the stage: swing out past the edge when under it, otherwise steer toward the
+## middle, air jump, then use the up special (once per time in the air).
 func _recover(frame: InputFrame) -> void:
 	var pos := fighter.global_position
-	frame.move.x = -signf(pos.x) if absf(pos.x) > 4.0 else 0.0
+	var under := _is_under_stage()
+	var outward := signf(pos.x) if absf(pos.x) > 4.0 else signf(target.global_position.x - pos.x)
+	frame.move.x = outward if under else (-signf(pos.x) if absf(pos.x) > 4.0 else 0.0)
 	_recover_cooldown -= 1
 	if _recover_cooldown > 0 or fighter.velocity.y < 0.0 or pos.y < -20.0:
 		return
 	if fighter.can_air_jump():
 		frame.up_just_pressed = true
 		_recover_cooldown = 12
-	elif pos.y > FLOOR_Y - 10.0:
+	elif pos.y > FLOOR_Y - 10.0 and fighter.can_use_up_special() and (not under or absf(pos.x) > STAGE_EDGE - EDGE_GRAB):
 		frame.move.y = -1.0
 		frame.special_just_pressed = true
 		_recover_cooldown = 25

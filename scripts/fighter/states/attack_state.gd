@@ -27,6 +27,8 @@ func enter(_previous: StringName) -> void:
 	_released_charge = 0.0
 	if chosen_by_button and _special != null:
 		fighter.try_spend_reiatsu(_special.cost)
+		if _special.direction == &"up":
+			fighter.air_up_special_used = true
 	if _special != null and _special.flip_facing:
 		fighter.facing = -fighter.facing
 	if _special != null and _special.cinematic_frames > 0:
@@ -136,6 +138,8 @@ func _begin_active() -> void:
 	if _special == null:
 		return
 	fighter.global_position += Vector2(_special.teleport.x * float(fighter.facing), _special.teleport.y)
+	if _special.teleport.y < 0.0:
+		fighter.velocity.y = minf(fighter.velocity.y, 0.0) # a teleport up cancels the fall
 	if _special.self_velocity.y != 0.0:
 		fighter.velocity.y = _special.self_velocity.y
 		_aerial = true # leaving the ground on purpose must not cancel the move
