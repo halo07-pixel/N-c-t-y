@@ -24,8 +24,19 @@ var time_minutes: int = DEFAULT_TIME_MINUTES
 ## 0 to 10. Applied to the audio buses when sound arrives.
 var music_volume: int = DEFAULT_VOLUME
 var sfx_volume: int = DEFAULT_VOLUME
-## Screen shake, hit flash, KO burst and slow motion. Off keeps the match calm.
-var screen_effects: bool = true
+enum EffectsLevel { OFF, LOW, NORMAL, HIGH }
+const EFFECT_AMOUNT: Array[float] = [0.0, 0.5, 1.0, 1.5]
+const EFFECT_NAMES: PackedStringArray = ["OFF", "LOW", "NORMAL", "HIGH"]
+
+## How much presentation there is: shake, hit flash, sparks, auras, KO burst and slow motion.
+## OFF keeps the match calm; LOW and HIGH scale the particle amounts and the budget.
+var effects_level: int = EffectsLevel.NORMAL
+## True whenever effects are not OFF (kept as a plain flag for the many code paths that ask).
+var screen_effects: bool:
+	get:
+		return effects_level != EffectsLevel.OFF
+	set(value):
+		effects_level = EffectsLevel.NORMAL if value else EffectsLevel.OFF
 
 
 static func clamp_stocks(value: int) -> int:
@@ -79,6 +90,21 @@ func toggle_screen_effects() -> void:
 	Events.settings_changed.emit()
 
 
+## OFF, LOW, NORMAL, HIGH and around again.
+func cycle_effects_level() -> void:
+	effects_level = (effects_level + 1) % EFFECT_AMOUNT.size()
+	Events.settings_changed.emit()
+
+
+## Multiplier for particle counts and sizes: 0, 0.5, 1 or 1.5.
+func effect_amount() -> float:
+	return EFFECT_AMOUNT[clampi(effects_level, 0, EFFECT_AMOUNT.size() - 1)]
+
+
+func effects_name() -> String:
+	return EFFECT_NAMES[clampi(effects_level, 0, EFFECT_NAMES.size() - 1)]
+
+
 func is_time_unlimited() -> bool:
 	return time_minutes == TIME_UNLIMITED
 
@@ -94,6 +120,7 @@ func save_settings() -> Error:
 	config.set_value(AUDIO_SECTION, "music", music_volume)
 	config.set_value(AUDIO_SECTION, "sfx", sfx_volume)
 	config.set_value(VIDEO_SECTION, "screen_effects", screen_effects)
+	config.set_value(VIDEO_SECTION, "effects_level", effects_level)
 	return config.save(SETTINGS_PATH)
 
 
@@ -107,4 +134,7 @@ func load_settings() -> void:
 	)
 	music_volume = clampi(int(config.get_value(AUDIO_SECTION, "music", DEFAULT_VOLUME)), 0, MAX_VOLUME)
 	sfx_volume = clampi(int(config.get_value(AUDIO_SECTION, "sfx", DEFAULT_VOLUME)), 0, MAX_VOLUME)
-	screen_effects = bool(config.get_value(VIDEO_SECTION, "screen_effects", true))
+	var saved_level := int(config.get_value(
+		VIDEO_SECTION, "effects_level", EffectsLevel.NORMAL if bool(config.get_value(VIDEO_SECTION, "screen_effects", true)) else EffectsLevel.OFF
+	))
+	effects_level = clampi(saved_level, 0, EFFECT_AMOUNT.size() - 1)

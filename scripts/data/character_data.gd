@@ -51,6 +51,9 @@ extends Resource
 @export var sprite_dir: String = ""
 @export var sprite_id: String = ""
 
+@export_group("Effects")
+@export var fx_profile: FxProfile
+
 @export_group("Rig")
 ## Jointed code-drawn body. When set, BodyFactory draws this fighter with a RigBody.
 @export var rig: CharacterRigData

@@ -52,15 +52,50 @@ func test_cutin_slides_in_then_rests() -> void:
 	check(MatchHud.cutin_slide(3) < MatchHud.cutin_slide(6), "moves in steadily")
 
 
-func test_settings_switch_for_screen_effects() -> void:
-	var before := GameSettings.screen_effects
+func test_settings_cycle_through_the_effect_levels() -> void:
+	var before := GameSettings.effects_level
 	var menu := SettingsMenu.new()
-	menu.change(&"effects", 1)
-	check_eq(GameSettings.screen_effects, not before, "the row flips the setting")
-	check_eq(menu.value_text(&"effects"), "ON" if GameSettings.screen_effects else "OFF", "row text")
-	menu.change(&"effects", 1)
-	check_eq(GameSettings.screen_effects, before, "and flips back")
+	var seen: Array[String] = []
+	for i in 4:
+		menu.change(&"effects", 1)
+		seen.append(menu.value_text(&"effects"))
+	check_eq(GameSettings.effects_level, before, "four steps come back around")
+	check(seen.has("OFF") and seen.has("LOW") and seen.has("NORMAL") and seen.has("HIGH"), "all four levels show")
+	GameSettings.effects_level = GameSettings.EffectsLevel.OFF
+	check(not GameSettings.screen_effects, "off means no screen effects")
+	GameSettings.effects_level = GameSettings.EffectsLevel.LOW
+	check(GameSettings.screen_effects and GameSettings.effect_amount() < 1.0, "low is a lighter version")
+	GameSettings.effects_level = GameSettings.EffectsLevel.HIGH
+	check(GameSettings.effect_amount() > 1.0, "high is stronger")
+	GameSettings.effects_level = before
 	menu.free()
+
+
+func test_the_budget_drops_effects_over_the_cap() -> void:
+	var before := GameSettings.effects_level
+	GameSettings.effects_level = GameSettings.EffectsLevel.LOW
+	FxBudget.reset()
+	var holder := Node2D.new()
+	tree.root.add_child(holder)
+	var kept := 0
+	for i in 30:
+		if FxBudget.spawn(holder, Node2D.new()):
+			kept += 1
+	check_eq(kept, FxBudget.cap(), "only the cap is kept (%d)" % kept)
+	holder.free()
+	await wait_frames(2)
+	FxBudget.reset()
+	GameSettings.effects_level = GameSettings.EffectsLevel.OFF
+	check(not FxBudget.spawn(tree.root, Node2D.new()), "nothing at all when effects are off")
+	GameSettings.effects_level = before
+
+
+func test_every_character_has_an_effect_profile() -> void:
+	for path in MatchConfig.ROSTER_PATHS:
+		var character := load(path) as CharacterData
+		check(character.fx_profile != null, "%s has a profile" % character.display_name)
+	var boss := load("res://resources/characters/emperor.tres") as CharacterData
+	check(boss.fx_profile != null and boss.fx_profile.impact_style == &"ink", "Yhwach bursts like ink")
 
 
 func test_slow_motion_only_after_a_final_ko_and_always_ends() -> void:

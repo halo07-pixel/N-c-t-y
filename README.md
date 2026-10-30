@@ -233,3 +233,11 @@ An up special (Sky Step, Sky Flash, Rising Cut, Ascension) can be used on the gr
 time in the air; landing or being hit gives it back (`Fighter.air_up_special_used`). A teleport
 upward cancels the fall. The CPU recovers around the edge of the main platform instead of steering
 under its middle, so nobody can hover under the stage forever.
+
+## Effects foundation
+
+- **Effects level** (Settings): OFF, LOW, NORMAL, HIGH (`GameSettings.effects_level`). It scales
+  spark size and the `FxBudget` cap (0 / 10 / 24 / 40 live sparks, dust and streaks).
+- **FxProfile** (`resources/fx/*_fx.tres`, `CharacterData.fx_profile`): palette, impact style
+  (slash / shards / petals / ink) and spark scale per character. Hit sparks already use it; later
+  stages (trails, auras, transform presentation) read the same profile.

@@ -21,8 +21,20 @@ func _on_hit_impact(
 	spark.position = hit_position
 	spark.direction = direction if direction != Vector2.ZERO else Vector2.RIGHT
 	spark.power = HitSpark.power_for(damage, launch_speed)
-	spark.color = MatchHud.PLAYER_COLORS.get(attacker_id, Color.WHITE).lerp(Color.WHITE, 0.5)
-	add_child(spark)
+	var profile := _profile_for(attacker_id)
+	if profile != null:
+		spark.color = profile.primary.lerp(profile.accent, 0.35)
+		spark.amount = GameSettings.effect_amount() * profile.spark_scale
+	else:
+		spark.color = MatchHud.PLAYER_COLORS.get(attacker_id, Color.WHITE).lerp(Color.WHITE, 0.5)
+		spark.amount = GameSettings.effect_amount()
+	FxBudget.spawn(self, spark)
+
+
+## The effect profile of the character a player is using, or null.
+func _profile_for(player_id: int) -> FxProfile:
+	var character := MatchConfig.character_for(player_id)
+	return character.fx_profile if character != null else null
 
 
 func _on_dust_puff(puff_position: Vector2, strength: float) -> void:
@@ -31,7 +43,7 @@ func _on_dust_puff(puff_position: Vector2, strength: float) -> void:
 	var puff := DustPuff.new()
 	puff.position = puff_position
 	puff.strength = strength
-	add_child(puff)
+	FxBudget.spawn(self, puff)
 
 
 func _on_guarded(_victim: int, _attacker: int, perfect: bool, spot: Vector2) -> void:
@@ -41,7 +53,8 @@ func _on_guarded(_victim: int, _attacker: int, perfect: bool, spot: Vector2) -> 
 	spark.position = spot
 	spark.power = 0.9 if perfect else 0.25
 	spark.color = Color(1.0, 0.9, 0.5) if perfect else Color(0.5, 0.8, 1.0)
-	add_child(spark)
+	spark.amount = GameSettings.effect_amount()
+	FxBudget.spawn(self, spark)
 
 
 func _on_dodged(_victim: int, _attacker: int, spot: Vector2) -> void:
@@ -51,7 +64,8 @@ func _on_dodged(_victim: int, _attacker: int, spot: Vector2) -> void:
 	spark.position = spot
 	spark.power = 0.7
 	spark.color = Color(0.9, 0.95, 1.0)
-	add_child(spark)
+	spark.amount = GameSettings.effect_amount()
+	FxBudget.spawn(self, spark)
 
 
 func _on_shunpo(_id: int, start: Vector2, direction: int) -> void:
@@ -60,8 +74,8 @@ func _on_shunpo(_id: int, start: Vector2, direction: int) -> void:
 	var streak := ShunpoStreak.new()
 	streak.from_point = start
 	streak.to_point = start + Vector2(float(direction) * GuardRules.SHUNPO_DISTANCE, 0.0)
-	add_child(streak)
+	FxBudget.spawn(self, streak)
 	var puff := DustPuff.new()
 	puff.position = start
 	puff.strength = 0.8
-	add_child(puff)
+	FxBudget.spawn(self, puff)

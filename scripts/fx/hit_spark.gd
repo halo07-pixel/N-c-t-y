@@ -10,6 +10,8 @@ var color: Color = Color.WHITE
 var direction: Vector2 = Vector2.RIGHT
 ## 0..1, how big the hit feels.
 var power: float = 0.3
+## Overall size multiplier: the effects level times the character profile's spark scale.
+var amount: float = 1.0
 var _age: float = 0.0
 
 
@@ -41,7 +43,7 @@ func _draw() -> void:
 	var t := progress(_age)
 	var fade := 1.0 - t
 	var ease_out := 1.0 - pow(1.0 - t, 3.0)
-	var size := 10.0 + 22.0 * power
+	var size := (10.0 + 22.0 * power) * amount
 	draw_circle(Vector2.ZERO, size * 0.3 * fade, Color(1.0, 1.0, 1.0, 0.5 * fade))
 	draw_arc(Vector2.ZERO, size * ease_out + 2.0, 0.0, TAU, 28, Color(color.r, color.g, color.b, fade), 2.0 * fade + 0.5)
 	var base := direction.angle()

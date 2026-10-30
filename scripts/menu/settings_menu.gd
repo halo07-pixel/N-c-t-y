@@ -54,7 +54,7 @@ func change(row: StringName, direction: int) -> void:
 		&"sfx":
 			GameSettings.step_sfx_volume(direction)
 		&"effects":
-			GameSettings.toggle_screen_effects()
+			GameSettings.cycle_effects_level()
 
 
 func leave() -> void:
@@ -85,7 +85,7 @@ func value_text(row: StringName) -> String:
 		&"sfx":
 			return _volume_text(GameSettings.sfx_volume)
 		&"effects":
-			return "ON" if GameSettings.screen_effects else "OFF"
+			return GameSettings.effects_name()
 	return ""
 
 

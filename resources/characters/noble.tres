@@ -6,6 +6,7 @@
 [ext_resource type="Resource" path="res://resources/specials/noble_bankai_specials.tres" id="4"]
 [ext_resource type="Resource" path="res://resources/specials/noble_ultimate.tres" id="5"]
 [ext_resource type="Resource" path="res://resources/rigs/noble_rig.tres" id="6"]
+[ext_resource type="Resource" path="res://resources/fx/noble_fx.tres" id="fx_profile"]
 
 [resource]
 script = ExtResource("1")
@@ -15,6 +16,7 @@ weight = 95.0
 run_speed = 150.0
 gravity = 940.0
 moveset = ExtResource("2")
+fx_profile = ExtResource("fx_profile")
 specials = ExtResource("3")
 bankai_specials = ExtResource("4")
 ultimate = ExtResource("5")
