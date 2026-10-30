@@ -255,3 +255,53 @@ func test_a_projectile_announces_its_appearance_and_fade() -> void:
 	check(flashes.has(true), "and one when it fades")
 	if is_instance_valid(shot):
 		shot.free()
+
+
+func test_aura_pressure_follows_gauge_reiatsu_form_and_charge() -> void:
+	check_eq(AuraFx.intensity_for(0.0, 0.0, false, 0.0), 0.0, "calm at rest")
+	var some := AuraFx.intensity_for(50.0, 100.0, false, 0.0)
+	var more := AuraFx.intensity_for(100.0, 300.0, false, 0.0)
+	var form := AuraFx.intensity_for(100.0, 300.0, true, 0.0)
+	check(some < more and more < form, "more pressure with more of everything")
+	check(AuraFx.intensity_for(0.0, 0.0, true, 0.0) >= AuraFx.THRESHOLD, "the form alone shows")
+	check(AuraFx.intensity_for(100.0, 300.0, true, 1.0) <= 1.0, "capped at 1")
+
+
+func test_aura_pulse_is_uneven_and_bounded() -> void:
+	var values: Array[float] = []
+	for i in 40:
+		values.append(AuraFx.pulse(float(i) * 0.137))
+	var low := 1.0
+	var high := 0.0
+	for value in values:
+		low = minf(low, value)
+		high = maxf(high, value)
+		check(value >= 0.0 and value <= 1.0, "inside 0..1")
+	check(high - low > 0.2, "it actually moves")
+
+
+func test_orbiters_scale_with_pressure_and_effects_level() -> void:
+	check(AuraFx.orbiter_count(0.9, 1.0) > AuraFx.orbiter_count(0.3, 1.0), "more at high pressure")
+	check(AuraFx.orbiter_count(0.9, 0.5) < AuraFx.orbiter_count(0.9, 1.5), "fewer on low effects")
+	check(AuraFx.orbiter_count(1.0, 1.5) <= AuraFx.MAX_ORBITERS, "never above the cap")
+	check_eq(AuraFx.orbiter_count(1.0, 0.0), 0, "none when effects are off")
+
+
+func test_the_aura_shows_for_a_transformed_fighter_and_hides_when_calm() -> void:
+	var fighter := preload("res://scenes/fighter/fighter.tscn").instantiate() as Fighter
+	fighter.data = preload("res://resources/characters/swordsman.tres")
+	fighter.position = Vector2(0.0, 40.0)
+	tree.root.add_child(fighter)
+	var aura: AuraFx
+	for child in fighter.get_children():
+		if child is AuraFx:
+			aura = child
+	check(aura != null, "every fighter carries an aura")
+	fighter.set_reiatsu(0.0)
+	fighter.gauge = 0.0
+	await wait_frames(3)
+	check(not aura.visible, "hidden while calm")
+	fighter.start_bankai()
+	await wait_frames(3)
+	check(aura.visible, "visible in the form")
+	fighter.free()

@@ -75,6 +75,10 @@ func _ready() -> void:
 	add_child(shadow)
 	move_child(shadow, 1) # under the body
 	shadow.setup(self)
+	var aura := AuraFx.new()
+	add_child(aura)
+	move_child(aura, 2) # behind the body, just above the shadow
+	aura.setup(self)
 	var glow := ChargeGlow.new()
 	add_child(glow)
 	glow.setup(self)

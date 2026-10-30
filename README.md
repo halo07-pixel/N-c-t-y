@@ -252,3 +252,11 @@ under its middle, so nobody can hover under the stage forever.
 - **Projectiles** flash when they appear and when they fade out (`Events.projectile_flash`).
 - **KO burst** uses the victim's colours with a second accent ring; the final-KO slow motion is
   stronger and longer on higher effect levels.
+
+## Aura (stage 3)
+
+Every fighter carries an `AuraFx` (`scripts/fx/aura_fx.gd`): an unevenly pulsing glow, particles
+orbiting the body and ripples on the ground. Its pressure (`AuraFx.intensity_for`) is 15% Combat
+Gauge, 30% Reiatsu blocks, 45% form active and 15% charge, so a transformed fighter at full
+Reiatsu is clearly the most dangerous one. It uses the character's `FxProfile` colours, scales
+with the effects level and stays hidden below a calm threshold.
