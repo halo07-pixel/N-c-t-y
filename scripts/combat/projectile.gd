@@ -9,6 +9,7 @@ const HURTBOX_LAYER_VALUE := 16 # physics layer 5
 const OFFSCREEN_LIMIT := 1600.0
 const CORE_SCALE := 0.55
 const MIN_ART_SCALE := 0.35
+const TRAP_GROUP := &"traps"
 
 var owner_id: int = 0
 
@@ -59,7 +60,13 @@ func set_art(texture: Texture2D) -> void:
 	queue_redraw()
 
 
+func is_trap() -> bool:
+	return _data != null and _data.trap
+
+
 func _ready() -> void:
+	if is_trap():
+		add_to_group(TRAP_GROUP)
 	area_entered.connect(_on_area_entered)
 	Events.ultimate_started.connect(_on_ultimate_started)
 	if _data != null and _data.style != &"":

@@ -15,6 +15,8 @@ const MAX_LEVEL := 4
 const STAGE_SAFE_HALF_WIDTH := 150.0
 const FLOOR_Y := 60.0
 const MELEE_RANGE := 38.0
+const TRAP_MIN := 110.0
+const TRAP_CHANCE := 0.35
 const RANGED_MIN := 90.0
 const RANGED_MAX := 230.0
 const FACING_NUDGE := 0.4 # small push: faces the target without counting as "forward"
@@ -151,9 +153,21 @@ func _decide(frame: InputFrame, gap: float, rise: float) -> void:
 		frame.special_just_pressed = true
 		frame.special_held = true
 		frame.move.x = FACING_NUDGE * toward # neutral special, facing the target
+		if _wants_trap(distance):
+			frame.move.y = 1.0 # down special: lay a trap
+			frame.special_held = false
+			return
 		var charge_special := fighter.current_specials().neutral
 		if level >= 2 and charge_special != null and charge_special.is_chargeable():
 			_special_hold_left = _rng.randi_range(0, charge_special.charge_max_frames)
+
+
+## Trap users lay one at mid range now and then, never stacking more than their limit.
+func _wants_trap(distance: float) -> bool:
+	var down := fighter.current_specials().down
+	if down == null or down.projectiles.is_empty() or not down.projectiles[0].trap:
+		return false
+	return distance >= TRAP_MIN and fighter.live_traps().size() < down.limit_active and _rng.randf() < TRAP_CHANCE
 
 
 func _melee(frame: InputFrame, toward: float, distance: float, rise: float) -> void:

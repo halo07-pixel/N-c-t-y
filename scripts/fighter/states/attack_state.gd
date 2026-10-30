@@ -126,6 +126,8 @@ func _begin_active() -> void:
 	if _special.self_velocity.y != 0.0:
 		fighter.velocity.y = _special.self_velocity.y
 		_aerial = true # leaving the ground on purpose must not cancel the move
+	if _special.limit_active > 0:
+		fighter.prepare_trap(_special)
 	for projectile_data in _special.projectiles:
 		fighter.spawn_projectile(projectile_data, _special, _released_charge)
 

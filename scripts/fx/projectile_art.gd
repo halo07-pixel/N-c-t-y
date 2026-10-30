@@ -54,6 +54,8 @@ static func draw(
 			_petals(item, size, color, age)
 		&"orb":
 			_orb(item, size, color, age)
+		&"mine":
+			_mine(item, size, color, age)
 		_:
 			_crescent(item, size, color, 1.0)
 	item.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
@@ -110,3 +112,17 @@ static func _orb(item: CanvasItem, size: Vector2, color: Color, age: float) -> v
 		var mid := Vector2(cos(a + 0.4), sin(a + 0.4)) * radius * (1.1 + 0.3 * jitter)
 		var tip := Vector2(cos(a), sin(a)) * radius * 1.8
 		item.draw_polyline(PackedVector2Array([Vector2(cos(a), sin(a)) * radius, mid, tip]), Color.WHITE, 1.0)
+
+
+## A stationary trap: a pulsing ring with a spinning cross, so it reads as "armed".
+static func _mine(item: CanvasItem, size: Vector2, color: Color, age: float) -> void:
+	var radius := maxf(size.x, size.y) * 0.5
+	var pulse := 0.5 + 0.5 * sin(age * 6.0)
+	item.draw_circle(Vector2.ZERO, radius * (1.0 + 0.25 * pulse), _alpha(color, 0.12 + 0.12 * pulse))
+	item.draw_arc(Vector2.ZERO, radius, 0.0, TAU, 28, _alpha(color, 0.85), 1.2)
+	item.draw_arc(Vector2.ZERO, radius * 0.55, 0.0, TAU, 20, _alpha(color, 0.6), 1.0)
+	var spin := age * 2.2
+	for i in 4:
+		var a := spin + float(i) * TAU / 4.0
+		item.draw_line(Vector2(cos(a), sin(a)) * radius * 0.25, Vector2(cos(a), sin(a)) * radius * 0.8, _alpha(color, 0.9), 1.0)
+	item.draw_circle(Vector2.ZERO, 1.6, _alpha(Color.WHITE, 0.7))

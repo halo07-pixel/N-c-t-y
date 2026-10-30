@@ -429,6 +429,28 @@ func take_queued_move() -> MoveData:
 	return move
 
 
+## Live traps this fighter has placed, oldest first.
+func live_traps() -> Array[Projectile]:
+	var mine: Array[Projectile] = []
+	for node in get_tree().get_nodes_in_group(Projectile.TRAP_GROUP):
+		var trap := node as Projectile
+		if trap != null and trap.owner_id == player_id and not trap.is_queued_for_deletion():
+			mine.append(trap)
+	return mine
+
+
+## Makes room for a new trap of `special`: a second one is paid for with Reiatsu,
+## otherwise (or at the limit) the oldest trap is replaced.
+func prepare_trap(special: SpecialData) -> void:
+	if special.limit_active <= 0:
+		return
+	var mine := live_traps()
+	if mine.is_empty():
+		return
+	if mine.size() >= special.limit_active or not try_spend_reiatsu(special.repeat_cost):
+		mine[0].queue_free()
+
+
 ## `charge` (0..1) is how long the special was charged; it scales the projectile (see SpecialData).
 func spawn_projectile(projectile_data: ProjectileData, move: MoveData, charge: float = 0.0) -> void:
 	var projectile := Projectile.new()

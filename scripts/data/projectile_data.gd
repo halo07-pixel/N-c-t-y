@@ -16,3 +16,6 @@ extends Resource
 ## Procedural look drawn by code: crescent, arrow, petal, orb or blast. Empty keeps the
 ## effect sprite (or the plain diamond).
 @export var style: StringName = &""
+## A trap stays where it was placed and explodes on the first enemy that touches it.
+## Fighters keep a limited number of live traps (see SpecialData.limit_active).
+@export var trap: bool = false

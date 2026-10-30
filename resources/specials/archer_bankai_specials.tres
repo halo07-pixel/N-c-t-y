@@ -15,17 +15,39 @@ color = Color(0.55, 0.9, 1.0, 1)
 art = &"24"
 style = &"arrow"
 
+[sub_resource type="Resource" id="P_archerb_neutral_1"]
+script = ExtResource("3")
+offset = Vector2(14, -20)
+velocity = Vector2(494, -120)
+lifetime_frames = 78
+size = Vector2(22, 8)
+pierce = true
+color = Color(0.55, 0.9, 1.0, 1)
+art = &"24"
+style = &"arrow"
+
+[sub_resource type="Resource" id="P_archerb_neutral_2"]
+script = ExtResource("3")
+offset = Vector2(14, -20)
+velocity = Vector2(494, 120)
+lifetime_frames = 78
+size = Vector2(22, 8)
+pierce = true
+color = Color(0.55, 0.9, 1.0, 1)
+art = &"24"
+style = &"arrow"
+
 [sub_resource type="Resource" id="S_archerb_neutral"]
 script = ExtResource("2")
-display_name = "Spirit Arrow +"
+display_name = "Spirit Fan"
 direction = &"neutral"
-damage = 7.8
-base_knockback = 140.0
-knockback_growth = 60.0
-angle_degrees = 20.0
+damage = 5.6
+base_knockback = 140
+knockback_growth = 60
+angle_degrees = 20
 startup_frames = 7
 active_frames = 2
-recovery_frames = 14
+recovery_frames = 12
 hitbox_size = Vector2(0, 0)
 hitbox_offset = Vector2(0, 0)
 self_velocity = Vector2(0, 0)
@@ -33,7 +55,13 @@ teleport = Vector2(0, 0)
 ignore_gravity = false
 cinematic_frames = 0
 title = ""
-projectiles = Array[ExtResource("3")]([SubResource("P_archerb_neutral_0")])
+charge_max_frames = 45
+charge_cost = 0
+charge_damage_scale = 1.7
+charge_size_scale = 1.6
+charge_speed_scale = 1.3
+charge_pierce = true
+projectiles = Array[ExtResource("3")]([SubResource("P_archerb_neutral_0"), SubResource("P_archerb_neutral_1"), SubResource("P_archerb_neutral_2")])
 
 [sub_resource type="Resource" id="P_archerb_forward_0"]
 script = ExtResource("3")
@@ -73,12 +101,12 @@ script = ExtResource("2")
 display_name = "Triple Shot +"
 direction = &"forward"
 damage = 5.6
-base_knockback = 120.0
-knockback_growth = 40.0
-angle_degrees = 25.0
+base_knockback = 120
+knockback_growth = 40
+angle_degrees = 25
 startup_frames = 10
 active_frames = 2
-recovery_frames = 22
+recovery_frames = 20
 hitbox_size = Vector2(0, 0)
 hitbox_offset = Vector2(0, 0)
 self_velocity = Vector2(0, 0)
@@ -88,14 +116,45 @@ cinematic_frames = 0
 title = ""
 projectiles = Array[ExtResource("3")]([SubResource("P_archerb_forward_0"), SubResource("P_archerb_forward_1"), SubResource("P_archerb_forward_2")])
 
+[sub_resource type="Resource" id="P_archerb_skyshot_0"]
+script = ExtResource("3")
+offset = Vector2(10, -24)
+velocity = Vector2(420, 380)
+lifetime_frames = 50
+size = Vector2(22, 8)
+pierce = true
+color = Color(0.55, 0.9, 1.0, 1)
+art = &"24"
+style = &"arrow"
+
+[sub_resource type="Resource" id="S_archerb_skyshot"]
+script = ExtResource("2")
+display_name = "Sky Shot +"
+direction = &"up"
+damage = 8.4
+base_knockback = 150
+knockback_growth = 70
+angle_degrees = -35
+startup_frames = 4
+active_frames = 2
+recovery_frames = 16
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+projectiles = Array[ExtResource("3")]([SubResource("P_archerb_skyshot_0")])
+
 [sub_resource type="Resource" id="S_archerb_up"]
 script = ExtResource("2")
 display_name = "Sky Step +"
 direction = &"up"
-damage = 0.0
-base_knockback = 0.0
-knockback_growth = 0.0
-angle_degrees = 85.0
+damage = 0
+base_knockback = 0
+knockback_growth = 0
+angle_degrees = 85
 startup_frames = 3
 active_frames = 2
 recovery_frames = 18
@@ -106,40 +165,33 @@ teleport = Vector2(0, 0)
 ignore_gravity = false
 cinematic_frames = 0
 title = ""
+follow_up = SubResource("S_archerb_skyshot")
+follow_up_cost = 0
+follow_up_window = 30
 
 [sub_resource type="Resource" id="P_archerb_down_0"]
 script = ExtResource("3")
-offset = Vector2(14, -20)
-velocity = Vector2(286, 312)
-lifetime_frames = 65
-size = Vector2(20, 8)
-pierce = true
+offset = Vector2(46, -10)
+velocity = Vector2(0, 0)
+lifetime_frames = 480
+size = Vector2(28, 28)
+pierce = false
 color = Color(0.55, 0.9, 1.0, 1)
 art = &"24"
-style = &"arrow"
-
-[sub_resource type="Resource" id="P_archerb_down_1"]
-script = ExtResource("3")
-offset = Vector2(14, -20)
-velocity = Vector2(156, 390)
-lifetime_frames = 65
-size = Vector2(20, 8)
-pierce = true
-color = Color(0.55, 0.9, 1.0, 1)
-art = &"24"
-style = &"arrow"
+style = &"mine"
+trap = true
 
 [sub_resource type="Resource" id="S_archerb_down"]
 script = ExtResource("2")
-display_name = "Arrow Rain +"
+display_name = "Sprenger +"
 direction = &"down"
-damage = 6.7
-base_knockback = 150.0
-knockback_growth = 60.0
-angle_degrees = -20.0
+damage = 11.4
+base_knockback = 200
+knockback_growth = 90
+angle_degrees = 60
 startup_frames = 8
 active_frames = 2
-recovery_frames = 20
+recovery_frames = 16
 hitbox_size = Vector2(0, 0)
 hitbox_offset = Vector2(0, 0)
 self_velocity = Vector2(0, 0)
@@ -147,7 +199,9 @@ teleport = Vector2(0, 0)
 ignore_gravity = false
 cinematic_frames = 0
 title = ""
-projectiles = Array[ExtResource("3")]([SubResource("P_archerb_down_0"), SubResource("P_archerb_down_1")])
+limit_active = 2
+repeat_cost = 0
+projectiles = Array[ExtResource("3")]([SubResource("P_archerb_down_0")])
 
 [resource]
 script = ExtResource("1")

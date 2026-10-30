@@ -206,4 +206,11 @@ powerful parts of special moves, which are pure data on `SpecialData`:
 
 Ichigo is the first character with the new kit: a chargeable Getsuga, Dash Slash + Return Slash,
 Rising Cut + Dive Slash and a Ground Slam shockwave. In the form the costs are zero and the Getsuga
-fires two waves. The other characters will follow.
+fires two waves.
+
+Uryu's kit: a chargeable Spirit Arrow (a full charge pierces and costs a block), Triple Shot,
+Sky Step + Sky Shot (press special again for an arrow diagonally downward, half a block) and
+Sprenger, a stationary trap (`ProjectileData.trap`) that explodes on the first enemy. He keeps at
+most two live traps (`limit_active`): a second one costs half a block (`repeat_cost`), otherwise
+the oldest is replaced. In the wing form the arrow is a fan of three and charge, Sky Shot and
+extra traps are free. The CPU lays traps at mid range. Byakuya and Yhwach will follow.

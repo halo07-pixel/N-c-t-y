@@ -35,6 +35,13 @@ extends MoveData
 ## Turns the fighter around when the move starts (a slash back through the opponent).
 @export var flip_facing: bool = false
 
+@export_group("Trap")
+## More than zero limits how many of this move's traps a fighter can have at once.
+@export var limit_active: int = 0
+## Reiatsu for placing a trap while another one is still live. When it can't be paid (or the
+## limit is reached) the oldest live trap is replaced instead.
+@export var repeat_cost: float = 0.0
+
 @export_group("Ultimate")
 ## More than zero makes this a cinematic move: everyone else freezes for this
 ## many frames and the camera zooms in on the fighter.
