@@ -10,6 +10,9 @@ const OFFSCREEN_LIMIT := 1600.0
 const CORE_SCALE := 0.55
 const MIN_ART_SCALE := 0.35
 const TRAP_GROUP := &"traps"
+const COMMAND_GROUP := &"commandable"
+const COMMAND_DAMAGE_SCALE := 1.3
+const COMMAND_MIN_LIFE := 50
 
 var owner_id: int = 0
 
@@ -64,7 +67,19 @@ func is_trap() -> bool:
 	return _data != null and _data.trap
 
 
+## Sends the projectile flying `direction` (-1/1) at `speed`; it can hit again and hits harder.
+func command(direction: int, speed: float) -> void:
+	_velocity = Vector2(float(direction) * speed, 0.0)
+	_facing = direction
+	_frames_left = maxi(_frames_left, COMMAND_MIN_LIFE)
+	_damage_scale *= COMMAND_DAMAGE_SCALE
+	_already_hit.clear()
+	_pierce = true
+
+
 func _ready() -> void:
+	if _data != null and _data.commandable:
+		add_to_group(COMMAND_GROUP)
 	if is_trap():
 		add_to_group(TRAP_GROUP)
 	area_entered.connect(_on_area_entered)
