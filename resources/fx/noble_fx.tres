@@ -9,3 +9,4 @@ accent = Color(0.85, 0.8, 1.0, 1)
 shadow = Color(0.15, 0.05, 0.12, 1)
 impact_style = &"petals"
 spark_scale = 1.0
+motif = &"petal_ring"

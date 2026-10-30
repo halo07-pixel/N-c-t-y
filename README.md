@@ -260,3 +260,11 @@ orbiting the body and ripples on the ground. Its pressure (`AuraFx.intensity_for
 Gauge, 30% Reiatsu blocks, 45% form active and 15% charge, so a transformed fighter at full
 Reiatsu is clearly the most dangerous one. It uses the character's `FxProfile` colours, scales
 with the effects level and stays hidden below a calm threshold.
+
+## Transformation and ultimate presentation (stage 4)
+
+`PresentationFx` (`scripts/fx/presentation_fx.gd`, a layer above the world and below the HUD)
+listens for `transform_started` and `ultimate_started`: the world dims, a motif grows around the
+fighter, holds, and releases in a flash (`PresentationFx.sequence`). The motif is the character's
+`FxProfile.motif`: Ichigo black cuts with red edges, Uryu a Quincy glyph, Byakuya a ring of
+petals, Yhwach the dark closing in from the sides with a shadow spreading along the ground.

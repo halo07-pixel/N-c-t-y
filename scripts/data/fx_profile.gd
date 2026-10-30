@@ -11,3 +11,5 @@ extends Resource
 @export var impact_style: StringName = &"slash"
 ## 0.5..1.5, a heavier character gets bigger bursts.
 @export var spark_scale: float = 1.0
+## The screen motif of the transformation and ultimate presentation: frame, glyph, petal_ring or shadow.
+@export var motif: StringName = &"frame"

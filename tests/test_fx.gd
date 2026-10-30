@@ -305,3 +305,37 @@ func test_the_aura_shows_for_a_transformed_fighter_and_hides_when_calm() -> void
 	await wait_frames(3)
 	check(aura.visible, "visible in the form")
 	fighter.free()
+
+
+func test_presentation_sequence_builds_holds_and_releases() -> void:
+	var start := PresentationFx.sequence(0.0, 75)
+	var peak := PresentationFx.sequence(40.0, 75)
+	var end := PresentationFx.sequence(75.0, 75)
+	check_near(start["dim"], 0.0, 0.01, "starts clear")
+	check(peak["dim"] > 0.9 and peak["motif"] > 0.9, "at the peak the world is dark and the motif is full")
+	check(end["dim"] < 0.01 and end["motif"] < 0.01, "ends clear")
+	check(PresentationFx.sequence(59.0, 75)["flash"] > 0.5, "a flash at the release")
+	check_near(PresentationFx.sequence(10.0, 75)["flash"], 0.0, 0.01, "no flash early")
+
+
+func test_every_character_has_its_own_motif() -> void:
+	var motifs: Array[StringName] = []
+	for path in ["swordsman", "archer", "noble", "emperor"]:
+		motifs.append((load("res://resources/characters/%s.tres" % path) as CharacterData).fx_profile.motif)
+	check_eq(motifs, [&"frame", &"glyph", &"petal_ring", &"shadow"], "four different motifs")
+
+
+func test_the_presentation_plays_on_a_transform_and_ends() -> void:
+	var fx := PresentationFx.new()
+	tree.root.add_child(fx)
+	await wait_frames(2)
+	Events.transform_started.emit(1, "TEST", 20)
+	check(fx.is_playing(), "starts with the transformation")
+	await wait_frames(40)
+	check(not fx.is_playing(), "and ends by itself")
+	var before := GameSettings.effects_level
+	GameSettings.effects_level = GameSettings.EffectsLevel.OFF
+	Events.transform_started.emit(1, "TEST", 20)
+	check(not fx.is_playing(), "nothing with the effects off")
+	GameSettings.effects_level = before
+	fx.free()
