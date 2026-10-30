@@ -339,3 +339,34 @@ func test_the_presentation_plays_on_a_transform_and_ends() -> void:
 	check(not fx.is_playing(), "nothing with the effects off")
 	GameSettings.effects_level = before
 	fx.free()
+
+
+func test_a_flood_of_hits_never_exceeds_the_budget_and_cleans_up() -> void:
+	var before := GameSettings.effects_level
+	GameSettings.effects_level = GameSettings.EffectsLevel.HIGH
+	FxBudget.reset()
+	var fx := CombatFx.new()
+	tree.root.add_child(fx)
+	await wait_frames(2)
+	for i in 200:
+		Events.hit_impact.emit(Vector2(float(i), 0.0), Vector2.RIGHT, 12.0, 400.0, 1)
+		Events.dust_puff.emit(Vector2(float(i), 0.0), 1.0)
+		Events.projectile_flash.emit(Vector2.ZERO, Vector2.RIGHT, Color.WHITE, false)
+	check(FxBudget.live() <= FxBudget.cap(), "live effects %d stay under the cap %d" % [FxBudget.live(), FxBudget.cap()])
+	check(fx.get_child_count() <= FxBudget.cap(), "and so do the nodes")
+	await wait_frames(60)
+	check_eq(FxBudget.live(), 0, "everything cleans itself up")
+	fx.free()
+	GameSettings.effects_level = before
+
+
+func test_the_presentation_sits_below_the_hud() -> void:
+	var fx := PresentationFx.new()
+	tree.root.add_child(fx)
+	await wait_frames(2)
+	var hud := MatchHud.new()
+	tree.root.add_child(hud)
+	await wait_frames(2)
+	check(fx.layer < hud.layer, "the HUD stays readable over the dimming")
+	hud.free()
+	fx.free()

@@ -268,3 +268,10 @@ listens for `transform_started` and `ultimate_started`: the world dims, a motif 
 fighter, holds, and releases in a flash (`PresentationFx.sequence`). The motif is the character's
 `FxProfile.motif`: Ichigo black cuts with red edges, Uryu a Quincy glyph, Byakuya a ring of
 petals, Yhwach the dark closing in from the sides with a shadow spreading along the ground.
+
+## Effects polish (stage 5)
+
+`docs/EFFECTS.md` lists the layering and budget rules and a measurement made with
+`tools/fx_stress.gd` (a CPU-vs-CPU match at each effects level). Tests check that a flood of
+hits never exceeds the `FxBudget` cap, that everything cleans itself up, and that the transform
+dimming stays below the HUD.
