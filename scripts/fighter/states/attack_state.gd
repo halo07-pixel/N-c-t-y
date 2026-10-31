@@ -10,6 +10,7 @@ var _frame: int = 0
 var _aerial: bool = false
 var _charge: int = 0
 var _released_charge: float = 0.0
+var _chain_buffered: bool = false
 
 const FREE_CHARGE_FALLBACK := 0.6
 
@@ -23,6 +24,8 @@ func enter(_previous: StringName) -> void:
 		_move = fighter.pick_move(_aerial)
 	_special = _move as SpecialData
 	_frame = 0
+	_chain_buffered = false
+	fighter.hit_connected = false
 	_charge = 0
 	_released_charge = 0.0
 	if chosen_by_button and _special != null:
@@ -48,6 +51,9 @@ func physics_update(delta: float) -> StringName:
 	var follow := _check_follow_up()
 	if follow != &"":
 		return follow
+	var chained := _check_chain()
+	if chained != &"":
+		return chained
 	_advance_move()
 	_update_counter()
 	if _frame >= _move.total_frames():
@@ -91,6 +97,28 @@ func _check_follow_up() -> StringName:
 	if not fighter.try_spend_reiatsu(_special.follow_up_cost):
 		return &""
 	fighter.queue_move(_special.follow_up)
+	return &"Attack"
+
+
+func move_name() -> String:
+	return _move.display_name if _move != null else ""
+
+
+## Pressing attack again once the active frames are over continues a combo string: after a hit, with
+## the next move picked by the held direction. A press during the active frames is remembered.
+func _check_chain() -> StringName:
+	if _special != null or not _move.has_chain():
+		return &""
+	if fighter.input.attack_just_pressed and _frame >= _move.startup_frames:
+		_chain_buffered = true
+	if not _chain_buffered or _frame < _move.startup_frames + _move.active_frames:
+		return &""
+	if _move.chain_requires_hit and not fighter.hit_connected:
+		return &""
+	var next := _move.chain_for(fighter.input.move.y)
+	if next == null:
+		return &""
+	fighter.queue_move(next)
 	return &"Attack"
 
 

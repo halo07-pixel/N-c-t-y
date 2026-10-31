@@ -31,6 +31,8 @@ const BLINK_PERIOD_FRAMES := 4
 var input: InputFrame = InputFrame.new()
 var facing: int = 1
 ## Air jumps used since the last landing; each one after the free ones is weaker.
+## True once the current attack has hit something (a chain only continues from a hit).
+var hit_connected: bool = false
 var air_jump_count: int = 0
 var air_jump_cooldown: int = 0
 var is_fast_falling: bool = false
@@ -189,6 +191,7 @@ func _on_hit_received(info: HitInfo) -> void:
 
 
 func _on_hit_landed(info: HitInfo) -> void:
+	hit_connected = true
 	hitlag_left = Knockback.hitlag_frames(info.damage)
 	add_reiatsu(info.damage * Reiatsu.GAIN_DEALT)
 	_register_landed_hit(info.damage)
@@ -537,6 +540,13 @@ func take_queued_move() -> MoveData:
 	var move := _queued_move
 	_queued_move = null
 	return move
+
+
+## Name of the attack being played, or "" when not attacking.
+func current_attack_name() -> String:
+	if _state_machine.current_name != &"Attack":
+		return ""
+	return _state_machine.current.move_name()
 
 
 ## Sends every commandable projectile this fighter has out flying forward.

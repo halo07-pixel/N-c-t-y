@@ -52,6 +52,11 @@ Arrows/Enter/Esc.
 on the ground and in the air. The up special is each character's recovery.
 Guard / Shunpo is wired to input but does nothing yet.
 
+**Combo chain:** tap Attack again after a ground neutral attack (jab) connects to continue it:
+a second hit, then a heavier finisher. Hold Up or Down with the second press for a launcher or a sweep
+instead. A press during the active frames is buffered. Chains need a connected hit; data lives in
+`MoveData.next_in_chain / chain_up / chain_down`.
+
 **Reiatsu** (the bar under the stocks, 0 to 300, notch at 200): hit and get hit to fill
 it, or stand still and hold the charge key. Press the charge key on the ground:
 - at 300: a cinematic **ultimate** (everyone else freezes, the camera zooms in);

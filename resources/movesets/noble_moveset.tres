@@ -3,6 +3,66 @@
 [ext_resource type="Script" path="res://scripts/data/move_set.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/data/move_data.gd" id="2"]
 
+[sub_resource type="Resource" id="M_chain_fin"]
+script = ExtResource("2")
+display_name = "Scattering Slash"
+direction = &"forward"
+damage = 8.0
+base_knockback = 220.0
+knockback_growth = 120.0
+angle_degrees = 38.0
+startup_frames = 6
+active_frames = 3
+recovery_frames = 19
+hitbox_size = Vector2(44, 22)
+hitbox_offset = Vector2(26, -16)
+lunge_speed = 90.0
+
+[sub_resource type="Resource" id="M_chain_up"]
+script = ExtResource("2")
+display_name = "Petal Lift"
+direction = &"up"
+damage = 6.2
+base_knockback = 205.0
+knockback_growth = 95.0
+angle_degrees = 80.0
+startup_frames = 4
+active_frames = 3
+recovery_frames = 16
+hitbox_size = Vector2(28, 34)
+hitbox_offset = Vector2(6, -34)
+
+[sub_resource type="Resource" id="M_chain_dn"]
+script = ExtResource("2")
+display_name = "Petal Sweep"
+direction = &"down"
+damage = 5.2
+base_knockback = 185.0
+knockback_growth = 88.0
+angle_degrees = 15.0
+startup_frames = 4
+active_frames = 3
+recovery_frames = 15
+hitbox_size = Vector2(42, 12)
+hitbox_offset = Vector2(22, -6)
+
+[sub_resource type="Resource" id="M_chain_2"]
+script = ExtResource("2")
+display_name = "Flowing Cut"
+direction = &"neutral"
+damage = 4.6
+base_knockback = 130.0
+knockback_growth = 24.0
+angle_degrees = 38.0
+startup_frames = 3
+active_frames = 2
+recovery_frames = 10
+hitbox_size = Vector2(33, 19)
+hitbox_offset = Vector2(22, -16)
+next_in_chain = SubResource("M_chain_fin")
+chain_up = SubResource("M_chain_up")
+chain_down = SubResource("M_chain_dn")
+
 [sub_resource type="Resource" id="M_ground_neutral"]
 script = ExtResource("2")
 display_name = "Jab"
@@ -16,6 +76,7 @@ active_frames = 2
 recovery_frames = 8
 hitbox_size = Vector2(25, 18)
 hitbox_offset = Vector2(18, -16)
+next_in_chain = SubResource("M_chain_2")
 
 [sub_resource type="Resource" id="M_ground_forward"]
 script = ExtResource("2")

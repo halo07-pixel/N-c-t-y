@@ -3,6 +3,65 @@
 [ext_resource type="Script" path="res://scripts/data/move_set.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/data/move_data.gd" id="2"]
 
+[sub_resource type="Resource" id="M_chain_fin"]
+script = ExtResource("2")
+display_name = "Point-Blank Shot"
+direction = &"forward"
+damage = 7.5
+base_knockback = 210.0
+knockback_growth = 110.0
+angle_degrees = 38.0
+startup_frames = 5
+active_frames = 3
+recovery_frames = 18
+hitbox_size = Vector2(44, 16)
+hitbox_offset = Vector2(28, -16)
+
+[sub_resource type="Resource" id="M_chain_up"]
+script = ExtResource("2")
+display_name = "Upshot"
+direction = &"up"
+damage = 6.0
+base_knockback = 200.0
+knockback_growth = 95.0
+angle_degrees = 80.0
+startup_frames = 4
+active_frames = 3
+recovery_frames = 15
+hitbox_size = Vector2(22, 34)
+hitbox_offset = Vector2(8, -34)
+
+[sub_resource type="Resource" id="M_chain_dn"]
+script = ExtResource("2")
+display_name = "Low Shot"
+direction = &"down"
+damage = 5.0
+base_knockback = 180.0
+knockback_growth = 85.0
+angle_degrees = 15.0
+startup_frames = 4
+active_frames = 3
+recovery_frames = 14
+hitbox_size = Vector2(40, 12)
+hitbox_offset = Vector2(22, -6)
+
+[sub_resource type="Resource" id="M_chain_2"]
+script = ExtResource("2")
+display_name = "Pistol Whip"
+direction = &"neutral"
+damage = 4.2
+base_knockback = 125.0
+knockback_growth = 22.0
+angle_degrees = 38.0
+startup_frames = 2
+active_frames = 2
+recovery_frames = 9
+hitbox_size = Vector2(26, 15)
+hitbox_offset = Vector2(21, -16)
+next_in_chain = SubResource("M_chain_fin")
+chain_up = SubResource("M_chain_up")
+chain_down = SubResource("M_chain_dn")
+
 [sub_resource type="Resource" id="M_ground_neutral"]
 script = ExtResource("2")
 display_name = "Jab"
@@ -16,6 +75,7 @@ active_frames = 2
 recovery_frames = 9
 hitbox_size = Vector2(24.5, 14.3)
 hitbox_offset = Vector2(20.7, -16.1)
+next_in_chain = SubResource("M_chain_2")
 
 [sub_resource type="Resource" id="M_ground_forward"]
 script = ExtResource("2")

@@ -3,6 +3,66 @@
 [ext_resource type="Script" path="res://scripts/data/move_set.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/data/move_data.gd" id="2"]
 
+[sub_resource type="Resource" id="M_chain_fin"]
+script = ExtResource("2")
+display_name = "Heavy Slash"
+direction = &"forward"
+damage = 8.5
+base_knockback = 230.0
+knockback_growth = 130.0
+angle_degrees = 38.0
+startup_frames = 6
+active_frames = 3
+recovery_frames = 20
+hitbox_size = Vector2(36, 20)
+hitbox_offset = Vector2(25, -16)
+lunge_speed = 120.0
+
+[sub_resource type="Resource" id="M_chain_up"]
+script = ExtResource("2")
+display_name = "Rising Chain"
+direction = &"up"
+damage = 6.5
+base_knockback = 210.0
+knockback_growth = 100.0
+angle_degrees = 80.0
+startup_frames = 4
+active_frames = 3
+recovery_frames = 16
+hitbox_size = Vector2(26, 34)
+hitbox_offset = Vector2(6, -34)
+
+[sub_resource type="Resource" id="M_chain_dn"]
+script = ExtResource("2")
+display_name = "Low Chain"
+direction = &"down"
+damage = 5.5
+base_knockback = 190.0
+knockback_growth = 90.0
+angle_degrees = 15.0
+startup_frames = 4
+active_frames = 3
+recovery_frames = 15
+hitbox_size = Vector2(40, 12)
+hitbox_offset = Vector2(22, -6)
+
+[sub_resource type="Resource" id="M_chain_2"]
+script = ExtResource("2")
+display_name = "Cross Slash"
+direction = &"neutral"
+damage = 5.0
+base_knockback = 130.0
+knockback_growth = 25.0
+angle_degrees = 38.0
+startup_frames = 3
+active_frames = 2
+recovery_frames = 10
+hitbox_size = Vector2(32, 18)
+hitbox_offset = Vector2(23, -16)
+next_in_chain = SubResource("M_chain_fin")
+chain_up = SubResource("M_chain_up")
+chain_down = SubResource("M_chain_dn")
+
 [sub_resource type="Resource" id="M_ground_neutral"]
 script = ExtResource("2")
 display_name = "Jab"
@@ -16,6 +76,7 @@ active_frames = 2
 recovery_frames = 9
 hitbox_size = Vector2(30.5, 16.1)
 hitbox_offset = Vector2(22.2, -16)
+next_in_chain = SubResource("M_chain_2")
 
 [sub_resource type="Resource" id="M_ground_forward"]
 script = ExtResource("2")

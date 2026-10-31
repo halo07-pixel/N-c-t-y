@@ -64,6 +64,8 @@ func get_frame() -> InputFrame:
 	if _follow_up_in > 0:
 		_follow_up_in -= 1
 		frame.special_just_pressed = _follow_up_in == 0 # press special again: the follow-up
+	if state == &"Attack" and fighter.hit_connected and level >= 2 and _rng.randf() < 0.3:
+		frame.attack_just_pressed = true # continue the combo string
 	if _is_off_stage():
 		_recover(frame)
 	elif _guard_frames_left > 0:

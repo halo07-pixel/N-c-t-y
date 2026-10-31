@@ -28,5 +28,28 @@ extends Resource
 @export var lunge_speed: float = 0.0
 
 
+@export_group("Chain")
+## Pressing attack again after this move's active frames plays this move next (a combo string).
+## Holding up or down picks the branch instead when one is set.
+@export var next_in_chain: MoveData
+@export var chain_up: MoveData
+@export var chain_down: MoveData
+## Chains only continue after this move has hit something.
+@export var chain_requires_hit: bool = true
+
+
+func has_chain() -> bool:
+	return next_in_chain != null or chain_up != null or chain_down != null
+
+
+## The move to continue with, given the held vertical direction (-1 up, 1 down, 0 none).
+func chain_for(vertical: float) -> MoveData:
+	if vertical < -0.5 and chain_up != null:
+		return chain_up
+	if vertical > 0.5 and chain_down != null:
+		return chain_down
+	return next_in_chain
+
+
 func total_frames() -> int:
 	return startup_frames + active_frames + recovery_frames
