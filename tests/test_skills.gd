@@ -152,7 +152,7 @@ func test_no_follow_up_without_reiatsu() -> void:
 func test_ichigos_kit_has_the_new_pieces_and_the_form_makes_them_free() -> void:
 	for set: SpecialSet in [SWORDSMAN.specials, SWORDSMAN.bankai_specials]:
 		check(set.neutral.is_chargeable(), "Getsuga can be charged")
-		check(set.forward.follow_up != null and set.forward.follow_up.flip_facing, "Dash Slash has a return slash")
+		check(set.forward.follow_up != null and set.forward.follow_up.flip_facing, "Shunpo Strike has a return slash")
 		check(set.up.follow_up != null, "Rising Cut has a dive")
 		check(not set.down.projectiles.is_empty(), "Ground Slam sends a shockwave")
 	check(SWORDSMAN.specials.neutral.charge_cost > 0.0 and SWORDSMAN.specials.forward.follow_up_cost > 0.0, "costs Reiatsu normally")

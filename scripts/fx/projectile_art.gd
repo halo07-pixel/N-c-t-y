@@ -5,7 +5,7 @@ extends RefCounted
 ## Everything is facing +x; `angle` turns it along the flight direction.
 
 const TRAIL_POINTS := 9
-const STYLES: Array[StringName] = [&"crescent", &"arrow", &"petal", &"orb", &"blast"]
+const STYLES: Array[StringName] = [&"crescent", &"arrow", &"petal", &"orb", &"blast", &"beam"]
 
 
 ## Outline of a crescent `width` long and `height` tall, convex side toward +x.
@@ -39,15 +39,17 @@ static func _alpha(color: Color, alpha: float) -> Color:
 ## Draws one projectile. `trail` holds recent positions in the item's local space.
 static func draw(
 	item: CanvasItem, style: StringName, size: Vector2, color: Color, angle: float, age: float,
-	trail: PackedVector2Array = PackedVector2Array()
+	trail: PackedVector2Array = PackedVector2Array(), rim: Color = Color(0.0, 0.0, 0.0, 0.0)
 ) -> void:
 	_draw_trail(item, trail, color, size)
 	item.draw_set_transform(Vector2.ZERO, angle, Vector2.ONE)
 	match style:
 		&"crescent":
-			_crescent(item, size, color, 1.0)
+			_crescent(item, size, color, 1.0, rim)
 		&"blast":
-			_crescent(item, size, color, 1.6)
+			_crescent(item, size, color, 1.6, rim)
+		&"beam":
+			_beam(item, size, color)
 		&"arrow":
 			_arrow(item, size, color)
 		&"petal":
@@ -59,7 +61,7 @@ static func draw(
 		&"mine":
 			_mine(item, size, color, age)
 		_:
-			_crescent(item, size, color, 1.0)
+			_crescent(item, size, color, 1.0, rim)
 	item.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
@@ -70,11 +72,33 @@ static func _draw_trail(item: CanvasItem, trail: PackedVector2Array, color: Colo
 		item.draw_line(trail[i - 1], trail[i], _alpha(color, 0.5 * t), maxf(size.y * 0.5 * t, 1.0))
 
 
-static func _crescent(item: CanvasItem, size: Vector2, color: Color, boost: float) -> void:
+static func _crescent(item: CanvasItem, size: Vector2, color: Color, boost: float, rim: Color = Color(0.0, 0.0, 0.0, 0.0)) -> void:
 	var body := crescent_points(size.x * boost, size.y * boost)
+	if rim.a > 0.0:
+		# A dark solid crescent with a glowing edge (the black Getsuga with its red rim).
+		var edge := body.duplicate()
+		edge.append(body[0])
+		item.draw_colored_polygon(_scaled(body, 1.3), _alpha(rim, 0.3))
+		item.draw_colored_polygon(body, color)
+		item.draw_polyline(edge, rim, 1.8)
+		item.draw_colored_polygon(_scaled(body, 0.45), _alpha(rim, 0.55))
+		return
 	item.draw_colored_polygon(_scaled(body, 1.35), _alpha(color, 0.18))
 	item.draw_colored_polygon(body, color)
 	item.draw_colored_polygon(_scaled(body, 0.6), Color(1.0, 1.0, 1.0, 0.7))
+
+
+## A Cero: a thick tapering beam, glowing at the edge, white-hot in the middle.
+static func _beam(item: CanvasItem, size: Vector2, color: Color) -> void:
+	var w := size.x * 0.5
+	var h := size.y * 0.5
+	var shape := PackedVector2Array([
+		Vector2(-w, 0.0), Vector2(-w * 0.55, -h * 1.3), Vector2(w * 0.7, -h * 1.1), Vector2(w, 0.0),
+		Vector2(w * 0.7, h * 1.1), Vector2(-w * 0.55, h * 1.3),
+	])
+	item.draw_colored_polygon(shape, _alpha(color, 0.3))
+	item.draw_colored_polygon(_scaled(shape, 0.75), _alpha(color, 0.75))
+	item.draw_colored_polygon(_scaled(shape, 0.4), Color(1.0, 0.95, 0.9, 0.95))
 
 
 static func _arrow(item: CanvasItem, size: Vector2, color: Color) -> void:

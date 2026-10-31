@@ -234,6 +234,29 @@ func _play_scenario(scenario: String) -> void:
 			await _frames(5)
 			_match.get_node("MoveListOverlay").toggle()
 			await _frames(3)
+		"canon_getsuga_form": # the black Getsuga with its red rim, in Bankai
+			_fighters[0].start_bankai()
+			await _frames(30)
+			_bot_input.tap_special()
+			await _until(func() -> bool: return _count_projectiles() > 0)
+			await _frames(10)
+		"canon_cero": # Cero
+			await _frames(30)
+			_bot_input.held_move = Vector2(0.0, 1.0)
+			_bot_input.tap_special2()
+			await _until(func() -> bool: return _count_projectiles() > 0)
+			await _frames(8)
+		"canon_jujisho": # Getsuga Jūjishō
+			await _frames(30)
+			_bot_input.tap_special2()
+			await _until(func() -> bool: return _count_projectiles() > 0)
+			await _frames(10)
+		"canon_final": # Final Getsuga Tenshō
+			_fighters[0].start_bankai()
+			_fighters[0].set_reiatsu(300.0)
+			await _frames(30)
+			_bot_input.tap_charge()
+			await _frames(110)
 		"mech_hollow": # Ichigo's Hollow boost charged, plus the flare that announced it
 			_fighters[0].empowered = true
 			_fighters[0].empower_frames_left = 400

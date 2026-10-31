@@ -10,13 +10,14 @@ velocity = Vector2(420, 0)
 lifetime_frames = 90
 size = Vector2(56, 36)
 pierce = true
-color = Color(0.55, 0.9, 1.0, 1)
+color = Color(0.05, 0.0, 0.07, 1)
+rim = Color(0.95, 0.1, 0.15, 1)
 art = &"wave_b"
 style = &"blast"
 
 [resource]
 script = ExtResource("2")
-display_name = "Moon Break"
+display_name = "Final Getsuga Tenshō"
 direction = &"forward"
 damage = 26.0
 base_knockback = 330.0
@@ -31,5 +32,5 @@ self_velocity = Vector2(0, 0)
 teleport = Vector2(0, 0)
 ignore_gravity = false
 cinematic_frames = 60
-title = "Moon Break"
+title = "Final Getsuga Tenshō"
 projectiles = Array[ExtResource("3")]([SubResource("P_swordsmanu_0")])

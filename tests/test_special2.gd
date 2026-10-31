@@ -100,7 +100,7 @@ func test_the_hud_gets_eight_cooldown_slots() -> void:
 
 func test_a_teleport_hurts_along_its_path() -> void:
 	_build("swordsman", 100.0)
-	# stand the target in the middle of the Shunpo Slash path (110 units), not at its end
+	# stand the target in the middle of the Bringer Light path (110 units), not at its end
 	_b.global_position = _a.global_position + Vector2(55.0, 0.0)
 	await wait_frames(30)
 	_b.global_position = _a.global_position + Vector2(55.0, 0.0)
@@ -116,7 +116,7 @@ func test_a_dash_hits_a_target_it_passes() -> void:
 	await wait_frames(30)
 	_b.global_position = _a.global_position + Vector2(48.0, 0.0)
 	_input.held_move = Vector2(1.0, 0.0)
-	_input.tap_special() # Dash Slash
+	_input.tap_special() # Shunpo Strike
 	await wait_frames(30)
 	check(_b.percent > 0.0, "the dash connects on its way")
 	_teardown()

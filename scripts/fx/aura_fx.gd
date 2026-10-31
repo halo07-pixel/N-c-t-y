@@ -13,6 +13,8 @@ var _time: float = 0.0
 var _intensity: float = 0.0
 var _primary: Color = Color(1.0, 0.8, 0.3)
 var _accent: Color = Color.WHITE
+var _form_primary: Color = Color(0.0, 0.0, 0.0, 0.0)
+var _form_accent: Color = Color(0.0, 0.0, 0.0, 0.0)
 
 
 func _init() -> void:
@@ -28,6 +30,8 @@ func setup(fighter: Fighter) -> void:
 	if profile != null:
 		_primary = profile.primary
 		_accent = profile.accent
+		_form_primary = profile.form_primary
+		_form_accent = profile.form_accent
 	else:
 		_primary = fighter.data.accent_color
 
@@ -69,7 +73,14 @@ func _draw() -> void:
 	var beat := pulse(_time)
 	var center := Vector2(0.0, -size.y * 0.5)
 	var strength := _intensity * amount
-	var tone := _primary.lerp(_accent, 0.25 + 0.35 * beat) if _fighter.is_bankai() else _primary
+	var tone := _primary
+	var spark := _accent
+	if _fighter.is_bankai():
+		if _form_primary.a > 0.0:
+			tone = _form_primary.lerp(_form_accent, 0.2 + 0.3 * beat)
+			spark = _form_accent
+		else:
+			tone = _primary.lerp(_accent, 0.25 + 0.35 * beat)
 	# Glow: stacked ellipses; more of them and brighter as the pressure rises.
 	var layers := 2 + int(round(_intensity * 4.0))
 	for layer in layers:
@@ -88,7 +99,7 @@ func _draw() -> void:
 		var tail := center + Vector2(cos(angle - 0.35) * rx, sin(angle - 0.35) * ry)
 		var flicker := 0.55 + 0.45 * sin(_time * 9.0 + phase * 3.0)
 		draw_line(tail, spot, Color(tone.r, tone.g, tone.b, 0.5 * flicker), 1.0)
-		draw_circle(spot, 1.1, Color(_accent.r, _accent.g, _accent.b, 0.85 * flicker))
+		draw_circle(spot, 1.1, Color(spark.r, spark.g, spark.b, 0.85 * flicker))
 	# Ground shimmer: widening ripples at the feet once the pressure is high.
 	if _fighter.is_on_floor() and _intensity > 0.45:
 		for ripple in 2:

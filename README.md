@@ -70,6 +70,10 @@ and the Special 2 row (U / N4). The symbol is the direction to hold (dot = none,
 ready skill is lit; a cooling one is dark with the seconds left; a red frame means the skill needs Reiatsu you
 lack. **F3** opens the full move list of both fighters (buttons, combos, throw, skills with cooldowns, form, ultimate).
 
+**Canon:** the skills and effects follow the series as closely as we can draw them ourselves (see `docs/CANON.md`).
+Ichigo is done: Getsuga Tenshō (pale blue; black with a red rim in Bankai), Getsuga Jūjishō, Bringer Light, Cero,
+Final Getsuga Tenshō. A projectile with a `rim` color is drawn dark and solid with a glowing edge; the `beam` style draws a Cero.
+
 **Signature mechanics** (`CharacterData.mechanic`):
 - Ichigo, Hollow points: three hits in a row charge the next special (+25% damage).
 - Uryu, Heartless: the third arrow hit in a row pops the target up with extra knockback.

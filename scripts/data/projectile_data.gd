@@ -11,6 +11,9 @@ extends Resource
 ## A piercing projectile keeps flying after it hits (once per target).
 @export var pierce: bool = false
 @export var color: Color = Color(0.6, 0.9, 1.0)
+## An edge color for the crescent styles. When set (alpha above zero) the body is drawn dark and
+## solid with this glowing edge, like the black Getsuga with its red rim.
+@export var rim: Color = Color(0.0, 0.0, 0.0, 0.0)
 ## Name of an effect sprite in the owner's sprite set; empty draws the plain shape.
 @export var art: StringName = &""
 ## Procedural look drawn by code: crescent, arrow, petal, orb or blast. Empty keeps the

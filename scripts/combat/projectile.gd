@@ -94,9 +94,10 @@ func _ready() -> void:
 	if _data != null and _data.style != &"" and not _data.trap:
 		Events.projectile_flash.emit(position, _velocity.normalized(), _data.color, false)
 	if _data != null and _data.style != &"":
-		var additive := CanvasItemMaterial.new()
-		additive.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
-		material = additive
+		if _data.rim.a <= 0.0: # a dark rimmed projectile is drawn solid, not added to the light
+			var additive := CanvasItemMaterial.new()
+			additive.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+			material = additive
 		z_index = 10
 
 
@@ -145,7 +146,7 @@ func _draw() -> void:
 		for point in _trail:
 			local_trail.append(point - position)
 		var angle := _velocity.angle() if _velocity != Vector2.ZERO else (0.0 if _facing > 0 else PI)
-		ProjectileArt.draw(self, _data.style, _size, _data.color, angle, _age, local_trail)
+		ProjectileArt.draw(self, _data.style, _size, _data.color, angle, _age, local_trail, _data.rim)
 		return
 	if _art != null:
 		_draw_art()

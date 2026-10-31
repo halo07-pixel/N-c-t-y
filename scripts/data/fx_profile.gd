@@ -12,4 +12,7 @@ extends Resource
 ## 0.5..1.5, a heavier character gets bigger bursts.
 @export var spark_scale: float = 1.0
 ## The screen motif of the transformation and ultimate presentation: frame, glyph, petal_ring or shadow.
+## The pressure colors while transformed (alpha above zero to use): Ichigo's Bankai is black and red.
+@export var form_primary: Color = Color(0.0, 0.0, 0.0, 0.0)
+@export var form_accent: Color = Color(0.0, 0.0, 0.0, 0.0)
 @export var motif: StringName = &"frame"
