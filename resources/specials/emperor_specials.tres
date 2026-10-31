@@ -168,9 +168,113 @@ counter_move = SubResource("S_emperor_riposte")
 cost = 100
 cooldown_frames = 300
 
+[sub_resource type="Resource" id="P_y_spear"]
+script = ExtResource("3")
+offset = Vector2(20, -18)
+velocity = Vector2(470, 0)
+lifetime_frames = 50
+size = Vector2(36, 8)
+pierce = true
+color = Color(1.0, 0.9, 0.5, 1.0)
+art = &""
+style = &"arrow"
+
+[sub_resource type="Resource" id="P_y_pillar"]
+script = ExtResource("3")
+offset = Vector2(34, -4)
+velocity = Vector2(0, 0)
+lifetime_frames = 40
+size = Vector2(30, 56)
+pierce = true
+color = Color(0.45, 0.2, 0.6, 1.0)
+art = &""
+style = &"blast"
+
+[sub_resource type="Resource" id="A_y_n"]
+script = ExtResource("2")
+display_name = "Light Spear"
+direction = &"neutral"
+alt = true
+damage = 9.0
+base_knockback = 200
+knockback_growth = 100
+angle_degrees = 25
+startup_frames = 10
+active_frames = 2
+recovery_frames = 18
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cooldown_frames = 90
+projectiles = Array[ExtResource("3")]([SubResource("P_y_spear")])
+
+[sub_resource type="Resource" id="A_y_f"]
+script = ExtResource("2")
+display_name = "Blink Strike"
+direction = &"forward"
+alt = true
+damage = 11.0
+base_knockback = 220
+knockback_growth = 120
+angle_degrees = 38
+startup_frames = 8
+active_frames = 3
+recovery_frames = 26
+hitbox_size = Vector2(36, 26)
+hitbox_offset = Vector2(22, -16)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(130, 0)
+ignore_gravity = false
+cooldown_frames = 150
+
+[sub_resource type="Resource" id="A_y_u"]
+script = ExtResource("2")
+display_name = "Gravity Lift"
+direction = &"up"
+alt = true
+damage = 6.0
+base_knockback = 230
+knockback_growth = 110
+angle_degrees = 88
+startup_frames = 10
+active_frames = 4
+recovery_frames = 22
+hitbox_size = Vector2(50, 60)
+hitbox_offset = Vector2(14, -30)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cooldown_frames = 200
+
+[sub_resource type="Resource" id="A_y_d"]
+script = ExtResource("2")
+display_name = "Shadow Pillar"
+direction = &"down"
+alt = true
+damage = 8.0
+base_knockback = 200
+knockback_growth = 110
+angle_degrees = 80
+startup_frames = 10
+active_frames = 2
+recovery_frames = 22
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cooldown_frames = 150
+projectiles = Array[ExtResource("3")]([SubResource("P_y_pillar")])
+
 [resource]
 script = ExtResource("1")
 neutral = SubResource("S_emperor_neutral")
 forward = SubResource("S_emperor_forward")
 up = SubResource("S_emperor_up")
 down = SubResource("S_emperor_down")
+alt_neutral = SubResource("A_y_n")
+alt_forward = SubResource("A_y_f")
+alt_up = SubResource("A_y_u")
+alt_down = SubResource("A_y_d")

@@ -11,6 +11,8 @@ var _aerial: bool = false
 var _charge: int = 0
 var _released_charge: float = 0.0
 var _chain_buffered: bool = false
+## Where the fighter was on the previous active frame (a dash covers the ground in between).
+var _path_from: Vector2 = Vector2.ZERO
 
 const FREE_CHARGE_FALLBACK := 0.6
 
@@ -90,7 +92,7 @@ func _apply_movement(delta: float) -> StringName:
 
 ## Pressing special again after the active frames begin plays the follow-up, if it can be paid.
 func _check_follow_up() -> StringName:
-	if _special == null or _special.follow_up == null or not fighter.input.special_just_pressed:
+	if _special == null or _special.follow_up == null or not _special_pressed():
 		return &""
 	var first := _move.startup_frames
 	if _frame <= first or _frame > first + _special.follow_up_window:
@@ -99,6 +101,19 @@ func _check_follow_up() -> StringName:
 		return &""
 	fighter.queue_move(_special.follow_up)
 	return &"Attack"
+
+
+## The button that started this special: Special 2 for its own skills, Special otherwise.
+func _special_pressed() -> bool:
+	if _special != null and _special.alt:
+		return fighter.input.special2_just_pressed
+	return fighter.input.special_just_pressed
+
+
+func _special_held() -> bool:
+	if _special != null and _special.alt:
+		return fighter.input.special2_held
+	return fighter.input.special_held
 
 
 func move_name() -> String:
@@ -128,7 +143,7 @@ func _check_chain() -> StringName:
 func _hold_charge() -> bool:
 	var share := _special.max_charge_share(fighter.can_afford(_special.charge_cost))
 	var level := float(_charge) / float(_special.charge_max_frames)
-	if fighter.input.special_held and level < share:
+	if _special_held() and level < share:
 		_charge += 1
 		fighter.special_charge = float(_charge) / float(_special.charge_max_frames)
 		return true
@@ -154,18 +169,26 @@ func _advance_move() -> void:
 		fighter.hitbox.deactivate()
 	if _special != null and _frame >= active_start and _frame < active_end:
 		_hold_special_motion()
+	if _frame > active_start and _frame <= active_end and _moves_while_hitting():
+		fighter.hitbox.cover_path(_path_from, fighter.global_position)
+	_path_from = fighter.global_position
 	fighter.set_attack_visual(_move.direction, _phase(active_start, active_end), _aerial, _special != null)
 	_frame += 1
 
 
 func _begin_active() -> void:
+	var origin := fighter.global_position
+	_path_from = origin
+	if _special != null:
+		fighter.global_position += Vector2(_special.teleport.x * float(fighter.facing), _special.teleport.y)
 	if _move.hitbox_size.x > 0.0:
 		fighter.hitbox.activate(_move, fighter.facing, fighter.damage_multiplier * fighter.empower_scale)
+		if fighter.global_position != origin:
+			fighter.hitbox.cover_path(origin, fighter.global_position) # a teleport hurts along its path
 	if _move.lunge_speed != 0.0:
 		fighter.velocity.x = float(fighter.facing) * _move.lunge_speed
 	if _special == null:
 		return
-	fighter.global_position += Vector2(_special.teleport.x * float(fighter.facing), _special.teleport.y)
 	if _special.teleport.y < 0.0:
 		fighter.velocity.y = minf(fighter.velocity.y, 0.0) # a teleport up cancels the fall
 	if _special.self_velocity.y != 0.0:
@@ -177,6 +200,13 @@ func _begin_active() -> void:
 		fighter.prepare_trap(_special)
 	for projectile_data in _special.projectiles:
 		fighter.spawn_projectile(projectile_data, _special, _released_charge)
+
+
+## True for moves that carry the fighter while the hitbox is out (a lunge or a dash).
+func _moves_while_hitting() -> bool:
+	if _move.lunge_speed != 0.0:
+		return true
+	return _special != null and (_special.self_velocity != Vector2.ZERO)
 
 
 ## Dashes keep pushing for the whole active window; air dashes ignore gravity.

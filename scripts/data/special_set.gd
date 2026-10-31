@@ -9,6 +9,24 @@ extends Resource
 @export var down: SpecialData
 
 
+@export_group("Special 2")
+@export var alt_neutral: SpecialData
+@export var alt_forward: SpecialData
+@export var alt_up: SpecialData
+@export var alt_down: SpecialData
+
+
+func select_alt(direction: Vector2) -> SpecialData:
+	match MoveSet.direction_kind(direction):
+		&"up":
+			return alt_up
+		&"down":
+			return alt_down
+		&"forward":
+			return alt_forward
+	return alt_neutral
+
+
 func select(direction: Vector2) -> SpecialData:
 	match MoveSet.direction_kind(direction):
 		&"up":

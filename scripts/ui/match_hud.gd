@@ -210,15 +210,17 @@ func _draw_reiatsu_bar(player_id: int, center_x: float) -> void:
 		_canvas.draw_rect(Rect2(area.position, Vector2(cell * share, BAR_HEIGHT)), BAR_READY if full or share >= 1.0 else BAR_NORMAL)
 
 
-## Four small pips under the Reiatsu bar, one per special slot (neutral, forward, up, down): full
+## Eight small pips under the Reiatsu bar, one per special slot (Special, then Special 2; neutral, forward, up, down): full
 ## when ready, draining while on cooldown.
 func _draw_cooldown_pips(player_id: int, center_x: float) -> void:
-	var fractions: PackedFloat32Array = _cooldowns.get(player_id, PackedFloat32Array([0.0, 0.0, 0.0, 0.0]))
+	var fractions: PackedFloat32Array = _cooldowns.get(player_id, PackedFloat32Array())
 	var gap := 2.0
-	var cell := (BAR_WIDTH - gap * 3.0) / 4.0
+	var split := 5.0 # an extra gap between the Special and Special 2 groups
+	var cell := (BAR_WIDTH - gap * 6.0 - split) / 8.0
 	var left := center_x - BAR_WIDTH * 0.5
-	for index in 4:
-		var area := Rect2(left + (cell + gap) * float(index), 258.0 + BAR_HEIGHT + 3.0, cell, 2.0)
+	for index in 8:
+		var x := left + (cell + gap) * float(index) + (split if index >= 4 else 0.0)
+		var area := Rect2(x, 258.0 + BAR_HEIGHT + 3.0, cell, 2.0)
 		_canvas.draw_rect(area, BAR_BACK)
 		var ready := 1.0 - (fractions[index] if index < fractions.size() else 0.0)
 		_canvas.draw_rect(Rect2(area.position, Vector2(cell * ready, area.size.y)), BAR_READY if ready >= 0.999 else BAR_NORMAL)

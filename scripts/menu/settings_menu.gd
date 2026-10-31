@@ -12,7 +12,7 @@ const ROW_HEIGHT := 22.0
 const FIRST_ROW_Y := 84.0
 const ACTION_LABELS := {
 	&"left": "Left", &"right": "Right", &"up": "Jump", &"down": "Down / drop",
-	&"attack": "Attack", &"special": "Special", &"guard": "Guard / Shunpo",
+	&"attack": "Attack", &"special": "Special", &"special2": "Special 2", &"guard": "Guard / Shunpo",
 	&"charge": "Charge / Bankai / Ult",
 }
 

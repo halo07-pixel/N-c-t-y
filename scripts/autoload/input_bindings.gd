@@ -4,7 +4,7 @@ extends Node
 ## so the layout does not depend on the keyboard language.
 
 const ACTIONS: Array[StringName] = [
-	&"left", &"right", &"up", &"down", &"attack", &"special", &"guard", &"charge",
+	&"left", &"right", &"up", &"down", &"attack", &"special", &"special2", &"guard", &"charge",
 ]
 
 const DEFAULT_KEYS := {
@@ -15,6 +15,7 @@ const DEFAULT_KEYS := {
 		&"down": KEY_S,
 		&"attack": KEY_J,
 		&"special": KEY_K,
+		&"special2": KEY_U,
 		&"guard": KEY_L,
 		&"charge": KEY_I,
 	},
@@ -25,6 +26,7 @@ const DEFAULT_KEYS := {
 		&"down": KEY_DOWN,
 		&"attack": KEY_KP_1,
 		&"special": KEY_KP_2,
+		&"special2": KEY_KP_4,
 		&"guard": KEY_KP_3,
 		&"charge": KEY_KP_5,
 	},

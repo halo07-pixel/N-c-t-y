@@ -193,9 +193,138 @@ repeat_cost = 0
 projectiles = Array[ExtResource("3")]([SubResource("P_noble_down_0")])
 cooldown_frames = 240
 
+[sub_resource type="Resource" id="P_b_fire"]
+script = ExtResource("3")
+offset = Vector2(18, -18)
+velocity = Vector2(190, 0)
+lifetime_frames = 70
+size = Vector2(26, 26)
+pierce = false
+color = Color(1.0, 0.45, 0.25, 1.0)
+art = &""
+style = &"orb"
+
+[sub_resource type="Resource" id="P_b_bolt"]
+script = ExtResource("3")
+offset = Vector2(20, -18)
+velocity = Vector2(540, 0)
+lifetime_frames = 40
+size = Vector2(48, 6)
+pierce = true
+color = Color(0.9, 0.95, 1.0, 1.0)
+art = &""
+style = &"arrow"
+
+[sub_resource type="Resource" id="P_b_up"]
+script = ExtResource("3")
+offset = Vector2(8, -22)
+velocity = Vector2(25, -170)
+lifetime_frames = 40
+size = Vector2(28, 28)
+pierce = false
+color = Color(1.0, 0.7, 0.85, 1.0)
+art = &""
+style = &"petal"
+
+[sub_resource type="Resource" id="P_b_field"]
+script = ExtResource("3")
+offset = Vector2(26, -18)
+velocity = Vector2(0, 0)
+lifetime_frames = 90
+size = Vector2(42, 42)
+pierce = true
+color = Color(1.0, 0.7, 0.85, 1.0)
+art = &""
+style = &"petal"
+absorbs = true
+
+[sub_resource type="Resource" id="A_b_n"]
+script = ExtResource("2")
+display_name = "Red Fire Cannon"
+direction = &"neutral"
+alt = true
+damage = 9.0
+base_knockback = 190
+knockback_growth = 95
+angle_degrees = 32
+startup_frames = 12
+active_frames = 2
+recovery_frames = 18
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cooldown_frames = 100
+projectiles = Array[ExtResource("3")]([SubResource("P_b_fire")])
+
+[sub_resource type="Resource" id="A_b_f"]
+script = ExtResource("2")
+display_name = "Byakurai"
+direction = &"forward"
+alt = true
+damage = 8.0
+base_knockback = 170
+knockback_growth = 80
+angle_degrees = 20
+startup_frames = 8
+active_frames = 2
+recovery_frames = 14
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cooldown_frames = 90
+projectiles = Array[ExtResource("3")]([SubResource("P_b_bolt")])
+
+[sub_resource type="Resource" id="A_b_u"]
+script = ExtResource("2")
+display_name = "Petal Ascent"
+direction = &"up"
+alt = true
+damage = 6.0
+base_knockback = 170
+knockback_growth = 90
+angle_degrees = 80
+startup_frames = 6
+active_frames = 2
+recovery_frames = 20
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(25, -270)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cooldown_frames = 240
+projectiles = Array[ExtResource("3")]([SubResource("P_b_up")])
+
+[sub_resource type="Resource" id="A_b_d"]
+script = ExtResource("2")
+display_name = "Petal Field"
+direction = &"down"
+alt = true
+damage = 5.0
+base_knockback = 150
+knockback_growth = 70
+angle_degrees = 70
+startup_frames = 9
+active_frames = 2
+recovery_frames = 22
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cooldown_frames = 160
+projectiles = Array[ExtResource("3")]([SubResource("P_b_field")])
+
 [resource]
 script = ExtResource("1")
 neutral = SubResource("S_noble_neutral")
 forward = SubResource("S_noble_forward")
 up = SubResource("S_noble_up")
 down = SubResource("S_noble_down")
+alt_neutral = SubResource("A_b_n")
+alt_forward = SubResource("A_b_f")
+alt_up = SubResource("A_b_u")
+alt_down = SubResource("A_b_d")

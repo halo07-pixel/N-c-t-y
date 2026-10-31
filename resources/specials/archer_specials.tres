@@ -185,9 +185,159 @@ repeat_cost = 50
 projectiles = Array[ExtResource("3")]([SubResource("P_archer_down_0")])
 cooldown_frames = 150
 
+[sub_resource type="Resource" id="P_u_bolt"]
+script = ExtResource("3")
+offset = Vector2(18, -18)
+velocity = Vector2(520, 0)
+lifetime_frames = 45
+size = Vector2(30, 8)
+pierce = true
+color = Color(0.7, 0.9, 1.0, 1.0)
+art = &""
+style = &"arrow"
+
+[sub_resource type="Resource" id="P_u_step"]
+script = ExtResource("3")
+offset = Vector2(16, -18)
+velocity = Vector2(330, 0)
+lifetime_frames = 50
+size = Vector2(22, 8)
+pierce = false
+color = Color(0.6, 0.85, 1.0, 1.0)
+art = &""
+style = &"arrow"
+
+[sub_resource type="Resource" id="P_u_rain0"]
+script = ExtResource("3")
+offset = Vector2(30, -80)
+velocity = Vector2(50, 230)
+lifetime_frames = 40
+size = Vector2(20, 8)
+pierce = false
+color = Color(0.6, 0.85, 1.0, 1.0)
+art = &""
+style = &"arrow"
+
+[sub_resource type="Resource" id="P_u_rain1"]
+script = ExtResource("3")
+offset = Vector2(60, -80)
+velocity = Vector2(50, 230)
+lifetime_frames = 40
+size = Vector2(20, 8)
+pierce = false
+color = Color(0.6, 0.85, 1.0, 1.0)
+art = &""
+style = &"arrow"
+
+[sub_resource type="Resource" id="P_u_rain2"]
+script = ExtResource("3")
+offset = Vector2(90, -80)
+velocity = Vector2(50, 230)
+lifetime_frames = 40
+size = Vector2(20, 8)
+pierce = false
+color = Color(0.6, 0.85, 1.0, 1.0)
+art = &""
+style = &"arrow"
+
+[sub_resource type="Resource" id="P_u_lance"]
+script = ExtResource("3")
+offset = Vector2(16, -30)
+velocity = Vector2(210, 210)
+lifetime_frames = 50
+size = Vector2(24, 9)
+pierce = false
+color = Color(0.7, 0.9, 1.0, 1.0)
+art = &""
+style = &"arrow"
+
+[sub_resource type="Resource" id="A_u_n"]
+script = ExtResource("2")
+display_name = "Piercing Bolt"
+direction = &"neutral"
+alt = true
+damage = 10.0
+base_knockback = 190
+knockback_growth = 90
+angle_degrees = 28
+startup_frames = 12
+active_frames = 2
+recovery_frames = 16
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cooldown_frames = 80
+projectiles = Array[ExtResource("3")]([SubResource("P_u_bolt")])
+
+[sub_resource type="Resource" id="A_u_f"]
+script = ExtResource("2")
+display_name = "Hirenkyaku Shot"
+direction = &"forward"
+alt = true
+damage = 7.0
+base_knockback = 160
+knockback_growth = 70
+angle_degrees = 30
+startup_frames = 3
+active_frames = 5
+recovery_frames = 14
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(-300, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = true
+cooldown_frames = 100
+projectiles = Array[ExtResource("3")]([SubResource("P_u_step")])
+
+[sub_resource type="Resource" id="A_u_u"]
+script = ExtResource("2")
+display_name = "Rain of Arrows"
+direction = &"up"
+alt = true
+damage = 6.5
+base_knockback = 150
+knockback_growth = 60
+angle_degrees = 70
+startup_frames = 9
+active_frames = 2
+recovery_frames = 20
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cooldown_frames = 200
+projectiles = Array[ExtResource("3")]([SubResource("P_u_rain0"), SubResource("P_u_rain1"), SubResource("P_u_rain2")])
+
+[sub_resource type="Resource" id="A_u_d"]
+script = ExtResource("2")
+display_name = "Diagonal Lance"
+direction = &"down"
+alt = true
+damage = 9.0
+base_knockback = 180
+knockback_growth = 90
+angle_degrees = -35
+startup_frames = 8
+active_frames = 2
+recovery_frames = 18
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cooldown_frames = 90
+projectiles = Array[ExtResource("3")]([SubResource("P_u_lance")])
+
 [resource]
 script = ExtResource("1")
 neutral = SubResource("S_archer_neutral")
 forward = SubResource("S_archer_forward")
 up = SubResource("S_archer_up")
 down = SubResource("S_archer_down")
+alt_neutral = SubResource("A_u_n")
+alt_forward = SubResource("A_u_f")
+alt_up = SubResource("A_u_u")
+alt_down = SubResource("A_u_d")

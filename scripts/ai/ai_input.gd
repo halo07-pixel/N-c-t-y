@@ -173,6 +173,8 @@ func _decide(frame: InputFrame, gap: float, rise: float) -> void:
 	var distance := absf(gap)
 	if params["reiatsu"] and _manage_reiatsu(frame, distance):
 		return
+	if level >= 2 and _try_special2(frame, toward, distance, rise, params["special"]):
+		return
 	if distance <= MELEE_RANGE and absf(rise) < 50.0:
 		_melee(frame, toward, distance, rise)
 	elif distance >= RANGED_MIN and distance <= RANGED_MAX and _rng.randf() < params["special"]:
@@ -188,6 +190,27 @@ func _decide(frame: InputFrame, gap: float, rise: float) -> void:
 			_follow_up_in = _rng.randi_range(16, 36)
 		if level >= 2 and charge_special != null and charge_special.is_chargeable():
 			_special_hold_left = _rng.randi_range(0, charge_special.charge_max_frames)
+
+
+## Uses a Special 2 skill that suits the distance: a dash or teleport at mid range, a shot from far
+## away, the rising skill when the opponent is overhead, the down skill when they are close.
+func _try_special2(frame: InputFrame, toward: float, distance: float, rise: float, special_chance: float) -> bool:
+	if _rng.randf() >= special_chance * 0.6:
+		return false
+	var pick := Vector2.ZERO
+	if rise < -70.0 and distance < 80.0:
+		pick = Vector2(0.0, -1.0)
+	elif distance <= MELEE_RANGE:
+		pick = Vector2(0.0, 1.0)
+	elif distance <= RANGED_MIN + 40.0:
+		pick = Vector2(toward, 0.0)
+	elif distance <= RANGED_MAX:
+		pick = Vector2(FACING_NUDGE * toward, 0.0)
+	else:
+		return false
+	frame.special2_just_pressed = true
+	frame.move = pick
+	return true
 
 
 ## Trap users lay one at mid range now and then, never stacking more than their limit.

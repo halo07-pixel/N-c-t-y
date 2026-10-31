@@ -158,9 +158,124 @@ title = ""
 projectiles = Array[ExtResource("3")]([SubResource("P_swordsman_slam")])
 cooldown_frames = 150
 
+[sub_resource type="Resource" id="P_i_quick"]
+script = ExtResource("3")
+offset = Vector2(16, -18)
+velocity = Vector2(430, 0)
+lifetime_frames = 50
+size = Vector2(20, 12)
+pierce = false
+color = Color(0.8, 0.95, 1.0, 1.0)
+art = &""
+style = &"crescent"
+
+[sub_resource type="Resource" id="P_i_quakeF"]
+script = ExtResource("3")
+offset = Vector2(20, -5)
+velocity = Vector2(200, 0)
+lifetime_frames = 26
+size = Vector2(26, 9)
+pierce = true
+color = Color(1.0, 0.5, 0.2, 1.0)
+art = &""
+style = &"crescent"
+
+[sub_resource type="Resource" id="P_i_quakeB"]
+script = ExtResource("3")
+offset = Vector2(-20, -5)
+velocity = Vector2(-200, 0)
+lifetime_frames = 26
+size = Vector2(26, 9)
+pierce = true
+color = Color(1.0, 0.5, 0.2, 1.0)
+art = &""
+style = &"crescent"
+
+[sub_resource type="Resource" id="A_i_n"]
+script = ExtResource("2")
+display_name = "Quick Getsuga"
+direction = &"neutral"
+alt = true
+damage = 6.5
+base_knockback = 170
+knockback_growth = 70
+angle_degrees = 25
+startup_frames = 6
+active_frames = 2
+recovery_frames = 14
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cooldown_frames = 50
+projectiles = Array[ExtResource("3")]([SubResource("P_i_quick")])
+
+[sub_resource type="Resource" id="A_i_f"]
+script = ExtResource("2")
+display_name = "Shunpo Slash"
+direction = &"forward"
+alt = true
+damage = 9.0
+base_knockback = 200
+knockback_growth = 115
+angle_degrees = 40
+startup_frames = 5
+active_frames = 3
+recovery_frames = 20
+hitbox_size = Vector2(30, 20)
+hitbox_offset = Vector2(20, -16)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(110, 0)
+ignore_gravity = false
+cooldown_frames = 110
+
+[sub_resource type="Resource" id="A_i_u"]
+script = ExtResource("2")
+display_name = "Spinning Cut"
+direction = &"up"
+alt = true
+damage = 8.0
+base_knockback = 200
+knockback_growth = 110
+angle_degrees = 78
+startup_frames = 5
+active_frames = 5
+recovery_frames = 20
+hitbox_size = Vector2(40, 38)
+hitbox_offset = Vector2(0, -22)
+self_velocity = Vector2(30, -260)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cooldown_frames = 240
+
+[sub_resource type="Resource" id="A_i_d"]
+script = ExtResource("2")
+display_name = "Quake Slam"
+direction = &"down"
+alt = true
+damage = 7.0
+base_knockback = 170
+knockback_growth = 95
+angle_degrees = 70
+startup_frames = 9
+active_frames = 3
+recovery_frames = 22
+hitbox_size = Vector2(40, 16)
+hitbox_offset = Vector2(12, -8)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cooldown_frames = 140
+projectiles = Array[ExtResource("3")]([SubResource("P_i_quakeF"), SubResource("P_i_quakeB")])
+
 [resource]
 script = ExtResource("1")
 neutral = SubResource("S_swordsman_neutral")
 forward = SubResource("S_swordsman_forward")
 up = SubResource("S_swordsman_up")
 down = SubResource("S_swordsman_down")
+alt_neutral = SubResource("A_i_n")
+alt_forward = SubResource("A_i_f")
+alt_up = SubResource("A_i_u")
+alt_down = SubResource("A_i_d")

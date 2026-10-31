@@ -35,6 +35,10 @@ extends MoveData
 ## Turns the fighter around when the move starts (a slash back through the opponent).
 @export var flip_facing: bool = false
 
+@export_group("Slot")
+## True for the skills of the second special button (Special 2). Follow-ups share their parent's.
+@export var alt: bool = false
+
 @export_group("Cooldown")
 ## Frames before this slot (neutral, forward, up, down) can be used again. Follow-ups have none.
 @export var cooldown_frames: int = 0
@@ -62,6 +66,11 @@ extends MoveData
 ## many frames and the camera zooms in on the fighter.
 @export var cinematic_frames: int = 0
 @export var title: String = ""
+
+
+## Key of this skill's cooldown: neutral, forward, up, down, or alt_neutral ... alt_down.
+func slot_key() -> StringName:
+	return StringName("alt_" + String(direction)) if alt else direction
 
 
 const FREE_CHARGE_SHARE := 0.6

@@ -47,6 +47,23 @@ func activate(move: MoveData, facing: int, damage_scale: float = 1.0) -> void:
 	queue_redraw()
 
 
+## Stretches the hitbox so it covers everything between where the fighter was (`from`) and now
+## (`to`): a dash or a teleport hurts whoever is on its path, not only whoever is at the end.
+func cover_path(from: Vector2, to: Vector2) -> void:
+	if not is_active or _move == null or _move.hitbox_size.x <= 0.0:
+		return
+	var size := _move.hitbox_size
+	var offset := Vector2(_move.hitbox_offset.x * float(_facing), _move.hitbox_offset.y)
+	var start := Rect2(from + offset - size * 0.5, size)
+	var end := Rect2(to + offset - size * 0.5, size)
+	var box := start.merge(end)
+	var rectangle := RectangleShape2D.new()
+	rectangle.size = box.size
+	_shape.shape = rectangle
+	_shape.position = box.get_center() - global_position
+	queue_redraw()
+
+
 func deactivate() -> void:
 	if is_active:
 		_deactivated_frame = Engine.get_physics_frames()

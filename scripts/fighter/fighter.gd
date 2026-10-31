@@ -29,7 +29,9 @@ const AIR_JUMP_MIN_STRENGTH := 0.4
 const FORM_COOLDOWN_SCALE := 0.6
 const GROUND_UP_COOLDOWN_SCALE := 0.4
 const COOLDOWN_ANNOUNCE_EVERY := 3
-const SKILL_SLOTS: Array[StringName] = [&"neutral", &"forward", &"up", &"down"]
+const SKILL_SLOTS: Array[StringName] = [
+	&"neutral", &"forward", &"up", &"down", &"alt_neutral", &"alt_forward", &"alt_up", &"alt_down",
+]
 const MAX_PERCENT := 999.0
 const RESPAWN_INVINCIBLE_FRAMES := 120
 const BLINK_PERIOD_FRAMES := 4
@@ -517,13 +519,22 @@ func _on_ultimate_started(attacker_id: int, freeze_frames: int, _title: String) 
 # --- Attacks and specials ------------------------------------------------------
 
 func wants_attack() -> bool:
-	return input.attack_just_pressed or input.special_just_pressed
+	return input.attack_just_pressed or input.special_just_pressed or input.special2_just_pressed
 
 
 func current_specials() -> SpecialSet:
 	if is_bankai() and data.bankai_specials != null:
 		return data.bankai_specials
 	return data.specials
+
+
+## The Special 2 skill for a direction: the form's own when it has one, otherwise the base kit's.
+func current_alt(direction: Vector2) -> SpecialData:
+	var kit := current_specials()
+	var skill := kit.select_alt(direction)
+	if skill == null and kit != data.specials:
+		skill = data.specials.select_alt(direction)
+	return skill
 
 
 ## The move for the button just pressed and the direction held.
@@ -551,7 +562,7 @@ func begin_special_use(special: SpecialData, aerial: bool) -> void:
 		empowered = false
 		empower_frames_left = 0
 		empower_scale = HOLLOW_SCALE
-	var slot := special.direction
+	var slot := special.slot_key()
 	if _refresh_pending:
 		_refresh_pending = false
 		spend_reiatsu(Reiatsu.BLOCK)
@@ -560,7 +571,7 @@ func begin_special_use(special: SpecialData, aerial: bool) -> void:
 	var frames := float(special.cooldown_frames)
 	if is_bankai():
 		frames *= FORM_COOLDOWN_SCALE
-	if slot == &"up" and not aerial:
+	if special.direction == &"up" and not aerial:
 		frames *= GROUND_UP_COOLDOWN_SCALE
 	skill_cooldowns[slot] = int(round(frames))
 	_skill_cooldown_totals[slot] = int(round(frames))
@@ -594,10 +605,12 @@ func _announce_cooldowns() -> void:
 
 
 func pick_move(aerial: bool) -> MoveData:
-	if input.special_just_pressed:
-		var special := current_specials().select(input.move)
+	if input.special_just_pressed or input.special2_just_pressed:
+		var special := current_specials().select(input.move) if input.special_just_pressed else current_alt(input.move)
+		if special == null:
+			return data.moveset.select(aerial, input.move)
 		var affordable := special.cost <= 0.0 or can_afford(special.cost)
-		var ready := skill_ready(special.direction)
+		var ready := skill_ready(special.slot_key())
 		var refreshable := special.direction == &"up" and can_afford(Reiatsu.BLOCK)
 		if affordable and (ready or refreshable):
 			_refresh_pending = not ready
