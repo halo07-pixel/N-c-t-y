@@ -110,6 +110,10 @@ func _ready() -> void:
 	add_child(aura)
 	move_child(aura, 2) # behind the body, just above the shadow
 	aura.setup(self)
+	var mechanic_aura := MechanicAura.new()
+	add_child(mechanic_aura)
+	move_child(mechanic_aura, 3) # in front of the body aura, behind the body
+	mechanic_aura.setup(self)
 	var glow := ChargeGlow.new()
 	add_child(glow)
 	glow.setup(self)
@@ -219,6 +223,11 @@ func _on_hit_landed(info: HitInfo) -> void:
 		empowered = true
 		empower_frames_left = HOLLOW_FRAMES
 		Events.mechanic_triggered.emit(player_id, &"hollow", global_position + Vector2(0.0, -16.0))
+
+
+## How many arrows in a row have hit (the Heartless streak).
+func arrow_streak() -> int:
+	return _arrow_streak if _arrow_streak_frames > 0 else 0
 
 
 ## Heartless bounce: this hit has not reached the target yet, so it is bent into a high pop-up.

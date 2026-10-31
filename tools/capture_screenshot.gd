@@ -223,6 +223,31 @@ func _play_scenario(scenario: String) -> void:
 			await _frames(30)
 			_bot_input.held_move = Vector2.ZERO
 			await _frames(20)
+		"mech_hollow": # Ichigo's Hollow boost charged, plus the flare that announced it
+			_fighters[0].empowered = true
+			_fighters[0].empower_frames_left = 400
+			root.get_node("Events").mechanic_triggered.emit(1, &"hollow", _fighters[0].global_position + Vector2(0.0, -16.0))
+			await _frames(8)
+		"mech_heartless": # Uryu's streak crosses and the bounce cross
+			_fighters[0]._on_projectile_hit(load("res://scripts/combat/hit_info.gd").new())
+			_fighters[0]._on_projectile_hit(load("res://scripts/combat/hit_info.gd").new())
+			root.get_node("Events").mechanic_triggered.emit(1, &"heartless", _fighters[0].global_position + Vector2(30.0, -16.0))
+			await _frames(8)
+		"mech_petals": # Byakuya's petal zone: ring, petals and wind
+			await _frames(45) # let the fighters land first
+			var data = load("res://scripts/data/projectile_data.gd").new()
+			data.commandable = true
+			data.lifetime_frames = 400
+			data.velocity = Vector2.ZERO
+			data.size = Vector2(8.0, 8.0)
+			var petal = load("res://scripts/combat/projectile.gd").new()
+			petal.launch(data, _fighters[0].data.moveset.ground_neutral, 1, 1, 1.0, _fighters[0].global_position + Vector2(30.0, -14.0))
+			_match.add_child(petal)
+			_bot_input.held_move = Vector2(1.0, 0.0)
+			await _frames(12)
+		"mech_steal": # Yhwach's Reiatsu beam
+			root.get_node("Events").mechanic_triggered.emit(2, &"steal", _fighters[0].global_position + Vector2(0.0, -16.0))
+			await _frames(6)
 		"boss":
 			await _frames(60)
 		"boss_ult":

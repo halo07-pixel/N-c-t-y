@@ -11,6 +11,7 @@ func _ready() -> void:
 	Events.fighter_dodged.connect(_on_dodged)
 	Events.fighter_shunpo.connect(_on_shunpo)
 	Events.projectile_flash.connect(_on_projectile_flash)
+	Events.mechanic_triggered.connect(_on_mechanic)
 
 
 func _on_hit_impact(
@@ -38,6 +39,22 @@ func _on_hit_impact(
 func _profile_for(player_id: int) -> FxProfile:
 	var character := MatchConfig.character_for(player_id)
 	return character.fx_profile if character != null else null
+
+
+## A character mechanic fired: a flare, a Quincy cross, or a beam of Reiatsu to the thief.
+func _on_mechanic(player_id: int, kind: StringName, spot: Vector2) -> void:
+	if not GameSettings.screen_effects:
+		return
+	var burst := MechanicBurst.new()
+	burst.kind = kind
+	burst.position = spot
+	burst.amount = GameSettings.effect_amount()
+	if kind == &"steal":
+		for node in get_tree().get_nodes_in_group(Fighter.FIGHTER_GROUP):
+			var thief := node as Fighter
+			if thief != null and thief.player_id == player_id:
+				burst.to_point = thief.global_position + Vector2(0.0, -16.0)
+	FxBudget.spawn(self, burst)
 
 
 func _on_dust_puff(puff_position: Vector2, strength: float) -> void:

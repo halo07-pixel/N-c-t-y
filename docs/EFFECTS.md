@@ -26,3 +26,13 @@ are noisy):
 Reading: the live effect count stays far below the caps, and the node count is flat (no leaks).
 The frame-time differences are inside the noise of software rendering; a real GPU run is still
 worth doing on the target PC. If it ever drops frames, lower `FxBudget.CAPS` first.
+
+## Character mechanics (stage 6)
+
+- `MechanicAura` (child of every fighter, reads the fighter): red-black flames while Ichigo's Hollow boost is
+  charged, Quincy crosses over Uryu's head for a 2-arrow streak (pulsing ring at the last step before the
+  bounce), and a ring of drifting petals plus wind streaks while Byakuya stands in his petal zone.
+- `MechanicBurst` (spawned by `CombatFx` from `Events.mechanic_triggered`): a Hollow flare, the Quincy cross that
+  bounces up, and a Reiatsu beam from the victim to Yhwach. They count against `FxBudget` and follow the
+  effects level (nothing at Off, fewer spikes and beads at Low).
+- Screenshots: `tools/capture_screenshot.gd` scenarios `mech_hollow`, `mech_heartless`, `mech_petals`, `mech_steal`.
