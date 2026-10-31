@@ -24,6 +24,11 @@ const PERFECT_ATTACKER_HITLAG := 14
 const PERFECT_GAUGE := 8.0
 const BLOCK_GAUGE_RATIO := 0.1
 
+## Throws: reach, how close a target must be to start one, and the wait between throws.
+const THROW_RANGE_X := 36.0
+const THROW_RANGE_Y := 26.0
+const THROW_COOLDOWN := 120
+
 const SHUNPO_DISTANCE := 60.0
 const SHUNPO_FRAMES := 12
 const SHUNPO_DODGE_FRAMES := 8

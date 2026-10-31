@@ -28,6 +28,11 @@ extends Resource
 @export var lunge_speed: float = 0.0
 
 
+@export_group("Throw")
+## A throw is not stopped by the guard; only a Shunpo or a perfect guard avoids it.
+@export var is_throw: bool = false
+
+
 @export_group("Chain")
 ## Pressing attack again after this move's active frames plays this move next (a combo string).
 ## Holding up or down picks the branch instead when one is set.

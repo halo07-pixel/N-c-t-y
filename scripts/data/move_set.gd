@@ -9,6 +9,10 @@ extends Resource
 @export var ground_up: MoveData
 @export var ground_down: MoveData
 
+@export_group("Throw")
+## Guard + attack next to an opponent: grabs through their guard.
+@export var throw_move: MoveData
+
 @export_group("Air")
 @export var air_neutral: MoveData
 @export var air_forward: MoveData

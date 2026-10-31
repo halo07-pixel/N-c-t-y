@@ -3,6 +3,21 @@
 [ext_resource type="Script" path="res://scripts/data/move_set.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/data/move_data.gd" id="2"]
 
+[sub_resource type="Resource" id="M_throw"]
+script = ExtResource("2")
+display_name = "Absorbing Grasp"
+direction = &"forward"
+damage = 12.0
+base_knockback = 240.0
+knockback_growth = 130.0
+angle_degrees = 75.0
+startup_frames = 16
+active_frames = 3
+recovery_frames = 26
+hitbox_size = Vector2(22, 28)
+hitbox_offset = Vector2(16, -16)
+is_throw = true
+
 [sub_resource type="Resource" id="M_chain_fin"]
 script = ExtResource("2")
 display_name = "Judgment Fist"
@@ -187,3 +202,4 @@ air_neutral = SubResource("M_air_neutral")
 air_forward = SubResource("M_air_forward")
 air_up = SubResource("M_air_up")
 air_down = SubResource("M_air_down")
+throw_move = SubResource("M_throw")

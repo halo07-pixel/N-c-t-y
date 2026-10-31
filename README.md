@@ -57,6 +57,10 @@ a second hit, then a heavier finisher. Hold Up or Down with the second press for
 instead. A press during the active frames is buffered. Chains need a connected hit; data lives in
 `MoveData.next_in_chain / chain_up / chain_down`.
 
+**Throw:** hold Guard and press Attack next to an opponent to grab them. A throw goes through a
+normal guard (14+ frames of startup, so it is easy to see coming); a Shunpo or a Perfect Guard avoids it.
+2 second cooldown. Each fighter has their own throw (`MoveSet.throw_move`, `MoveData.is_throw`).
+
 **Reiatsu** (the bar under the stocks, 0 to 300, notch at 200): hit and get hit to fill
 it, or stand still and hold the charge key. Press the charge key on the ground:
 - at 300: a cinematic **ultimate** (everyone else freezes, the camera zooms in);

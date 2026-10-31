@@ -83,6 +83,7 @@ func _on_area_entered(area: Area2D) -> void:
 	info.base_knockback = _move.base_knockback
 	info.knockback_growth = _move.knockback_growth
 	info.direction = Knockback.direction(_move.angle_degrees, _facing)
+	info.is_throw = _move.is_throw
 	if not hurtbox.evading:
 		hit_landed.emit(info)
 	hurtbox.receive_hit(info)

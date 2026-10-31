@@ -10,6 +10,7 @@ signal state_changed(state_name: StringName)
 ## A special move fired a projectile; whoever owns the scene adds it to the tree.
 signal projectile_spawned(projectile: Projectile)
 
+const FIGHTER_GROUP := &"fighters"
 const SOFT_PLATFORM_LAYER_VALUE := 4 # physics layer 3
 const DROP_THROUGH_FRAMES := 20
 const DROP_THROUGH_PUSH_SPEED := 120.0
@@ -53,6 +54,7 @@ var special_charge: float = 0.0
 var guard_age: int = 0
 var dodge_frames_left: int = 0
 var shunpo_cooldown: int = 0
+var throw_cooldown: int = 0
 ## Frames left before each special slot (neutral, forward, up, down) can be used again.
 var skill_cooldowns: Dictionary = {}
 var _skill_cooldown_totals: Dictionary = {}
@@ -99,6 +101,7 @@ func _ready() -> void:
 	shield.setup(self)
 	hurtbox.setup(player_id, data.body_size)
 	hitbox.setup(player_id)
+	add_to_group(FIGHTER_GROUP)
 	hurtbox.hit_received.connect(_on_hit_received)
 	hitbox.hit_landed.connect(_on_hit_landed)
 	Events.ultimate_started.connect(_on_ultimate_started)
@@ -163,7 +166,7 @@ func _on_hit_received(info: HitInfo) -> void:
 	if hurtbox.evading:
 		_evade_hit(info)
 		return
-	if is_guarding():
+	if is_guarding() and not info.is_throw:
 		_block_hit(info)
 		return
 	set_percent(percent + info.damage)
@@ -232,6 +235,8 @@ func _tick_defense() -> void:
 		air_jump_cooldown -= 1
 	if shunpo_cooldown > 0:
 		shunpo_cooldown -= 1
+	if throw_cooldown > 0:
+		throw_cooldown -= 1
 	if dodge_frames_left > 0:
 		dodge_frames_left -= 1
 	if not is_guarding():
@@ -497,6 +502,7 @@ func reset_cooldowns() -> void:
 	skill_cooldowns.clear()
 	_skill_cooldown_totals.clear()
 	shunpo_cooldown = 0
+	throw_cooldown = 0
 	air_jump_cooldown = 0
 	_announce_cooldowns()
 
@@ -540,6 +546,37 @@ func take_queued_move() -> MoveData:
 	var move := _queued_move
 	_queued_move = null
 	return move
+
+
+## True when a throw can start now: off cooldown, grounded, and an opponent right in front.
+func can_throw() -> bool:
+	if throw_cooldown > 0 or not is_on_floor() or data.moveset.throw_move == null:
+		return false
+	return throw_target() != null
+
+
+## The nearest opponent inside the throw reach in front of us, or null.
+func throw_target() -> Fighter:
+	var best: Fighter = null
+	var best_gap := INF
+	for node in get_tree().get_nodes_in_group(FIGHTER_GROUP):
+		var other := node as Fighter
+		if other == null or other == self or other.is_ko() or not other.hurtbox.is_active:
+			continue
+		var offset := other.global_position - global_position
+		var ahead := offset.x * float(facing)
+		if ahead < -4.0 or ahead > GuardRules.THROW_RANGE_X or absf(offset.y) > GuardRules.THROW_RANGE_Y:
+			continue
+		if ahead < best_gap:
+			best_gap = ahead
+			best = other
+	return best
+
+
+## Starts the throw: the attack state plays it, and the cooldown begins.
+func begin_throw() -> void:
+	throw_cooldown = GuardRules.THROW_COOLDOWN
+	queue_move(data.moveset.throw_move)
 
 
 ## Name of the attack being played, or "" when not attacking.

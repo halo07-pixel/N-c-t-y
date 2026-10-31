@@ -142,6 +142,8 @@ func _try_defend(frame: InputFrame) -> bool:
 
 func _keep_guarding(frame: InputFrame) -> void:
 	frame.guard_held = true
+	if level >= 2 and fighter.get_state_name() == &"Guard" and fighter.can_throw() and _rng.randf() < 0.25:
+		frame.attack_just_pressed = true # grab the opponent through their guard
 	_guard_frames_left -= 1
 
 
