@@ -64,6 +64,11 @@ func set_art(texture: Texture2D) -> void:
 	queue_redraw()
 
 
+## Keeps the projectile alive a few frames longer.
+func sustain(frames: int) -> void:
+	_frames_left += frames
+
+
 func is_trap() -> bool:
 	return _data != null and _data.trap
 

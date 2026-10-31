@@ -10,6 +10,7 @@
 
 [resource]
 script = ExtResource("1")
+mechanic = &"heartless"
 display_name = "Uryu"
 transform_title = "VOLLSTÄNDIG"
 weight = 95.0

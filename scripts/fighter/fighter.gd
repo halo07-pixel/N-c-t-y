@@ -10,6 +10,14 @@ signal state_changed(state_name: StringName)
 ## A special move fired a projectile; whoever owns the scene adds it to the tree.
 signal projectile_spawned(projectile: Projectile)
 
+const HOLLOW_HITS := 3
+const HOLLOW_FRAMES := 480 # how long the boost waits to be used
+const HOLLOW_SCALE := 1.25
+const HEARTLESS_HITS := 3
+const HEARTLESS_WINDOW := 150 # frames between arrow hits to keep the streak
+const HEARTLESS_BOUNCE := 1.4
+const PETAL_ZONE_RADIUS := 80.0
+const PETAL_RUN_SCALE := 1.25
 const FIGHTER_GROUP := &"fighters"
 const SOFT_PLATFORM_LAYER_VALUE := 4 # physics layer 3
 const DROP_THROUGH_FRAMES := 20
@@ -60,6 +68,13 @@ var skill_cooldowns: Dictionary = {}
 var _skill_cooldown_totals: Dictionary = {}
 var _refresh_pending: bool = false
 var damage_multiplier: float = 1.0
+## Ichigo: the next special hits harder after a 3-hit string (Hollow points).
+var empowered: bool = false
+var empower_frames_left: int = 0
+var empower_scale: float = 1.0
+var _arrow_streak: int = 0
+var _arrow_streak_frames: int = 0
+var in_petal_zone: bool = false
 var speed_scale: float = 1.0
 
 var _input_source: InputSource
@@ -198,12 +213,29 @@ func _on_hit_landed(info: HitInfo) -> void:
 	hitlag_left = Knockback.hitlag_frames(info.damage)
 	add_reiatsu(info.damage * Reiatsu.GAIN_DEALT)
 	_register_landed_hit(info.damage)
+	if data.mechanic == &"hollow" and combo_count >= HOLLOW_HITS and not empowered:
+		empowered = true
+		empower_frames_left = HOLLOW_FRAMES
+		Events.mechanic_triggered.emit(player_id, &"hollow", global_position + Vector2(0.0, -16.0))
+
+
+## Heartless bounce: this hit has not reached the target yet, so it is bent into a high pop-up.
+func _bounce(info: HitInfo) -> void:
+	info.direction = Vector2(float(facing) * 0.2, -1.0).normalized()
+	info.base_knockback *= HEARTLESS_BOUNCE
+	Events.mechanic_triggered.emit(player_id, &"heartless", global_position + Vector2(float(facing) * 30.0, -16.0))
 
 
 ## A projectile we fired connected: gain Reiatsu, but no hitlag (we may be doing something else).
 func _on_projectile_hit(info: HitInfo) -> void:
 	add_reiatsu(info.damage * Reiatsu.GAIN_DEALT)
 	_register_landed_hit(info.damage)
+	if data.mechanic == &"heartless":
+		_arrow_streak = _arrow_streak + 1 if _arrow_streak_frames > 0 else 1
+		_arrow_streak_frames = HEARTLESS_WINDOW
+		if _arrow_streak >= HEARTLESS_HITS:
+			_arrow_streak = 0
+			_bounce(info)
 
 
 # --- Guard and Shunpo ----------------------------------------------------------
@@ -230,7 +262,27 @@ func begin_shunpo() -> void:
 	is_fast_falling = false
 
 
+func _tick_mechanics() -> void:
+	if empower_frames_left > 0:
+		empower_frames_left -= 1
+		empowered = empower_frames_left > 0
+	if _arrow_streak_frames > 0:
+		_arrow_streak_frames -= 1
+	if data.mechanic == &"petals":
+		in_petal_zone = false
+		var odd_frame := Engine.get_physics_frames() % 2 == 1
+		for node in get_tree().get_nodes_in_group(Projectile.COMMAND_GROUP):
+			var petal := node as Projectile
+			if petal == null or petal.owner_id != player_id or petal.is_queued_for_deletion():
+				continue
+			if petal.position.distance_to(global_position + Vector2(0.0, -14.0)) <= PETAL_ZONE_RADIUS:
+				in_petal_zone = true
+				if odd_frame:
+					petal.sustain(1) # petals fade at half speed near their master
+
+
 func _tick_defense() -> void:
+	_tick_mechanics()
 	if air_jump_cooldown > 0:
 		air_jump_cooldown -= 1
 	if shunpo_cooldown > 0:
@@ -268,9 +320,22 @@ func _counter_hit(info: HitInfo) -> void:
 	Events.fighter_guarded.emit(player_id, info.attacker_id, true, spot)
 	add_gauge(GuardRules.PERFECT_GAUGE)
 	facing = -1 if info.direction.x > 0.0 else 1
+	if data.mechanic == &"steal":
+		_steal_reiatsu(info.attacker_id)
 	queue_move(counter_move)
 	set_counter(null)
 	_state_machine.transition_to(&"Attack")
+
+
+## Judgment Counter steals one Reiatsu block from whoever struck, if they have one.
+func _steal_reiatsu(attacker_id: int) -> void:
+	for node in get_tree().get_nodes_in_group(FIGHTER_GROUP):
+		var other := node as Fighter
+		if other != null and other.player_id == attacker_id and other.reiatsu >= Reiatsu.BLOCK:
+			other.spend_reiatsu(Reiatsu.BLOCK)
+			add_reiatsu(Reiatsu.BLOCK)
+			Events.mechanic_triggered.emit(player_id, &"steal", other.global_position + Vector2(0.0, -16.0))
+			return
 
 
 ## Opens (or closes, with null) the counter window; the attack state calls it.
@@ -482,6 +547,10 @@ func skill_cooldown_fraction(slot: StringName) -> float:
 ## Starts the cooldown of a special that was just used. The form shortens it; an up special used
 ## on the ground has a shorter one than in the air. A refresh (a Reiatsu block) was paid for here.
 func begin_special_use(special: SpecialData, aerial: bool) -> void:
+	if empowered and special.cinematic_frames <= 0:
+		empowered = false
+		empower_frames_left = 0
+		empower_scale = HOLLOW_SCALE
 	var slot := special.direction
 	if _refresh_pending:
 		_refresh_pending = false
@@ -622,7 +691,7 @@ func spawn_projectile(projectile_data: ProjectileData, move: MoveData, charge: f
 	var special := move as SpecialData
 	var scales := special.charge_scales(charge) if special != null else {"damage": 1.0, "size": 1.0, "speed": 1.0, "pierce": false}
 	projectile.launch(
-		projectile_data, move, player_id, facing, damage_multiplier * scales["damage"], global_position,
+		projectile_data, move, player_id, facing, damage_multiplier * empower_scale * scales["damage"], global_position,
 		scales["size"], scales["speed"], scales["pierce"]
 	)
 	if projectile_data.style == &"":
@@ -658,6 +727,8 @@ func respawn_at(spawn_position: Vector2) -> void:
 	velocity = Vector2.ZERO
 	show()
 	set_percent(0.0)
+	empowered = false
+	empower_frames_left = 0
 	is_fast_falling = false
 	hitlag_left = 0
 	hitstun_frames_left = 0
@@ -700,7 +771,8 @@ func apply_horizontal(
 	delta: float, direction: float, max_speed: float, accel: float, friction: float
 ) -> void:
 	if direction != 0.0:
-		velocity.x = move_toward(velocity.x, direction * max_speed * speed_scale, accel * delta)
+		var scale := speed_scale * (PETAL_RUN_SCALE if in_petal_zone else 1.0)
+		velocity.x = move_toward(velocity.x, direction * max_speed * scale, accel * delta)
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
 

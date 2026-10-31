@@ -61,6 +61,12 @@ instead. A press during the active frames is buffered. Chains need a connected h
 normal guard (14+ frames of startup, so it is easy to see coming); a Shunpo or a Perfect Guard avoids it.
 2 second cooldown. Each fighter has their own throw (`MoveSet.throw_move`, `MoveData.is_throw`).
 
+**Signature mechanics** (`CharacterData.mechanic`):
+- Ichigo, Hollow points: three hits in a row charge the next special (+25% damage).
+- Uryu, Heartless: the third arrow hit in a row pops the target up with extra knockback.
+- Byakuya, petal zone: near his own petals they fade at half speed and he runs 25% faster.
+- Yhwach, Judgment Counter: a successful counter steals one Reiatsu block from the attacker.
+
 **Reiatsu** (the bar under the stocks, 0 to 300, notch at 200): hit and get hit to fill
 it, or stand still and hold the charge key. Press the charge key on the ground:
 - at 300: a cinematic **ultimate** (everyone else freezes, the camera zooms in);

@@ -10,6 +10,7 @@
 
 [resource]
 script = ExtResource("1")
+mechanic = &"petals"
 display_name = "Byakuya"
 transform_title = "BANKAI: SENBONZAKURA KAGEYOSHI"
 weight = 95.0

@@ -25,6 +25,9 @@ signal fighter_launched(victim_id: int, speed: float, direction: Vector2)
 @warning_ignore("unused_signal")
 signal hit_impact(position: Vector2, direction: Vector2, damage: float, launch_speed: float, attacker_id: int)
 ## Dust kicked up by a landing or a jump; strength 0..1.
+## A character mechanic fired: &"hollow" (empowered), &"heartless" (bounce), &"steal" (Reiatsu taken).
+@warning_ignore("unused_signal")
+signal mechanic_triggered(player_id: int, kind: StringName, spot: Vector2)
 @warning_ignore("unused_signal")
 signal fighter_cooldowns_changed(player_id: int, fractions: PackedFloat32Array)
 

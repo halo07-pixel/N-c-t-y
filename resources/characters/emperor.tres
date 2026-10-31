@@ -10,6 +10,7 @@
 
 [resource]
 script = ExtResource("1")
+mechanic = &"steal"
 display_name = "Yhwach"
 transform_title = "VOLLSTÄNDIG: THE ALMIGHTY"
 starting_gauge = 10.0

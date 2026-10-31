@@ -38,6 +38,7 @@ func enter(_previous: StringName) -> void:
 
 
 func exit() -> void:
+	fighter.empower_scale = 1.0
 	fighter.special_charge = 0.0
 	fighter.set_counter(null)
 	fighter.hitbox.deactivate()
@@ -159,7 +160,7 @@ func _advance_move() -> void:
 
 func _begin_active() -> void:
 	if _move.hitbox_size.x > 0.0:
-		fighter.hitbox.activate(_move, fighter.facing, fighter.damage_multiplier)
+		fighter.hitbox.activate(_move, fighter.facing, fighter.damage_multiplier * fighter.empower_scale)
 	if _move.lunge_speed != 0.0:
 		fighter.velocity.x = float(fighter.facing) * _move.lunge_speed
 	if _special == null:

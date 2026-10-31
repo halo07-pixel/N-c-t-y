@@ -7,7 +7,7 @@
 script = ExtResource("2")
 display_name = "Petal Whirl"
 direction = &"forward"
-damage = 8.5
+damage = 7.5
 base_knockback = 215.0
 knockback_growth = 115.0
 angle_degrees = 65.0
@@ -22,7 +22,7 @@ is_throw = true
 script = ExtResource("2")
 display_name = "Scattering Slash"
 direction = &"forward"
-damage = 8.0
+damage = 7.0
 base_knockback = 220.0
 knockback_growth = 120.0
 angle_degrees = 38.0
