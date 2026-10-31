@@ -500,6 +500,7 @@ func start_bankai() -> void:
 	speed_scale = CombatGauge.SPEED_SCALE
 	_body.set_bankai(true)
 	Events.fighter_bankai_changed.emit(player_id, true)
+	_announce_cooldowns() # the form has its own kit
 
 
 func end_bankai() -> void:
@@ -510,6 +511,7 @@ func end_bankai() -> void:
 	speed_scale = 1.0
 	_body.set_bankai(false)
 	Events.fighter_bankai_changed.emit(player_id, false)
+	_announce_cooldowns()
 
 
 func _tick_bankai() -> void:
@@ -611,6 +613,43 @@ func _announce_cooldowns() -> void:
 	for slot: StringName in SKILL_SLOTS:
 		fractions.append(skill_cooldown_fraction(slot))
 	Events.fighter_cooldowns_changed.emit(player_id, fractions)
+	Events.fighter_skills_changed.emit(player_id, skill_hud_info())
+
+
+## The skill in a cooldown slot for the current form, or null.
+func skill_in_slot(slot: StringName) -> SpecialData:
+	match slot:
+		&"neutral":
+			return current_specials().neutral
+		&"forward":
+			return current_specials().forward
+		&"up":
+			return current_specials().up
+		&"down":
+			return current_specials().down
+		&"alt_neutral":
+			return current_alt(Vector2.ZERO)
+		&"alt_forward":
+			return current_alt(Vector2.RIGHT)
+		&"alt_up":
+			return current_alt(Vector2.UP)
+		&"alt_down":
+			return current_alt(Vector2.DOWN)
+	return null
+
+
+## What the HUD shows for each of the eight slots: how much cooldown is left (0..1), the seconds
+## left, and the Reiatsu the skill needs to start (0 when free).
+func skill_hud_info() -> Array:
+	var info: Array = []
+	for slot: StringName in SKILL_SLOTS:
+		var skill := skill_in_slot(slot)
+		info.append({
+			"fraction": skill_cooldown_fraction(slot),
+			"seconds": float(int(skill_cooldowns.get(slot, 0))) / 60.0,
+			"cost": skill.cost if skill != null else 0.0,
+		})
+	return info
 
 
 func pick_move(aerial: bool) -> MoveData:

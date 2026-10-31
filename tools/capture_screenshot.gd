@@ -223,6 +223,17 @@ func _play_scenario(scenario: String) -> void:
 			await _frames(30)
 			_bot_input.held_move = Vector2.ZERO
 			await _frames(20)
+		"skillhud": # the skill strip with two skills cooling down
+			await _frames(30)
+			_bot_input.tap_special()
+			await _frames(40)
+			_bot_input.held_move = Vector2(0.0, 1.0)
+			_bot_input.tap_special2()
+			await _frames(12)
+		"movelist": # the F3 move list
+			await _frames(5)
+			_match.get_node("MoveListOverlay").toggle()
+			await _frames(3)
 		"mech_hollow": # Ichigo's Hollow boost charged, plus the flare that announced it
 			_fighters[0].empowered = true
 			_fighters[0].empower_frames_left = 400

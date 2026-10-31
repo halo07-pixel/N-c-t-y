@@ -3,7 +3,7 @@ extends CanvasLayer
 ## Listens to the Events bus only. F1 hides it, F2 shows hitboxes.
 
 const FONT_SIZE := 8
-const HELP_TEXT := "F1 hide  F2 hitboxes  Esc menu"
+const HELP_TEXT := "F1 hide  F2 hitboxes  F3 moves  Esc menu"
 
 var _label: Label
 var _states: Dictionary = {}

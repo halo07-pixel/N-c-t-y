@@ -65,6 +65,11 @@ normal guard (14+ frames of startup, so it is easy to see coming); a Shunpo or a
 up, down) and its own cooldowns. The HUD shows eight pips: Special, then Special 2. Dashes, lunges and
 teleports now hurt everything along their path (`Hitbox.cover_path`), not only at the end.
 
+**Skill strip and move list:** beside each player panel, two rows of four cells show the Special row (K / N2)
+and the Special 2 row (U / N4). The symbol is the direction to hold (dot = none, triangles = forward, up, down). A
+ready skill is lit; a cooling one is dark with the seconds left; a red frame means the skill needs Reiatsu you
+lack. **F3** opens the full move list of both fighters (buttons, combos, throw, skills with cooldowns, form, ultimate).
+
 **Signature mechanics** (`CharacterData.mechanic`):
 - Ichigo, Hollow points: three hits in a row charge the next special (+25% damage).
 - Uryu, Heartless: the third arrow hit in a row pops the target up with extra knockback.

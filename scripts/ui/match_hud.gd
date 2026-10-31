@@ -29,6 +29,7 @@ var _reiatsu: Dictionary = {}
 var _bankai: Dictionary = {}
 var _gauge: Dictionary = {}
 var _cooldowns: Dictionary = {}
+var _skills: Dictionary = {}
 var _transform_title: String = ""
 var _transform_frames: int = 0
 var _transform_total: int = 0
@@ -58,6 +59,7 @@ func _ready() -> void:
 	Events.fighter_bankai_changed.connect(_on_bankai_changed)
 	Events.fighter_gauge_changed.connect(_on_gauge_changed)
 	Events.fighter_cooldowns_changed.connect(_on_cooldowns_changed)
+	Events.fighter_skills_changed.connect(_on_skills_changed)
 	Events.transform_started.connect(_on_transform_started)
 	Events.stocks_changed.connect(_on_stocks_changed)
 	Events.match_time_changed.connect(_on_time_changed)
@@ -113,6 +115,11 @@ func _on_match_ended(winner_id: int) -> void:
 
 func _on_cooldowns_changed(player_id: int, fractions: PackedFloat32Array) -> void:
 	_cooldowns[player_id] = fractions
+	_canvas.queue_redraw()
+
+
+func _on_skills_changed(player_id: int, info: Array) -> void:
+	_skills[player_id] = info
 	_canvas.queue_redraw()
 
 
@@ -182,7 +189,7 @@ func _draw_player_panel(player_id: int, center_x: float) -> void:
 		_canvas.draw_rect(pip_rect, color)
 	_draw_gauge_bar(player_id, center_x)
 	_draw_reiatsu_bar(player_id, center_x)
-	_draw_cooldown_pips(player_id, center_x)
+	_draw_skill_strip(player_id, center_x)
 
 
 func _player_label(player_id: int) -> String:
@@ -210,20 +217,66 @@ func _draw_reiatsu_bar(player_id: int, center_x: float) -> void:
 		_canvas.draw_rect(Rect2(area.position, Vector2(cell * share, BAR_HEIGHT)), BAR_READY if full or share >= 1.0 else BAR_NORMAL)
 
 
-## Eight small pips under the Reiatsu bar, one per special slot (Special, then Special 2; neutral, forward, up, down): full
-## when ready, draining while on cooldown.
-func _draw_cooldown_pips(player_id: int, center_x: float) -> void:
-	var fractions: PackedFloat32Array = _cooldowns.get(player_id, PackedFloat32Array())
+## The skill strip beside the panel: two rows of four cells, one row per special button (its key
+## is written at the start of the row), each cell showing the direction to hold. A ready skill is lit,
+## a cooling one is dark with the seconds left, and a skill that needs Reiatsu you lack has a red frame.
+func _draw_skill_strip(player_id: int, center_x: float) -> void:
+	var info: Array = _skills.get(player_id, [])
+	var cell := Vector2(15.0, 14.0)
 	var gap := 2.0
-	var split := 5.0 # an extra gap between the Special and Special 2 groups
-	var cell := (BAR_WIDTH - gap * 6.0 - split) / 8.0
-	var left := center_x - BAR_WIDTH * 0.5
-	for index in 8:
-		var x := left + (cell + gap) * float(index) + (split if index >= 4 else 0.0)
-		var area := Rect2(x, 258.0 + BAR_HEIGHT + 3.0, cell, 2.0)
-		_canvas.draw_rect(area, BAR_BACK)
-		var ready := 1.0 - (fractions[index] if index < fractions.size() else 0.0)
-		_canvas.draw_rect(Rect2(area.position, Vector2(cell * ready, area.size.y)), BAR_READY if ready >= 0.999 else BAR_NORMAL)
+	var label_w := 14.0
+	var width := label_w + 4.0 * (cell.x + gap)
+	# P1 on the left of its panel, P2 on the right, so the strip sits at the outside of the screen.
+	var left := center_x - 46.0 - width if player_id == 1 else center_x + 46.0
+	var top := 226.0
+	for row in 2:
+		var action := &"special" if row == 0 else &"special2"
+		_text(skill_key_label(player_id, action), Vector2(left + label_w * 0.5, top + float(row) * (cell.y + gap) + 10.0), 8, WHITE)
+		for column in 4:
+			var index := row * 4 + column
+			var entry: Dictionary = info[index] if index < info.size() else {}
+			var area := Rect2(left + label_w + float(column) * (cell.x + gap), top + float(row) * (cell.y + gap), cell.x, cell.y)
+			_draw_skill_cell(area, column, entry, _reiatsu.get(player_id, 0.0))
+
+
+func _draw_skill_cell(area: Rect2, column: int, entry: Dictionary, reiatsu: float) -> void:
+	var cooling: float = entry.get("fraction", 0.0)
+	var seconds: float = entry.get("seconds", 0.0)
+	var cost: float = entry.get("cost", 0.0)
+	var short := cost > 0.0 and reiatsu < cost
+	_canvas.draw_rect(area.grow(1.0), HOT if short else OUTLINE)
+	_canvas.draw_rect(area, BAR_BACK)
+	var ready := cooling <= 0.001
+	if ready:
+		_canvas.draw_rect(area, BAR_READY if not short else BAR_READY.darkened(0.5))
+	else:
+		var filled := area.size.y * (1.0 - cooling)
+		_canvas.draw_rect(Rect2(area.position.x, area.end.y - filled, area.size.x, filled), BAR_NORMAL.darkened(0.45))
+	var glyph_color := OUTLINE if ready else Color(0.75, 0.8, 0.95)
+	var center := area.get_center()
+	if ready or seconds <= 0.0:
+		_draw_direction_glyph(center, column, glyph_color)
+	else:
+		_text("%.1f" % seconds if seconds < 10.0 else "%d" % int(seconds), Vector2(center.x, center.y + 3.0), 7, WHITE)
+
+
+## The direction a skill is used with, as a small shape: dot (none), triangles for forward, up, down.
+func _draw_direction_glyph(center: Vector2, column: int, color: Color) -> void:
+	match column:
+		0:
+			_canvas.draw_circle(center, 2.2, color)
+		1:
+			_canvas.draw_colored_polygon(PackedVector2Array([center + Vector2(-2.5, -3.5), center + Vector2(3.5, 0.0), center + Vector2(-2.5, 3.5)]), color)
+		2:
+			_canvas.draw_colored_polygon(PackedVector2Array([center + Vector2(-3.5, 2.5), center + Vector2(0.0, -3.5), center + Vector2(3.5, 2.5)]), color)
+		_:
+			_canvas.draw_colored_polygon(PackedVector2Array([center + Vector2(-3.5, -2.5), center + Vector2(3.5, -2.5), center + Vector2(0.0, 3.5)]), color)
+
+
+## The key printed on the strip: K and U for player 1, N2 and N4 for player 2 (Numpad).
+static func skill_key_label(player_id: int, action: StringName) -> String:
+	var keycode: Key = InputBindings.DEFAULT_KEYS[player_id][action]
+	return OS.get_keycode_string(keycode).replace("Kp ", "N")
 
 
 ## The Combat Gauge above the Reiatsu bar; it pulses when a transformation is ready.

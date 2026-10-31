@@ -28,6 +28,9 @@ signal hit_impact(position: Vector2, direction: Vector2, damage: float, launch_s
 ## A character mechanic fired: &"hollow" (empowered), &"heartless" (bounce), &"steal" (Reiatsu taken).
 @warning_ignore("unused_signal")
 signal mechanic_triggered(player_id: int, kind: StringName, spot: Vector2)
+## One entry per special slot (Special neutral..down, then Special 2): {fraction, seconds, cost}.
+@warning_ignore("unused_signal")
+signal fighter_skills_changed(player_id: int, info: Array)
 @warning_ignore("unused_signal")
 signal fighter_cooldowns_changed(player_id: int, fractions: PackedFloat32Array)
 

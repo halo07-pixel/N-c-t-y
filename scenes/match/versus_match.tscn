@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" path="res://scenes/stages/test_stage.tscn" id="2"]
 [ext_resource type="Script" path="res://scripts/camera/fight_camera.gd" id="3"]
 [ext_resource type="Script" path="res://scripts/dev/debug_overlay.gd" id="4"]
+[ext_resource type="Script" path="res://scripts/ui/move_list_overlay.gd" id="11"]
 [ext_resource type="Script" path="res://scripts/match/match_manager.gd" id="5"]
 [ext_resource type="Script" path="res://scripts/ui/match_hud.gd" id="6"]
 [ext_resource type="Script" path="res://scripts/fx/vignette.gd" id="7"]
@@ -39,3 +40,6 @@ script = ExtResource("6")
 
 [node name="DebugOverlay" type="CanvasLayer" parent="."]
 script = ExtResource("4")
+
+[node name="MoveListOverlay" type="CanvasLayer" parent="."]
+script = ExtResource("11")
