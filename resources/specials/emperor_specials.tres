@@ -19,6 +19,7 @@ absorbs = true
 [sub_resource type="Resource" id="S_emperor_neutral"]
 script = ExtResource("2")
 display_name = "Reishi Absorption"
+role = &"defend"
 direction = &"neutral"
 damage = 8.5
 base_knockback = 170
@@ -47,7 +48,7 @@ cooldown_frames = 120
 script = ExtResource("2")
 display_name = "Blut Strike"
 direction = &"forward"
-damage = 11.5
+damage = 10.5
 base_knockback = 250
 knockback_growth = 150
 angle_degrees = 35
@@ -65,8 +66,9 @@ title = ""
 [sub_resource type="Resource" id="S_emperor_forward"]
 script = ExtResource("2")
 display_name = "Hirenkyaku Rush"
+role = &"rush"
 direction = &"forward"
-damage = 10.2
+damage = 9.2
 base_knockback = 220
 knockback_growth = 140
 angle_degrees = 38
@@ -83,7 +85,7 @@ title = ""
 follow_up = SubResource("S_emperor_stab")
 follow_up_cost = 50
 follow_up_window = 28
-cooldown_frames = 150
+cooldown_frames = 100
 
 [sub_resource type="Resource" id="S_emperor_fall"]
 script = ExtResource("2")
@@ -107,6 +109,7 @@ title = ""
 [sub_resource type="Resource" id="S_emperor_up"]
 script = ExtResource("2")
 display_name = "Hirenkyaku Ascent"
+role = &"recover"
 direction = &"up"
 damage = 7.6
 base_knockback = 210
@@ -125,13 +128,13 @@ title = ""
 follow_up = SubResource("S_emperor_fall")
 follow_up_cost = 50
 follow_up_window = 30
-cooldown_frames = 360
+cooldown_frames = 240
 
 [sub_resource type="Resource" id="S_emperor_riposte"]
 script = ExtResource("2")
 display_name = "The Almighty"
 direction = &"down"
-damage = 12
+damage = 10.5
 base_knockback = 280
 knockback_growth = 170
 angle_degrees = 40
@@ -149,6 +152,7 @@ title = ""
 [sub_resource type="Resource" id="S_emperor_down"]
 script = ExtResource("2")
 display_name = "Foresight"
+role = &"defend"
 direction = &"down"
 damage = 0
 base_knockback = 0
@@ -166,7 +170,7 @@ cinematic_frames = 0
 title = ""
 counter_move = SubResource("S_emperor_riposte")
 cost = 100
-cooldown_frames = 300
+cooldown_frames = 240
 
 [sub_resource type="Resource" id="P_y_spear"]
 script = ExtResource("3")
@@ -193,9 +197,10 @@ style = &"blast"
 [sub_resource type="Resource" id="A_y_n"]
 script = ExtResource("2")
 display_name = "Reishi Arrow"
+role = &"zone"
 direction = &"neutral"
 alt = true
-damage = 9.0
+damage = 8.0
 base_knockback = 200
 knockback_growth = 100
 angle_degrees = 25
@@ -207,15 +212,16 @@ hitbox_offset = Vector2(0, 0)
 self_velocity = Vector2(0, 0)
 teleport = Vector2(0, 0)
 ignore_gravity = false
-cooldown_frames = 90
+cooldown_frames = 70
 projectiles = Array[ExtResource("3")]([SubResource("P_y_spear")])
 
 [sub_resource type="Resource" id="A_y_f"]
 script = ExtResource("2")
 display_name = "Hirenkyaku Strike"
+role = &"combo"
 direction = &"forward"
 alt = true
-damage = 11.0
+damage = 9.5
 base_knockback = 220
 knockback_growth = 120
 angle_degrees = 38
@@ -227,11 +233,12 @@ hitbox_offset = Vector2(22, -16)
 self_velocity = Vector2(0, 0)
 teleport = Vector2(130, 0)
 ignore_gravity = false
-cooldown_frames = 150
+cooldown_frames = 110
 
 [sub_resource type="Resource" id="A_y_u"]
 script = ExtResource("2")
 display_name = "Reishi Lift"
+role = &"combo"
 direction = &"up"
 alt = true
 damage = 6.0
@@ -246,11 +253,12 @@ hitbox_offset = Vector2(14, -30)
 self_velocity = Vector2(0, 0)
 teleport = Vector2(0, 0)
 ignore_gravity = false
-cooldown_frames = 200
+cooldown_frames = 110
 
 [sub_resource type="Resource" id="A_y_d"]
 script = ExtResource("2")
 display_name = "Reishi Pillar"
+role = &"area"
 direction = &"down"
 alt = true
 damage = 8.0

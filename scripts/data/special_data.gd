@@ -39,6 +39,20 @@ extends MoveData
 ## Quincy skills gather reishi during the wind-up: blue motes flow into the bow arm.
 @export var gather: bool = false
 
+@export_group("Role")
+## What the skill is for, so the player knows when to use it: zone (ranged poke), rush (closes the
+## gap), combo (sets up a follow-up), heavy (slow, strong), defend (counter, trap, shield), area
+## (controls space) or recover (gets back to the stage). Empty for follow-ups.
+@export var role: String = ""
+
+## Cooldown range (frames) a skill of each role should stay within, and the least damage heavy needs.
+const ROLE_COOLDOWNS := {
+	"zone": Vector2i(24, 70), "rush": Vector2i(60, 100), "combo": Vector2i(70, 110),
+	"heavy": Vector2i(150, 220), "defend": Vector2i(60, 240), "area": Vector2i(90, 200),
+	"recover": Vector2i(120, 240),
+}
+const HEAVY_MIN_DAMAGE := 11.0
+
 @export_group("Slot")
 ## True for the skills of the second special button (Special 2). Follow-ups share their parent's.
 @export var alt: bool = false

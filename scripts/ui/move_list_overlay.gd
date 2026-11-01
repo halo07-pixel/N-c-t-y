@@ -67,6 +67,8 @@ static func _skill_line(direction: String, skill: SpecialData) -> String:
 	if skill == null:
 		return "  %s  -" % direction
 	var text := "  %s  %s  %s" % [direction, skill.display_name, _seconds(skill.cooldown_frames)]
+	if skill.role != "":
+		text += "  [%s]" % skill.role.to_upper()
 	if skill.cost > 0.0:
 		text += "  (%d Reiatsu)" % int(skill.cost)
 	elif skill.is_chargeable():
@@ -107,6 +109,7 @@ static func lines_for(character: CharacterData, player_id: int) -> PackedStringA
 	lines.append(_skill_line("up  ", kit.alt_up))
 	lines.append(_skill_line("down", kit.alt_down))
 	var ultimate := character.ultimate.display_name if character.ultimate != null else "-"
+	lines.append("zone=poke rush=close in combo=set up heavy=strong defend=guard area=space recover=return")
 	lines.append("%s  Form: %s" % [charge, character.transform_title])
 	lines.append("%s  Ultimate: %s (form + full Reiatsu)" % [charge, ultimate])
 	return lines

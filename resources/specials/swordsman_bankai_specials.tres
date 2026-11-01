@@ -82,6 +82,7 @@ title = ""
 [sub_resource type="Resource" id="S_swordsmanb_neutral"]
 script = ExtResource("2")
 display_name = "Black Getsuga Tenshō"
+role = &"zone"
 direction = &"neutral"
 damage = 10.0
 base_knockback = 180.0
@@ -109,6 +110,7 @@ cooldown_frames = 45
 [sub_resource type="Resource" id="S_swordsmanb_forward"]
 script = ExtResource("2")
 display_name = "Shunpo Strike +"
+role = &"rush"
 direction = &"forward"
 damage = 10.0
 base_knockback = 200.0
@@ -131,6 +133,7 @@ cooldown_frames = 90
 [sub_resource type="Resource" id="S_swordsmanb_up"]
 script = ExtResource("2")
 display_name = "Rising Cut +"
+role = &"recover"
 direction = &"up"
 damage = 8.0
 base_knockback = 200.0
@@ -149,11 +152,12 @@ title = ""
 follow_up = SubResource("S_swordsmanb_dive")
 follow_up_cost = 0.0
 follow_up_window = 30
-cooldown_frames = 300
+cooldown_frames = 240
 
 [sub_resource type="Resource" id="S_swordsmanb_down"]
 script = ExtResource("2")
 display_name = "Ground Slam +"
+role = &"defend"
 direction = &"down"
 damage = 8.0
 base_knockback = 190.0
@@ -199,6 +203,7 @@ style = &"crescent"
 [sub_resource type="Resource" id="A_ib_n"]
 script = ExtResource("2")
 display_name = "Black Getsuga Jūjishō"
+role = &"area"
 direction = &"neutral"
 alt = true
 damage = 6.2

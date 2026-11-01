@@ -58,3 +58,12 @@ form's damage multiplier. 8 matches per pair is noisy, so read these as a rough 
 Ichigo 50%, Uryu 42%, Byakuya 54%, Yhwach 54% (before: 31 / 40 / 56 / 73). Per-skill cooldowns
 slowed the strongest repeatable pressure, which mostly lowered Yhwach. Uryu is still the lowest;
 his Heilig Pfeil (24 frames) and Path Control cooldowns are the first knobs. Noisy, so a rough guide.
+
+## After the skill roles pass (8 matches per pair, CPU level 3)
+
+Every skill now has one role (zone, rush, combo, heavy, defend, area, recover) shown as a tag in the
+F3 move list, and each role has a cooldown band (`SpecialData.ROLE_COOLDOWNS`, checked by
+`tests/test_skill_roles.gd`): zone pokes are fast (<= 1.2 s), heavy skills are slow but hit for 11+,
+recoveries are capped at 4 s. Result: Ichigo 60%, Uryu 33%, Byakuya 42%, Yhwach 65% (before: 44 / 29 / 67 / 60).
+Uryu got more damage on his arrows; Yhwach's rush, strike, arrow and counter were trimmed. Noisy (+-10%),
+Yhwach is still the strongest and Uryu the weakest.

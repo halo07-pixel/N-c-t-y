@@ -68,6 +68,7 @@ title = ""
 [sub_resource type="Resource" id="S_swordsman_neutral"]
 script = ExtResource("2")
 display_name = "Getsuga Tenshō"
+role = &"zone"
 direction = &"neutral"
 damage = 9.0
 base_knockback = 180.0
@@ -95,6 +96,7 @@ cooldown_frames = 45
 [sub_resource type="Resource" id="S_swordsman_forward"]
 script = ExtResource("2")
 display_name = "Shunpo Strike"
+role = &"rush"
 direction = &"forward"
 damage = 10.0
 base_knockback = 200.0
@@ -117,6 +119,7 @@ cooldown_frames = 90
 [sub_resource type="Resource" id="S_swordsman_up"]
 script = ExtResource("2")
 display_name = "Rising Cut"
+role = &"recover"
 direction = &"up"
 damage = 8.0
 base_knockback = 200.0
@@ -135,11 +138,12 @@ title = ""
 follow_up = SubResource("S_swordsman_dive")
 follow_up_cost = 50.0
 follow_up_window = 30
-cooldown_frames = 300
+cooldown_frames = 240
 
 [sub_resource type="Resource" id="S_swordsman_down"]
 script = ExtResource("2")
 display_name = "Ground Slam"
+role = &"defend"
 direction = &"down"
 damage = 8.0
 base_knockback = 190.0
@@ -161,6 +165,7 @@ cooldown_frames = 150
 [sub_resource type="Resource" id="A_i_f"]
 script = ExtResource("2")
 display_name = "Bringer Light"
+role = &"combo"
 direction = &"forward"
 alt = true
 damage = 9.0
@@ -180,6 +185,7 @@ cooldown_frames = 110
 [sub_resource type="Resource" id="A_i_u"]
 script = ExtResource("2")
 display_name = "Spinning Cut"
+role = &"recover"
 direction = &"up"
 alt = true
 damage = 8.0
@@ -232,6 +238,7 @@ style = &"beam"
 [sub_resource type="Resource" id="A_i_n"]
 script = ExtResource("2")
 display_name = "Getsuga Jūjishō"
+role = &"area"
 direction = &"neutral"
 alt = true
 damage = 5.5
@@ -252,6 +259,7 @@ projectiles = Array[ExtResource("3")]([SubResource("P_i_j1"), SubResource("P_i_j
 [sub_resource type="Resource" id="A_i_d"]
 script = ExtResource("2")
 display_name = "Cero"
+role = &"heavy"
 direction = &"down"
 alt = true
 damage = 11.0
@@ -266,7 +274,7 @@ hitbox_offset = Vector2(0, 0)
 self_velocity = Vector2(0, 0)
 teleport = Vector2(0, 0)
 ignore_gravity = false
-cooldown_frames = 220
+cooldown_frames = 200
 projectiles = Array[ExtResource("3")]([SubResource("P_i_cero")])
 
 [resource]

@@ -63,6 +63,7 @@ command_speed = 430.0
 [sub_resource type="Resource" id="S_nobleb_neutral"]
 script = ExtResource("2")
 display_name = "Senkei"
+role = &"zone"
 direction = &"neutral"
 damage = 6.7
 base_knockback = 130
@@ -107,6 +108,7 @@ flip_facing = true
 [sub_resource type="Resource" id="S_nobleb_forward"]
 script = ExtResource("2")
 display_name = "Flash Step +"
+role = &"rush"
 direction = &"forward"
 damage = 10.1
 base_knockback = 190
@@ -125,7 +127,7 @@ title = ""
 follow_up = SubResource("S_nobleb_behind")
 follow_up_cost = 0
 follow_up_window = 30
-cooldown_frames = 120
+cooldown_frames = 100
 
 [sub_resource type="Resource" id="P_nobleb_drop_0"]
 script = ExtResource("3")
@@ -161,6 +163,7 @@ projectiles = Array[ExtResource("3")]([SubResource("P_nobleb_drop_0")])
 [sub_resource type="Resource" id="S_nobleb_up"]
 script = ExtResource("2")
 display_name = "Sky Flash +"
+role = &"recover"
 direction = &"up"
 damage = 0
 base_knockback = 0
@@ -179,7 +182,7 @@ title = ""
 follow_up = SubResource("S_nobleb_drop")
 follow_up_cost = 0
 follow_up_window = 30
-cooldown_frames = 300
+cooldown_frames = 240
 
 [sub_resource type="Resource" id="P_nobleb_down_0"]
 script = ExtResource("3")
@@ -197,6 +200,7 @@ trap = true
 [sub_resource type="Resource" id="S_nobleb_down"]
 script = ExtResource("2")
 display_name = "Gōkei +"
+role = &"area"
 direction = &"down"
 damage = 7.8
 base_knockback = 160
