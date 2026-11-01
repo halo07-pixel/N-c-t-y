@@ -325,7 +325,7 @@ func test_the_petal_wall_destroys_enemy_projectiles_and_only_one_stands() -> voi
 func test_yhwachs_kit_and_the_form_makes_it_free() -> void:
 	for set: SpecialSet in [EMPEROR.specials, EMPEROR.bankai_specials]:
 		check(set.neutral.projectiles[0].absorbs and set.neutral.is_chargeable(), "the void sphere swallows projectiles and charges")
-		check(set.forward.follow_up != null and set.up.follow_up != null, "Blood Rush and Ascension have follow-ups")
+		check(set.forward.follow_up != null and set.up.follow_up != null, "Hirenkyaku Rush and Hirenkyaku Ascent have follow-ups")
 		check(set.down.counter_move != null and set.down.damage == 0.0, "a counter stance")
 	check(EMPEROR.specials.down.cost > 0.0, "the counter stance costs a block")
 	check_eq(EMPEROR.bankai_specials.down.cost, 0.0, "free in the form")

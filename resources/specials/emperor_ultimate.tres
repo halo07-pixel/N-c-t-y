@@ -10,7 +10,7 @@ velocity = Vector2(380, -40)
 lifetime_frames = 90
 size = Vector2(48, 34)
 pierce = true
-color = Color(0.75, 0.4, 1.0, 1)
+color = Color(1.0, 0.95, 0.7, 1)
 art = &"slash_big"
 style = &"blast"
 
@@ -21,7 +21,7 @@ velocity = Vector2(420, 0)
 lifetime_frames = 90
 size = Vector2(60, 40)
 pierce = true
-color = Color(0.75, 0.4, 1.0, 1)
+color = Color(1.0, 0.95, 0.7, 1)
 art = &"slash_big"
 style = &"blast"
 
@@ -32,13 +32,13 @@ velocity = Vector2(380, 40)
 lifetime_frames = 90
 size = Vector2(48, 34)
 pierce = true
-color = Color(0.75, 0.4, 1.0, 1)
+color = Color(1.0, 0.95, 0.7, 1)
 art = &"slash_big"
 style = &"blast"
 
 [resource]
 script = ExtResource("2")
-display_name = "Final Judgment"
+display_name = "Auswählen"
 direction = &"forward"
 damage = 22.1
 base_knockback = 320.0
@@ -53,5 +53,5 @@ self_velocity = Vector2(0, 0)
 teleport = Vector2(0, 0)
 ignore_gravity = false
 cinematic_frames = 60
-title = "Final Judgment"
+title = "Auswählen"
 projectiles = Array[ExtResource("3")]([SubResource("P_emperoru_0"), SubResource("P_emperoru_1"), SubResource("P_emperoru_2")])

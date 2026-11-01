@@ -40,7 +40,7 @@ Run it with:
 ## What changed
 
 - Yhwach: melee x0.88, specials x0.85, ultimate x0.92, weight 118 to 100, starting gauge 50 to 10,
-  Void Sphere 40 to 32 wide.
+  Reishi Absorption 40 to 32 wide.
 - Uryu: melee x1.08, specials x1.12, weight 90 to 95.
 - Byakuya: melee x1.17, specials x1.12, weight 85 to 95.
 - Ichigo is unchanged.

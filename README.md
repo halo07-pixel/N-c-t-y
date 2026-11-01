@@ -78,7 +78,7 @@ Final Getsuga Tenshō. A projectile with a `rim` color is drawn dark and solid w
 - Ichigo, Hollow points: three hits in a row charge the next special (+25% damage).
 - Uryu, Heartless: the third arrow hit in a row pops the target up with extra knockback.
 - Byakuya, petal zone: near his own petals they fade at half speed and he runs 25% faster.
-- Yhwach, Judgment Counter: a successful counter steals one Reiatsu block from the attacker.
+- Yhwach, The Almighty: a successful counter steals one Reiatsu block from the attacker.
 
 **Reiatsu** (the bar under the stocks, 0 to 300, notch at 200): hit and get hit to fill
 it, or stand still and hold the charge key. Press the charge key on the ground:
@@ -249,15 +249,15 @@ Sky Flash + Blade Drop and Petal Wall (a standing column that destroys enemy pro
 time; `ProjectileData.absorbs`). In the form there are more petals and every follow-up and the wall
 are free.
 
-Yhwach's kit: a Void Sphere that swallows enemy projectiles (chargeable), Blood Rush + Blood Stab,
-Ascension + Judgment Fall and Counter Stance (down special, one block): a hit that lands during
-its active frames is negated and answered with Judgment Counter, facing the attacker
+Yhwach's kit: a Reishi Absorption that swallows enemy projectiles (chargeable), Hirenkyaku Rush + Blut Strike,
+Hirenkyaku Ascent + Zenith Fall and Foresight (down special, one block): a hit that lands during
+its active frames is negated and answered with The Almighty, facing the attacker
 (`SpecialData.counter_move`, `cost`). Without a block the down special is a normal attack.
 In the form everything is free and the stance lasts longer.
 
 ## Recovery rules
 
-An up special (Reishi Platform, Sky Flash, Rising Cut, Ascension) can be used on the ground or once per
+An up special (Reishi Platform, Sky Flash, Rising Cut, Hirenkyaku Ascent) can be used on the ground or once per
 time in the air; landing or being hit gives it back (`Fighter.air_up_special_used`). A teleport
 upward cancels the fall. The CPU recovers around the edge of the main platform instead of steering
 under its middle, so nobody can hover under the stage forever.

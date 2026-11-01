@@ -18,7 +18,7 @@ absorbs = true
 
 [sub_resource type="Resource" id="S_emperorb_neutral"]
 script = ExtResource("2")
-display_name = "Void Sphere +"
+display_name = "Reishi Absorption +"
 direction = &"neutral"
 damage = 8.5
 base_knockback = 170
@@ -45,7 +45,7 @@ cooldown_frames = 120
 
 [sub_resource type="Resource" id="S_emperorb_stab"]
 script = ExtResource("2")
-display_name = "Blood Stab +"
+display_name = "Blut Strike +"
 direction = &"forward"
 damage = 11.5
 base_knockback = 250
@@ -64,7 +64,7 @@ title = ""
 
 [sub_resource type="Resource" id="S_emperorb_forward"]
 script = ExtResource("2")
-display_name = "Blood Rush +"
+display_name = "Hirenkyaku Rush +"
 direction = &"forward"
 damage = 10.2
 base_knockback = 220
@@ -87,7 +87,7 @@ cooldown_frames = 150
 
 [sub_resource type="Resource" id="S_emperorb_fall"]
 script = ExtResource("2")
-display_name = "Judgment Fall +"
+display_name = "Zenith Fall +"
 direction = &"up"
 damage = 10.5
 base_knockback = 200
@@ -106,7 +106,7 @@ title = ""
 
 [sub_resource type="Resource" id="S_emperorb_up"]
 script = ExtResource("2")
-display_name = "Ascension +"
+display_name = "Hirenkyaku Ascent +"
 direction = &"up"
 damage = 7.6
 base_knockback = 210
@@ -129,7 +129,7 @@ cooldown_frames = 360
 
 [sub_resource type="Resource" id="S_emperorb_riposte"]
 script = ExtResource("2")
-display_name = "Judgment Counter +"
+display_name = "The Almighty +"
 direction = &"down"
 damage = 12.5
 base_knockback = 280
@@ -148,7 +148,7 @@ title = ""
 
 [sub_resource type="Resource" id="S_emperorb_down"]
 script = ExtResource("2")
-display_name = "Counter Stance +"
+display_name = "Foresight +"
 direction = &"down"
 damage = 0
 base_knockback = 0

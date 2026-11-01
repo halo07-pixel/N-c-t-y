@@ -37,7 +37,7 @@ wiki pages in November 2026; lines marked "check" were not confirmed by a source
 - Gōkei: the blades swirl around the opponent and collapse inward. Shukei: Hakuteiken: the blades condense into one white sword, with white wings and a halo.
 - Hadō 4 Byakurai: a white lightning bolt from the forefinger. Hadō 31 Shakkahō: a red energy ball.
 
-## Yhwach (emperor) - research done, not yet applied
+## Yhwach (emperor) - APPLIED (branch feature/canon-yhwach)
 - The Almighty (Schrift "A"): sees possible futures as grains of sand and rewrites them; studied abilities lose their power against him; can revive from a future where he survived.
 - Auswählen: a pillar of light that destroys a Quincy on contact and redistributes their power.
 - Soul Distribution, Schrift (letters that grant abilities), Blut, Hirenkyaku, reishi arrows without a bow, a sword as his standard weapon, overwhelming spiritual pressure (he stole Yamamoto's Bankai).

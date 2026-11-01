@@ -340,7 +340,7 @@ func _counter_hit(info: HitInfo) -> void:
 	_state_machine.transition_to(&"Attack")
 
 
-## Judgment Counter steals one Reiatsu block from whoever struck, if they have one.
+## The Almighty steals one Reiatsu block from whoever struck, if they have one.
 func _steal_reiatsu(attacker_id: int) -> void:
 	for node in get_tree().get_nodes_in_group(FIGHTER_GROUP):
 		var other := node as Fighter
