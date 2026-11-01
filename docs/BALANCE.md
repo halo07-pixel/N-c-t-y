@@ -57,4 +57,4 @@ form's damage multiplier. 8 matches per pair is noisy, so read these as a rough 
 
 Ichigo 50%, Uryu 42%, Byakuya 54%, Yhwach 54% (before: 31 / 40 / 56 / 73). Per-skill cooldowns
 slowed the strongest repeatable pressure, which mostly lowered Yhwach. Uryu is still the lowest;
-his Spirit Arrow (24 frames) and Triple Shot cooldowns are the first knobs. Noisy, so a rough guide.
+his Heilig Pfeil (24 frames) and Path Control cooldowns are the first knobs. Noisy, so a rough guide.

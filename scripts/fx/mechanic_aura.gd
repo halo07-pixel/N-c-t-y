@@ -22,7 +22,7 @@ func setup(fighter: Fighter) -> void:
 
 ## True while the fighter has any mechanic to show.
 static func is_showing(fighter: Fighter) -> bool:
-	return fighter.empowered or fighter.in_petal_zone or fighter.arrow_streak() >= 2
+	return fighter.empowered or fighter.in_petal_zone or fighter.arrow_streak() >= 2 or fighter.gathering
 
 
 func _process(delta: float) -> void:
@@ -46,6 +46,8 @@ func _draw() -> void:
 		_draw_streak(size, amount)
 	if _fighter.in_petal_zone:
 		_draw_petals(size, center, amount)
+	if _fighter.gathering:
+		_draw_gather(size, amount)
 
 
 func _draw_hollow(size: Vector2, amount: float) -> void:
@@ -93,3 +95,19 @@ func _draw_petals(size: Vector2, center: Vector2, amount: float) -> void:
 		for i in 3:
 			var y := -size.y * (0.25 + 0.22 * float(i))
 			draw_line(Vector2(behind * 6.0, y), Vector2(behind * (14.0 + 4.0 * float(i)), y), Color(1.0, 0.8, 0.9, 0.4), 1.0)
+
+
+## Quincy gathering reishi: blue motes drift in from the air and stream into the bow arm.
+func _draw_gather(size: Vector2, amount: float) -> void:
+	var colors := MechanicBurst.palette(&"heartless")
+	var hand := Vector2(float(_fighter.facing) * size.x * 0.9, -size.y * 0.62)
+	var motes := int(round(12.0 * amount))
+	for i in motes:
+		var phase := fposmod(_time * 1.6 + float(i) * 0.37, 1.0) # 0 far away .. 1 arrived
+		var angle := float(i) * 2.39996
+		var start := hand + Vector2(cos(angle), sin(angle) * 0.7) * 34.0
+		var spot := start.lerp(hand, phase * phase)
+		var behind := start.lerp(hand, maxf(phase - 0.12, 0.0) * maxf(phase - 0.12, 0.0))
+		draw_line(behind, spot, Color(colors[0].r, colors[0].g, colors[0].b, 0.6 * phase), 1.0)
+		draw_circle(spot, 1.0 + phase, Color(colors[1].r, colors[1].g, colors[1].b, 0.4 + 0.5 * phase))
+	draw_circle(hand, 2.5 + 1.5 * sin(_time * 14.0), Color(colors[0].r, colors[0].g, colors[0].b, 0.6))

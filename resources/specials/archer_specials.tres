@@ -17,7 +17,7 @@ style = &"arrow"
 
 [sub_resource type="Resource" id="S_archer_neutral"]
 script = ExtResource("2")
-display_name = "Spirit Arrow"
+display_name = "Heilig Pfeil"
 direction = &"neutral"
 damage = 9.0
 base_knockback = 150
@@ -77,7 +77,7 @@ style = &"arrow"
 
 [sub_resource type="Resource" id="S_archer_forward"]
 script = ExtResource("2")
-display_name = "Triple Shot"
+display_name = "Path Control"
 direction = &"forward"
 damage = 6.6
 base_knockback = 120
@@ -129,7 +129,7 @@ projectiles = Array[ExtResource("3")]([SubResource("P_archer_skyshot_0")])
 
 [sub_resource type="Resource" id="S_archer_up"]
 script = ExtResource("2")
-display_name = "Sky Step"
+display_name = "Reishi Platform"
 direction = &"up"
 damage = 0
 base_knockback = 0
@@ -164,7 +164,7 @@ trap = true
 
 [sub_resource type="Resource" id="S_archer_down"]
 script = ExtResource("2")
-display_name = "Sprenger"
+display_name = "Reishi Mine"
 direction = &"down"
 damage = 9.5
 base_knockback = 200
@@ -187,6 +187,7 @@ cooldown_frames = 150
 
 [sub_resource type="Resource" id="P_u_bolt"]
 script = ExtResource("3")
+absorbs = true
 offset = Vector2(18, -18)
 velocity = Vector2(520, 0)
 lifetime_frames = 45
@@ -209,9 +210,9 @@ style = &"arrow"
 
 [sub_resource type="Resource" id="P_u_rain0"]
 script = ExtResource("3")
-offset = Vector2(30, -80)
-velocity = Vector2(50, 230)
-lifetime_frames = 40
+offset = Vector2(58, -84)
+velocity = Vector2(0, 300)
+lifetime_frames = 50
 size = Vector2(20, 8)
 pierce = false
 color = Color(0.6, 0.85, 1.0, 1.0)
@@ -220,9 +221,9 @@ style = &"arrow"
 
 [sub_resource type="Resource" id="P_u_rain1"]
 script = ExtResource("3")
-offset = Vector2(60, -80)
-velocity = Vector2(50, 230)
-lifetime_frames = 40
+offset = Vector2(58, -102)
+velocity = Vector2(0, 300)
+lifetime_frames = 50
 size = Vector2(20, 8)
 pierce = false
 color = Color(0.6, 0.85, 1.0, 1.0)
@@ -231,9 +232,31 @@ style = &"arrow"
 
 [sub_resource type="Resource" id="P_u_rain2"]
 script = ExtResource("3")
-offset = Vector2(90, -80)
-velocity = Vector2(50, 230)
-lifetime_frames = 40
+offset = Vector2(58, -120)
+velocity = Vector2(0, 300)
+lifetime_frames = 50
+size = Vector2(20, 8)
+pierce = false
+color = Color(0.6, 0.85, 1.0, 1.0)
+art = &""
+style = &"arrow"
+
+[sub_resource type="Resource" id="P_u_rain3"]
+script = ExtResource("3")
+offset = Vector2(58, -138)
+velocity = Vector2(0, 300)
+lifetime_frames = 50
+size = Vector2(20, 8)
+pierce = false
+color = Color(0.6, 0.85, 1.0, 1.0)
+art = &""
+style = &"arrow"
+
+[sub_resource type="Resource" id="P_u_rain4"]
+script = ExtResource("3")
+offset = Vector2(58, -156)
+velocity = Vector2(0, 300)
+lifetime_frames = 50
 size = Vector2(20, 8)
 pierce = false
 color = Color(0.6, 0.85, 1.0, 1.0)
@@ -253,7 +276,7 @@ style = &"arrow"
 
 [sub_resource type="Resource" id="A_u_n"]
 script = ExtResource("2")
-display_name = "Piercing Bolt"
+display_name = "Negation Arrow"
 direction = &"neutral"
 alt = true
 damage = 10.0
@@ -293,14 +316,14 @@ projectiles = Array[ExtResource("3")]([SubResource("P_u_step")])
 
 [sub_resource type="Resource" id="A_u_u"]
 script = ExtResource("2")
-display_name = "Rain of Arrows"
+display_name = "Licht Regen"
 direction = &"up"
 alt = true
-damage = 6.5
+damage = 3.4
 base_knockback = 150
 knockback_growth = 60
 angle_degrees = 70
-startup_frames = 9
+startup_frames = 14
 active_frames = 2
 recovery_frames = 20
 hitbox_size = Vector2(0, 0)
@@ -309,11 +332,12 @@ self_velocity = Vector2(0, 0)
 teleport = Vector2(0, 0)
 ignore_gravity = false
 cooldown_frames = 200
-projectiles = Array[ExtResource("3")]([SubResource("P_u_rain0"), SubResource("P_u_rain1"), SubResource("P_u_rain2")])
+projectiles = Array[ExtResource("3")]([SubResource("P_u_rain0"), SubResource("P_u_rain1"), SubResource("P_u_rain2"), SubResource("P_u_rain3"), SubResource("P_u_rain4")])
+gather = true
 
 [sub_resource type="Resource" id="A_u_d"]
 script = ExtResource("2")
-display_name = "Diagonal Lance"
+display_name = "Ricochet Shot"
 direction = &"down"
 alt = true
 damage = 9.0

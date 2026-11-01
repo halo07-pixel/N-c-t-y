@@ -39,7 +39,7 @@ style = &"arrow"
 
 [sub_resource type="Resource" id="S_archerb_neutral"]
 script = ExtResource("2")
-display_name = "Spirit Fan"
+display_name = "Heilig Pfeil: Fan"
 direction = &"neutral"
 damage = 6.4
 base_knockback = 150
@@ -99,7 +99,7 @@ style = &"arrow"
 
 [sub_resource type="Resource" id="S_archerb_forward"]
 script = ExtResource("2")
-display_name = "Triple Shot +"
+display_name = "Path Control +"
 direction = &"forward"
 damage = 6.6
 base_knockback = 120
@@ -151,7 +151,7 @@ projectiles = Array[ExtResource("3")]([SubResource("P_archerb_skyshot_0")])
 
 [sub_resource type="Resource" id="S_archerb_up"]
 script = ExtResource("2")
-display_name = "Sky Step +"
+display_name = "Reishi Platform +"
 direction = &"up"
 damage = 0
 base_knockback = 0
@@ -186,7 +186,7 @@ trap = true
 
 [sub_resource type="Resource" id="S_archerb_down"]
 script = ExtResource("2")
-display_name = "Sprenger +"
+display_name = "Reishi Mine +"
 direction = &"down"
 damage = 11.4
 base_knockback = 200

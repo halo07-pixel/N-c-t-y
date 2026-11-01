@@ -35,6 +35,10 @@ extends MoveData
 ## Turns the fighter around when the move starts (a slash back through the opponent).
 @export var flip_facing: bool = false
 
+@export_group("Look")
+## Quincy skills gather reishi during the wind-up: blue motes flow into the bow arm.
+@export var gather: bool = false
+
 @export_group("Slot")
 ## True for the skills of the second special button (Special 2). Follow-ups share their parent's.
 @export var alt: bool = false

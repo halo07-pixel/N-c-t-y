@@ -77,6 +77,8 @@ var empower_scale: float = 1.0
 var _arrow_streak: int = 0
 var _arrow_streak_frames: int = 0
 var in_petal_zone: bool = false
+## True during the wind-up of a skill that gathers reishi (drawn by MechanicAura).
+var gathering: bool = false
 var speed_scale: float = 1.0
 
 var _input_source: InputSource

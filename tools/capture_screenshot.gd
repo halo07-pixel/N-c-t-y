@@ -240,6 +240,17 @@ func _play_scenario(scenario: String) -> void:
 			_bot_input.tap_special()
 			await _until(func() -> bool: return _count_projectiles() > 0)
 			await _frames(10)
+		"canon_licht": # Licht Regen: gathering, then the volley
+			await _frames(30)
+			_bot_input.held_move = Vector2(0.0, -1.0)
+			_bot_input.tap_special2()
+			await _frames(9)
+		"canon_licht_fall": # the arrows falling
+			await _frames(30)
+			_bot_input.held_move = Vector2(0.0, -1.0)
+			_bot_input.tap_special2()
+			await _until(func() -> bool: return _count_projectiles() > 0)
+			await _frames(6)
 		"canon_cero": # Cero
 			await _frames(30)
 			_bot_input.held_move = Vector2(0.0, 1.0)
