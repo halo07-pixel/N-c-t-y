@@ -251,6 +251,35 @@ func _play_scenario(scenario: String) -> void:
 			_bot_input.tap_special2()
 			await _until(func() -> bool: return _count_projectiles() > 0)
 			await _frames(6)
+		"canon_byakurai": # Hadō 4: Byakurai
+			await _frames(30)
+			_bot_input.held_move = Vector2(1.0, 0.0)
+			_bot_input.tap_special2()
+			await _until(func() -> bool: return _count_projectiles() > 0)
+			await _frames(6)
+		"canon_shakkaho": # Hadō 31: Shakkahō
+			await _frames(30)
+			_bot_input.tap_special2()
+			await _until(func() -> bool: return _count_projectiles() > 0)
+			await _frames(10)
+		"canon_gokei": # Gōkei
+			await _frames(30)
+			_bot_input.held_move = Vector2(0.0, 1.0)
+			_bot_input.tap_special2()
+			await _until(func() -> bool: return _count_projectiles() > 0)
+			await _frames(14)
+		"canon_senkei": # the Bankai's blades
+			_fighters[0].start_bankai()
+			await _frames(30)
+			_bot_input.tap_special()
+			await _until(func() -> bool: return _count_projectiles() > 0)
+			await _frames(16)
+		"canon_hakuteiken": # the white sword
+			_fighters[0].start_bankai()
+			_fighters[0].set_reiatsu(300.0)
+			await _frames(30)
+			_bot_input.tap_charge()
+			await _frames(95)
 		"canon_cero": # Cero
 			await _frames(30)
 			_bot_input.held_move = Vector2(0.0, 1.0)

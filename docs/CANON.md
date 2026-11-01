@@ -31,7 +31,7 @@ wiki pages in November 2026; lines marked "check" were not confirmed by a source
 - Ginrei Kojaku (his bow) is "shaped like a spider's web"; the rig's bow is not redrawn yet.
 - Ransōtengai (paralysis) and the reishi shield are unused ideas for later.
 
-## Byakuya Kuchiki (noble) - research done, not yet applied
+## Byakuya Kuchiki (noble) - APPLIED (branch feature/canon-byakuya)
 - Senbonzakura Kageyoshi (Bankai): the sword sinks into the ground and rises as millions of pink cherry-blossom blades controlled by thought.
 - Senkei: petals merge into fewer glowing swords in four floating rows around him and the opponent. Ikka Senjinka: all Senkei swords strike at once (the Bankai's ultimate move).
 - Gōkei: the blades swirl around the opponent and collapse inward. Shukei: Hakuteiken: the blades condense into one white sword, with white wings and a halo.

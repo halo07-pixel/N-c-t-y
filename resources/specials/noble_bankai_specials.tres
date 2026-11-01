@@ -9,11 +9,11 @@ script = ExtResource("3")
 offset = Vector2(16, -18)
 velocity = Vector2(195, 0)
 lifetime_frames = 130
-size = Vector2(42, 34)
+size = Vector2(46, 16)
 pierce = true
-color = Color(1.0, 0.6, 0.8, 1)
+color = Color(1.0, 0.75, 0.9, 1)
 art = &"petal_hi"
-style = &"petal"
+style = &"blade"
 commandable = true
 
 [sub_resource type="Resource" id="P_nobleb_neutral_1"]
@@ -21,11 +21,11 @@ script = ExtResource("3")
 offset = Vector2(16, -52)
 velocity = Vector2(180, -20)
 lifetime_frames = 130
-size = Vector2(36, 28)
+size = Vector2(46, 16)
 pierce = true
-color = Color(1.0, 0.6, 0.8, 1)
+color = Color(1.0, 0.75, 0.9, 1)
 art = &"petal_hi"
-style = &"petal"
+style = &"blade"
 commandable = true
 
 [sub_resource type="Resource" id="P_nobleb_neutral_2"]
@@ -33,16 +33,16 @@ script = ExtResource("3")
 offset = Vector2(16, 14)
 velocity = Vector2(180, 20)
 lifetime_frames = 130
-size = Vector2(36, 28)
+size = Vector2(46, 16)
 pierce = true
-color = Color(1.0, 0.6, 0.8, 1)
+color = Color(1.0, 0.75, 0.9, 1)
 art = &"petal_hi"
-style = &"petal"
+style = &"blade"
 commandable = true
 
 [sub_resource type="Resource" id="S_nobleb_command"]
 script = ExtResource("2")
-display_name = "Command"
+display_name = "Ikka Senjinka"
 direction = &"neutral"
 damage = 0
 base_knockback = 0
@@ -62,7 +62,7 @@ command_speed = 430.0
 
 [sub_resource type="Resource" id="S_nobleb_neutral"]
 script = ExtResource("2")
-display_name = "Petal Drift +"
+display_name = "Senkei"
 direction = &"neutral"
 damage = 6.7
 base_knockback = 130
@@ -196,7 +196,7 @@ trap = true
 
 [sub_resource type="Resource" id="S_nobleb_down"]
 script = ExtResource("2")
-display_name = "Petal Wall +"
+display_name = "Gōkei +"
 direction = &"down"
 damage = 7.8
 base_knockback = 160

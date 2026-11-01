@@ -243,7 +243,7 @@ most two live traps (`limit_active`): a second one costs half a block (`repeat_c
 the oldest is replaced. In the wing form the arrow is a fan of three and charge, Sky Shot and
 extra traps are free. The CPU lays traps at mid range.
 
-Byakuya's kit: Petal Drift (a slow cloud of petals; press special again to command it at the
+Byakuya's kit: Senbonzakura (a slow cloud of petals; press special again to command it at the
 enemy, half a block), Flash Step + Behind Slash (teleports past the enemy and slashes back),
 Sky Flash + Blade Drop and Petal Wall (a standing column that destroys enemy projectiles, one at a
 time; `ProjectileData.absorbs`). In the form there are more petals and every follow-up and the wall

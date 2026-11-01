@@ -5,7 +5,7 @@ extends RefCounted
 ## Everything is facing +x; `angle` turns it along the flight direction.
 
 const TRAIL_POINTS := 9
-const STYLES: Array[StringName] = [&"crescent", &"arrow", &"petal", &"orb", &"blast", &"beam"]
+const STYLES: Array[StringName] = [&"crescent", &"arrow", &"petal", &"orb", &"blast", &"beam", &"bolt", &"blade", &"swirl"]
 
 
 ## Outline of a crescent `width` long and `height` tall, convex side toward +x.
@@ -50,6 +50,12 @@ static func draw(
 			_crescent(item, size, color, 1.6, rim)
 		&"beam":
 			_beam(item, size, color)
+		&"bolt":
+			_bolt(item, size, color, age)
+		&"blade":
+			_blade(item, size, color)
+		&"swirl":
+			_swirl(item, size, color, age)
 		&"arrow":
 			_arrow(item, size, color)
 		&"petal":
@@ -99,6 +105,50 @@ static func _beam(item: CanvasItem, size: Vector2, color: Color) -> void:
 	item.draw_colored_polygon(shape, _alpha(color, 0.3))
 	item.draw_colored_polygon(_scaled(shape, 0.75), _alpha(color, 0.75))
 	item.draw_colored_polygon(_scaled(shape, 0.4), Color(1.0, 0.95, 0.9, 0.95))
+
+
+## A bolt of lightning: a jagged line that re-jitters a few times a second (Byakurai).
+static func _bolt(item: CanvasItem, size: Vector2, color: Color, age: float) -> void:
+	var w := size.x * 0.5
+	var h := maxf(size.y, 6.0)
+	var tick := int(age * 30.0)
+	var points := PackedVector2Array()
+	var steps := 8
+	for i in steps + 1:
+		var x := -w + size.x * float(i) / float(steps)
+		var edge := 0.0 if i == 0 or i == steps else 1.0
+		points.append(Vector2(x, sin(float(i) * 12.9898 + float(tick) * 3.1) * h * 0.5 * edge))
+	item.draw_polyline(points, _alpha(color, 0.3), 5.0)
+	item.draw_polyline(points, color, 2.0)
+	item.draw_polyline(points, Color(1.0, 1.0, 1.0, 0.95), 0.9)
+
+
+## A glowing sword blade seen from the side, point first (a Senbonzakura blade).
+static func _blade(item: CanvasItem, size: Vector2, color: Color) -> void:
+	var w := size.x * 0.5
+	var h := size.y * 0.5
+	var shape := PackedVector2Array([Vector2(-w, 0.0), Vector2(-w * 0.55, -h), Vector2(w, 0.0), Vector2(-w * 0.55, h)])
+	item.draw_colored_polygon(_scaled(shape, 1.35), _alpha(color, 0.22))
+	item.draw_colored_polygon(shape, _alpha(color, 0.85))
+	item.draw_colored_polygon(_scaled(shape, 0.5), Color(1.0, 1.0, 1.0, 0.95))
+	item.draw_line(Vector2(-w, 0.0), Vector2(w, 0.0), Color(1.0, 1.0, 1.0, 0.8), 0.8)
+
+
+## Blades swirling around a spot and closing in again and again (Gōkei).
+static func _swirl(item: CanvasItem, size: Vector2, color: Color, age: float) -> void:
+	var radius := maxf(size.x, size.y) * 0.5
+	var squeeze := fposmod(age, 0.9) / 0.9
+	var ring := radius * (1.0 - 0.75 * squeeze)
+	item.draw_arc(Vector2.ZERO, ring, 0.0, TAU, 28, _alpha(color, 0.35 + 0.4 * squeeze), 1.0)
+	for i in 8:
+		var turn := age * 7.0 + float(i) * TAU / 8.0
+		var center := Vector2(cos(turn), sin(turn)) * ring
+		var tip := center + Vector2(-sin(turn), cos(turn)) * 5.0
+		var tail := center - Vector2(-sin(turn), cos(turn)) * 5.0
+		item.draw_line(tail, tip, _alpha(color, 0.9), 2.0)
+		item.draw_line(tail, tip, Color(1.0, 1.0, 1.0, 0.8), 0.8)
+	if squeeze > 0.8:
+		item.draw_circle(Vector2.ZERO, radius * 0.25 * (squeeze - 0.8) * 5.0, _alpha(Color.WHITE, 0.5))
 
 
 static func _arrow(item: CanvasItem, size: Vector2, color: Color) -> void:

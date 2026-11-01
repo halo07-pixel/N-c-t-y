@@ -26,6 +26,7 @@ const TEST_SCRIPTS: Array[String] = [
 	"res://tests/test_skill_hud.gd",
 	"res://tests/test_canon_ichigo.gd",
 	"res://tests/test_canon_uryu.gd",
+	"res://tests/test_canon_byakuya.gd",
 	"res://tests/test_roster.gd",
 	"res://tests/test_menus.gd",
 	"res://tests/test_arcade.gd",
