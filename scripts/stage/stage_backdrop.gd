@@ -1,34 +1,36 @@
+class_name StageBackdrop
 extends Node2D
-## Simple pixel-style night sky with a moon and a distant skyline.
-## Drawn in code so the test stage needs no image files.
+## Parallax backdrop: sky, stars and moon, far hills, ruined towers and dark rock,
+## each painted in code and shifted with the camera at its own depth.
 
-const SKY_TOP := Color(0.05, 0.05, 0.14)
-const SKY_BOTTOM := Color(0.42, 0.25, 0.42)
-const MOON_COLOR := Color(0.95, 0.93, 0.8)
-const SKYLINE_COLOR := Color(0.09, 0.07, 0.15)
-const SKYLINE_HEIGHTS: Array[float] = [
-	30.0, 52.0, 38.0, 70.0, 44.0, 60.0, 34.0, 56.0, 42.0, 66.0, 36.0, 50.0, 40.0, 58.0,
+const LAYERS := [
+	[BackdropLayer.Kind.SKY, 0.0, 1],
+	[BackdropLayer.Kind.STARS, 0.05, 7],
+	[BackdropLayer.Kind.FAR, 0.25, 21],
+	[BackdropLayer.Kind.MID, 0.5, 33],
+	[BackdropLayer.Kind.NEAR, 0.8, 45],
 ]
-const BAND_COUNT := 15
-const BAND_HEIGHT := 40.0
-const SKY_LEFT := -700.0
-const SKY_WIDTH := 1400.0
-const SKY_TOP_Y := -420.0
-const SKYLINE_BASE_Y := 120.0
-const SKYLINE_BLOCK_WIDTH := 100.0
+
+var layers: Array[BackdropLayer] = []
 
 
-func _draw() -> void:
-	for band in BAND_COUNT:
-		var blend := float(band) / float(BAND_COUNT - 1)
-		var rect := Rect2(SKY_LEFT, SKY_TOP_Y + band * BAND_HEIGHT, SKY_WIDTH, BAND_HEIGHT + 1.0)
-		draw_rect(rect, SKY_TOP.lerp(SKY_BOTTOM, blend))
-	draw_circle(Vector2(150.0, -110.0), 36.0, MOON_COLOR)
+func _ready() -> void:
+	for spec: Array in LAYERS:
+		var layer := BackdropLayer.new()
+		layer.kind = spec[0]
+		layer.depth = spec[1]
+		layer.seed_value = spec[2]
+		add_child(layer)
+		layers.append(layer)
 
-	var block_x := SKY_LEFT
-	for height in SKYLINE_HEIGHTS:
-		draw_rect(
-			Rect2(block_x, SKYLINE_BASE_Y - height, SKYLINE_BLOCK_WIDTH, height + 200.0),
-			SKYLINE_COLOR
-		)
-		block_x += SKYLINE_BLOCK_WIDTH
+
+func _process(_delta: float) -> void:
+	var camera := get_viewport().get_camera_2d()
+	if camera != null:
+		follow(camera.get_screen_center_position())
+
+
+## Moves every layer for a camera looking at this point: deeper layers trail further behind.
+func follow(camera_position: Vector2) -> void:
+	for layer in layers:
+		layer.position = camera_position * (1.0 - layer.depth)
