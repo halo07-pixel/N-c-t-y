@@ -37,7 +37,12 @@ var _spinner: Node2D
 var _flip: Node2D
 var _root: Node2D
 var _hip: RigPart
-var _torso: RigPart
+var _torso: RigPart # the lower torso (belly)
+var _chest: RigPart
+var _neck: RigPart
+var _hand := {}
+var _toe := {}
+var _shoulder_base := {}
 var _head: RigHead
 var _thigh := {}
 var _shin := {}
@@ -141,20 +146,29 @@ func _build() -> void:
 	# Back leg first so the front leg is drawn over it, then the torso over both legs' tops.
 	_build_leg(&"b", Vector2(-1.5, 0.0), leg_width)
 	_build_leg(&"f", Vector2(1.5, 0.0), leg_width)
-	_torso = _part(_hip, rig.torso_size, rig.cloth, Vector2.ZERO, true, 2.0)
-	if rig.style == &"stick":
-		_torso.stick_width = rig.line_width * 1.35
+	# The torso is two bones (belly and chest) joined by a bendable spine, topped by a neck.
+	var torso := rig.torso_size
+	var belly_height := torso.y * 0.48
+	var neck_length := 2.0
+	var chest_height := torso.y - belly_height - neck_length + 0.2
+	_torso = _part(_hip, Vector2(torso.x, belly_height), rig.cloth, Vector2.ZERO, true, 2.0)
 	_torso.band = rig.accent
 	_torso.band_at = 0.18
 	_torso.band_height = 1.8
-	_build_cape()
-	_build_arm(&"b", Vector2(-1.0, -rig.torso_size.y + 2.4))
+	_chest = _part(_torso, Vector2(torso.x, chest_height), rig.cloth, Vector2(0.0, -belly_height + 0.4), true, 2.0)
+	if rig.style == &"stick":
+		_torso.stick_width = rig.line_width * 1.35
+		_chest.stick_width = rig.line_width * 1.35
+	_build_cape(chest_height, belly_height)
+	var shoulder_y := -(torso.y - belly_height) + 2.0
+	_build_arm(&"b", Vector2(-1.0, shoulder_y))
+	_neck = _part(_chest, Vector2(2.0, neck_length), rig.skin, Vector2(0.5, -chest_height + 0.2), true, 0.8)
 	_head = RigHead.new()
 	_head.rig = rig
-	_head.position = Vector2(0.5, -rig.torso_size.y + 0.6)
-	_torso.add_child(_head)
+	_head.position = Vector2(0.0, -neck_length + 0.2)
+	_neck.add_child(_head)
 	_build_hair_tail()
-	_build_arm(&"f", Vector2(1.0, -rig.torso_size.y + 2.4))
+	_build_arm(&"f", Vector2(1.0, shoulder_y))
 
 
 func _make_form_fx(which: StringName) -> FormFx:
@@ -172,7 +186,7 @@ func _update_form_anchors() -> void:
 	if _form_back == null or not (_bankai and rig.form_style != &""):
 		return
 	var head := _flip.to_local(_head.global_position)
-	var back := _flip.to_local(_torso.to_global(Vector2(-rig.torso_size.x * 0.3, -rig.torso_size.y * 0.6)))
+	var back := _flip.to_local(_chest.to_global(Vector2(-rig.torso_size.x * 0.3, -rig.torso_size.y * 0.2)))
 	for form in [_form_back, _form_front]:
 		form.head_anchor = head
 		form.back_anchor = back
@@ -187,6 +201,9 @@ func _build_leg(side: StringName, hip_offset: Vector2, width: float) -> void:
 	shin.band_height = 1.3
 	var foot := _part(shin, rig.foot_size, rig.cloth_dark.darkened(0.2), Vector2(0.0, rig.leg_length.y - 0.4), false, 0.9)
 	foot.origin = Vector2(-1.4, -0.6)
+	var toe := _part(foot, Vector2(1.8, rig.foot_size.y), rig.cloth_dark.darkened(0.3), Vector2(-1.4 + rig.foot_size.x - 0.3, 0.0), false, 0.8)
+	toe.origin = Vector2(0.0, -0.6)
+	_toe[side] = toe
 	_thigh[side] = thigh
 	_shin[side] = shin
 	_foot[side] = foot
@@ -194,15 +211,17 @@ func _build_leg(side: StringName, hip_offset: Vector2, width: float) -> void:
 
 func _build_arm(side: StringName, shoulder: Vector2) -> void:
 	var width := rig.arm_width
-	var upper := _part(_torso, Vector2(width, rig.arm_length.x), rig.cloth, shoulder)
+	var upper := _part(_chest, Vector2(width, rig.arm_length.x), rig.cloth, shoulder)
+	_shoulder_base[side] = shoulder
 	var lower := _part(upper, Vector2(width * 0.9, rig.arm_length.y), rig.skin, Vector2(0.0, rig.arm_length.x - 0.3))
+	var hand := _part(lower, Vector2(width * 0.9, 2.0), rig.skin, Vector2(0.0, rig.arm_length.y - 0.2), false, 0.9)
+	_hand[side] = hand
 	if side == &"b":
 		upper.show_behind_parent = true
 	else:
 		_weapon = RigWeapon.new()
 		_weapon.rig = rig
-		_weapon.position = Vector2(0.0, rig.arm_length.y - 0.2)
-		lower.add_child(_weapon)
+		hand.add_child(_weapon)
 	_upper_arm[side] = upper
 	_forearm[side] = lower
 
@@ -228,11 +247,11 @@ func _build_hair_tail() -> void:
 	_hair_tail = [first, second]
 
 
-func _build_cape() -> void:
+func _build_cape(_chest_height: float, belly_height: float) -> void:
 	if rig.cape_length <= 0.0:
 		return
-	var anchor := Vector2(-rig.torso_size.x * 0.5 + 1.0, -rig.torso_size.y + 1.6)
-	var first := _part(_torso, Vector2(4.2, rig.cape_length * 0.5), rig.cape_color, anchor, false, 1.4)
+	var anchor := Vector2(-rig.torso_size.x * 0.5 + 1.0, -(rig.torso_size.y - belly_height) + 1.2)
+	var first := _part(_chest, Vector2(4.2, rig.cape_length * 0.5), rig.cape_color, anchor, false, 1.4)
 	first.show_behind_parent = true
 	_style_trailing(first, rig.cape_color, 4.6)
 	var second := _part(first, Vector2(4.0, rig.cape_length * 0.5), rig.cape_color.darkened(0.1), Vector2(0.0, rig.cape_length * 0.5 - 0.4), false, 1.2)
@@ -373,17 +392,22 @@ func _apply(pose: Dictionary, plant: bool, delta: float) -> void:
 	_flip.scale.x = float(_facing)
 	_root.scale = Vector2(1.0 + 0.15 * _squash, 1.0 - 0.2 * _squash)
 	_hip.rotation = deg_to_rad(pose["body"])
-	_torso.rotation = deg_to_rad(pose["torso"])
-	_head.rotation = deg_to_rad(pose["head"])
+	_torso.rotation = deg_to_rad(pose["torso"] * 0.45)
+	_chest.rotation = deg_to_rad(pose["torso"] * 0.55 + pose["chest"])
+	_neck.rotation = deg_to_rad(pose["head"] * 0.4 + pose["neck"])
+	_head.rotation = deg_to_rad(pose["head"] * 0.6)
 	for side: StringName in [&"f", &"b"]:
 		_thigh[side].rotation = -deg_to_rad(pose["thigh_" + side])
 		_shin[side].rotation = deg_to_rad(pose["knee_" + side])
 		_foot[side].rotation = -deg_to_rad(pose["foot_" + side])
 		_upper_arm[side].rotation = -deg_to_rad(pose["arm_" + side])
 		_forearm[side].rotation = -deg_to_rad(pose["elbow_" + side])
+		_hand[side].rotation = -deg_to_rad(pose["wrist_" + side])
+		_toe[side].rotation = -deg_to_rad(pose["toe_" + side])
+		_upper_arm[side].position = (_shoulder_base[side] as Vector2) + Vector2(0.0, -float(pose["shrug_" + side]))
 	_weapon.set_blade_mode(_animation.begins_with("attack_") or _animation.begins_with("air_"))
 	var weapon_angle := 0.0 if _weapon.is_bow() else RigPoses.weapon_relative(pose)
-	_weapon.rotation = -deg_to_rad(weapon_angle)
+	_weapon.rotation = -deg_to_rad(weapon_angle) + deg_to_rad(pose["wrist_f"]) # the wrist flexes, the blade angle stays
 	_apply_trailing_parts()
 	_hip.position.x = pose["hip_x"]
 	var standing := rig.leg_length.x + rig.leg_length.y

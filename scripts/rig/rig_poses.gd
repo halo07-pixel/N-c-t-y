@@ -15,6 +15,10 @@ const NEUTRAL := {
 	"arm_b": -12.0, "elbow_b": 18.0,
 	"thigh_f": 8.0, "knee_f": 14.0, "foot_f": 0.0,
 	"thigh_b": -8.0, "knee_b": 10.0, "foot_b": 0.0,
+	# Extra joints: chest bend on top of the torso lean, neck, wrists, toes and shoulder shrug.
+	# They are filled in by _extras() from the animation, so the hand-made poses stay as they are.
+	"chest": 0.0, "neck": 0.0, "wrist_f": 0.0, "wrist_b": 0.0,
+	"toe_f": 0.0, "toe_b": 0.0, "shrug_f": 0.0, "shrug_b": 0.0,
 }
 
 const RUN_CYCLES_PER_SECOND := 2.4
@@ -207,7 +211,58 @@ static func target(
 				rate = PHASE_RATES.get(phase, 14.0)
 			else:
 				pose.merge(entry, true)
+	_extras(pose, animation, time, phase)
 	return {"pose": pose, "rate": rate, "plant": not AIRBORNE.has(animation)}
+
+
+## Fills the extra joints (chest, neck, wrists, toes, shoulders) for an animation. The body
+## springs toward these like every other joint, so they overshoot and settle on their own.
+static func _extras(pose: Dictionary, animation: StringName, time: float, phase: StringName) -> void:
+	var cycle := time * RUN_CYCLES_PER_SECOND * TAU
+	var breath := sin(time * 2.6)
+	match animation:
+		&"idle":
+			_joints(pose, breath * 1.4, breath * 0.6, 4.0 + breath * 2.0, -3.0 - breath * 2.0, 0.0, 0.0, breath * 0.3, breath * 0.3)
+		&"run":
+			_joints(pose, -6.0 * sin(cycle), 3.0 * cos(cycle), 8.0 * sin(cycle), -10.0 * sin(cycle),
+				26.0 * maxf(0.0, -sin(cycle)), 26.0 * maxf(0.0, sin(cycle)), 0.4 * sin(cycle), -0.4 * sin(cycle))
+		&"jump":
+			_joints(pose, -3.0, 2.0, 10.0, 6.0, -22.0, -22.0, 0.3, 0.3)
+		&"fall":
+			_joints(pose, 2.0, 4.0, 8.0, 8.0, -14.0, -14.0, 0.8, 0.8)
+		&"land":
+			_joints(pose, 5.0, -3.0, 6.0, 4.0, 12.0, 12.0, 0.0, 0.0)
+		&"guard":
+			_joints(pose, 3.0, 3.0, 14.0, 10.0, 0.0, 0.0, 0.9, 0.9)
+		&"dash":
+			_joints(pose, 6.0, 6.0, -8.0, -8.0, 0.0, 28.0, -0.4, -0.4)
+		&"hitstun", &"ko":
+			_joints(pose, -12.0, -10.0, 30.0, 30.0, -18.0, -18.0, 1.2, 1.2)
+		&"charge":
+			_joints(pose, -4.0, 2.0, 12.0, 12.0, 0.0, 0.0, 0.9, 0.9)
+		_:
+			if animation.begins_with("attack_") or animation.begins_with("air_") or animation == &"special":
+				match phase:
+					&"startup":
+						_joints(pose, -7.0, -3.0, -22.0, 12.0, 0.0, 0.0, 1.0, -0.4)
+					&"recovery":
+						_joints(pose, 3.0, 2.0, 6.0, -4.0, 0.0, 0.0, 0.2, 0.0)
+					_:
+						_joints(pose, 8.0, 5.0, 20.0, -14.0, 0.0, 0.0, -0.5, 0.4)
+
+
+static func _joints(
+	pose: Dictionary, chest: float, neck: float, wrist_f: float, wrist_b: float,
+	toe_f: float, toe_b: float, shrug_f: float, shrug_b: float
+) -> void:
+	pose["chest"] = chest
+	pose["neck"] = neck
+	pose["wrist_f"] = wrist_f
+	pose["wrist_b"] = wrist_b
+	pose["toe_f"] = toe_f
+	pose["toe_b"] = toe_b
+	pose["shrug_f"] = shrug_f
+	pose["shrug_b"] = shrug_b
 
 
 static func _air_variant(ground: Dictionary) -> Dictionary:
@@ -250,5 +305,5 @@ static func _run(pose: Dictionary, time: float) -> void:
 
 ## Weapon angle relative to the forearm that gives the wanted absolute `blade` angle.
 static func weapon_relative(pose: Dictionary) -> float:
-	var forearm: float = pose["arm_f"] + pose["elbow_f"] - pose["torso"] - pose["body"]
+	var forearm: float = pose["arm_f"] + pose["elbow_f"] - pose["torso"] - pose.get("chest", 0.0) - pose["body"]
 	return pose["blade"] - forearm

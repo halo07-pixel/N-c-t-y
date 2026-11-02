@@ -251,3 +251,32 @@ func test_every_rig_has_a_form_look_that_only_shows_while_transformed() -> void:
 		body._form_back._process(0.05)
 	check(not body._form_back.visible, "and fold away when it ends")
 	body.queue_free()
+
+
+func test_skeleton_has_spine_neck_hands_and_toes() -> void:
+	var body := _body()
+	check(body._chest != null and body._torso != null, "the torso is a belly and a chest")
+	check(body._neck != null, "the head sits on a neck")
+	for side in [&"f", &"b"]:
+		check(body._hand.has(side), "%s hand exists" % side)
+		check(body._toe.has(side), "%s toe exists" % side)
+	body.queue_free()
+
+
+func test_spine_keeps_the_total_lean_and_adds_a_chest_bend() -> void:
+	var body := _body()
+	body.preview(&"attack_forward", 0.0, &"startup")
+	var lean: float = RigPoses.target(&"attack_forward", 0.0, &"startup")["pose"]["torso"]
+	var chest: float = RigPoses.target(&"attack_forward", 0.0, &"startup")["pose"]["chest"]
+	check_near(rad_to_deg(body._torso.rotation + body._chest.rotation), lean + chest, 0.01, "belly + chest = lean + chest bend")
+	var wind_up: float = RigPoses.target(&"attack_forward", 0.0, &"startup")["pose"]["chest"]
+	var strike: float = RigPoses.target(&"attack_forward", 0.0, &"active")["pose"]["chest"]
+	check(wind_up < 0.0 and strike > 0.0, "the chest winds back and then drives forward")
+	body.queue_free()
+
+
+func test_run_cycle_moves_wrists_toes_and_shoulders() -> void:
+	var a := RigPoses.target(&"run", 0.0)["pose"] as Dictionary
+	var b := RigPoses.target(&"run", 0.3, &"active")["pose"] as Dictionary
+	for key in ["wrist_f", "toe_f", "toe_b", "chest", "shrug_f"]:
+		check(not is_equal_approx(a[key], b[key]), "run changes %s over the cycle" % key)
