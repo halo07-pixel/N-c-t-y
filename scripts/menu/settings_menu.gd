@@ -3,12 +3,12 @@ extends MenuScreen
 ## Match rules (stocks, time limit), volume and a read-only key list.
 ## Changes go to GameSettings at once and are saved when leaving.
 
-const ROWS: Array[StringName] = [&"stocks", &"time", &"music", &"sfx", &"effects", &"controls", &"back"]
+const ROWS: Array[StringName] = [&"stocks", &"time", &"music", &"sfx", &"effects", &"window", &"controls", &"back"]
 const LABELS := {
 	&"stocks": "STOCKS", &"time": "TIME LIMIT", &"music": "MUSIC VOLUME",
-	&"sfx": "SFX VOLUME", &"effects": "SCREEN EFFECTS", &"controls": "CONTROLS", &"back": "BACK",
+	&"sfx": "SFX VOLUME", &"effects": "SCREEN EFFECTS", &"window": "WINDOW", &"controls": "CONTROLS", &"back": "BACK",
 }
-const ROW_HEIGHT := 22.0
+const ROW_HEIGHT := 20.0
 const FIRST_ROW_Y := 84.0
 const ACTION_LABELS := {
 	&"left": "Left", &"right": "Right", &"up": "Jump", &"down": "Down / drop",
@@ -55,6 +55,8 @@ func change(row: StringName, direction: int) -> void:
 			GameSettings.step_sfx_volume(direction)
 		&"effects":
 			GameSettings.cycle_effects_level()
+		&"window":
+			GameSettings.cycle_window_mode()
 
 
 func leave() -> void:
@@ -86,6 +88,8 @@ func value_text(row: StringName) -> String:
 			return _volume_text(GameSettings.sfx_volume)
 		&"effects":
 			return GameSettings.effects_name()
+		&"window":
+			return GameSettings.window_mode_name()
 	return ""
 
 
@@ -101,7 +105,7 @@ func _draw_content() -> void:
 	for row in ROWS.size():
 		_draw_row(row)
 	draw_centered(
-		"Up / Down: move    Left / Right: change    Guard: back", Vector2(SCREEN.x * 0.5, 256.0), 8, DIM
+		"Up / Down: move    Left / Right: change    F11: fullscreen    Guard: back", Vector2(SCREEN.x * 0.5, 256.0), 8, DIM
 	)
 
 

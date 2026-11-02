@@ -189,6 +189,13 @@ godot --headless --path . --import                 # once, on a fresh checkout
 godot --headless --path . -s tests/run_tests.gd
 ```
 
+## Display
+
+- Stretch mode `canvas_items` with a 16:9 play area (`keep`): text and vector art stay sharp at any window size; other aspect ratios get bars.
+- **F11** or **Alt+Enter** toggles fullscreen. Settings > WINDOW cycles Window / Fullscreen / Exclusive and is saved in `user://settings.cfg`.
+- All text uses `assets/fonts/ui_font.ttf` (DejaVu Sans Condensed Bold, free license in `ui_font_LICENSE.txt`). Replace that file to change the font everywhere.
+- The debug overlay is hidden by default: **F1** shows it, **F2** shows hitboxes.
+
 ## Screenshots (needs a display, e.g. `xvfb-run` on a server)
 
 ```

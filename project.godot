@@ -29,8 +29,13 @@ window/size/viewport_width=720
 window/size/viewport_height=405
 window/size/window_width_override=1440
 window/size/window_height_override=810
-window/stretch/mode="viewport"
-window/stretch/scale_mode="integer"
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep"
+window/stretch/scale_mode="fractional"
+
+[gui]
+
+theme/custom_font="res://assets/fonts/ui_font.ttf"
 
 [layer_names]
 

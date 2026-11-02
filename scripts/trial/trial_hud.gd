@@ -72,7 +72,7 @@ func _redraw() -> void:
 func _on_draw() -> void:
 	if _trial == null:
 		return
-	var font := ThemeDB.fallback_font
+	var font := UiFont.get_font()
 	_canvas.draw_rect(Rect2(PANEL_LEFT, 6.0, PANEL_WIDTH, 30.0 + LINE_HEIGHT * float(_trial.steps.size())), Color(0.02, 0.02, 0.07, 0.72))
 	_canvas.draw_string(font, Vector2(PANEL_LEFT + 6.0, 20.0), "COMBO TRIAL: %s" % _trial.title.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, PANEL_WIDTH - 10.0, 9, Color(1.0, 0.85, 0.4))
 	var marks := step_marks()

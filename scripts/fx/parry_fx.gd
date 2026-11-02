@@ -24,5 +24,5 @@ func _draw() -> void:
 	var radius := 8.0 + 20.0 * t
 	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 32, Color(1.0, 0.92, 0.55, 0.9 * fade), 2.0)
 	draw_arc(Vector2.ZERO, radius * 0.6, 0.0, TAU, 24, Color(1.0, 1.0, 1.0, 0.7 * fade), 1.0)
-	var font := ThemeDB.fallback_font
+	var font := UiFont.get_font()
 	draw_string(font, Vector2(-16.0, -22.0 - 10.0 * t), "PARRY", HORIZONTAL_ALIGNMENT_CENTER, 32.0, 9, Color(1.0, 0.95, 0.6, fade))

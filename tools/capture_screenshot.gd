@@ -30,6 +30,7 @@ const SCREEN_SCENES := {
 }
 const TRIAL_PATH := "res://scenes/match/trial_match.tscn"
 const UPSCALE := 2
+const MIN_OUTPUT_WIDTH := 1000
 const MAX_FRAMES := 1500
 const ATTACK_RANGE := 46.0
 const ATTACK_COOLDOWN := 40
@@ -381,7 +382,8 @@ func _drive_bot() -> void:
 func _save(output_path: String) -> void:
 	await RenderingServer.frame_post_draw
 	var image := root.get_texture().get_image()
-	image.resize(image.get_width() * UPSCALE, image.get_height() * UPSCALE, Image.INTERPOLATE_NEAREST)
+	if image.get_width() < MIN_OUTPUT_WIDTH: # a small window: enlarge so details can be seen
+		image.resize(image.get_width() * UPSCALE, image.get_height() * UPSCALE, Image.INTERPOLATE_NEAREST)
 	var error := image.save_png(output_path)
 	print("Saved %s (%dx%d), error code %d" % [output_path, image.get_width(), image.get_height(), error])
 	quit(0 if error == OK else 1)

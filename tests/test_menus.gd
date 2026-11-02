@@ -116,6 +116,19 @@ func test_settings_screen_edits_and_leaves_to_the_main_menu() -> void:
 	_end()
 
 
+func test_settings_screen_has_a_window_row() -> void:
+	_begin()
+	var screen := SETTINGS_SCENE.instantiate() as SettingsMenu
+	check(SettingsMenu.ROWS.has(&"window"), "settings lists the window mode")
+	var before: int = GameSettings.window_mode
+	screen.change(&"window", 1)
+	check_eq(screen.value_text(&"window"), GameSettings.window_mode_name(), "the row shows the mode")
+	check(GameSettings.window_mode != before, "changing the row changes the mode")
+	GameSettings.set_window_mode(before)
+	screen.free()
+	_end()
+
+
 func test_main_menu_modes_set_the_cpu_and_open_character_select() -> void:
 	_begin()
 	var menu := MAIN_MENU_SCENE.instantiate() as MainMenu

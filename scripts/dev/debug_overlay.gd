@@ -1,9 +1,9 @@
 extends CanvasLayer
 ## Tiny developer overlay: key help, who is playing and the state of each fighter.
-## Listens to the Events bus only. F1 hides it, F2 shows hitboxes.
+## Listens to the Events bus only. F1 shows it (hidden by default), F2 shows hitboxes.
 
 const FONT_SIZE := 8
-const HELP_TEXT := "F1 hide  F2 hitboxes  F3 moves  Esc menu"
+const HELP_TEXT := "F1 toggle  F2 hitboxes  F3 moves  Esc menu"
 
 var _label: Label
 var _states: Dictionary = {}
@@ -17,6 +17,7 @@ func _ready() -> void:
 	_label.add_theme_font_size_override("font_size", FONT_SIZE)
 	_label.add_theme_color_override("font_outline_color", Color(0.05, 0.03, 0.08))
 	_label.add_theme_constant_override("outline_size", 3)
+	_label.visible = false # hidden by default; F1 shows it
 	add_child(_label)
 	Events.fighter_state_changed.connect(_on_fighter_state_changed)
 	_refresh()

@@ -358,7 +358,7 @@ func _draw_result() -> void:
 
 ## Centered outlined text. `position` is the middle of the baseline.
 func _text(text: String, position: Vector2, font_size: int, color: Color) -> void:
-	var font := ThemeDB.fallback_font
+	var font := UiFont.get_font()
 	var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
 	var origin := Vector2(position.x - width * 0.5, position.y)
 	_canvas.draw_string_outline(

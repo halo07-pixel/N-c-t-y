@@ -44,7 +44,7 @@ func toggle() -> void:
 
 func _on_draw() -> void:
 	_canvas.draw_rect(Rect2(Vector2.ZERO, SCREEN), Color(0.03, 0.02, 0.08, 0.97))
-	var font := ThemeDB.fallback_font
+	var font := UiFont.get_font()
 	for index in _blocks.size():
 		var lines: PackedStringArray = _blocks[index]
 		var x := 8.0 + float(index) * SCREEN.x * 0.5

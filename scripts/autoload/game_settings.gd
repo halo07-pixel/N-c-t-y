@@ -20,6 +20,9 @@ const AUDIO_SECTION := "audio"
 const VIDEO_SECTION := "video"
 const TRIAL_SECTION := "trials"
 
+enum WindowMode { WINDOWED, FULLSCREEN, EXCLUSIVE }
+const WINDOW_NAMES: PackedStringArray = ["WINDOW", "FULLSCREEN", "EXCLUSIVE"]
+
 ## Keys of the combo trials the player has completed (see ComboTrial.key).
 var trials_done: PackedStringArray = PackedStringArray()
 var stocks: int = DEFAULT_STOCKS
@@ -34,6 +37,8 @@ const EFFECT_NAMES: PackedStringArray = ["OFF", "LOW", "NORMAL", "HIGH"]
 ## How much presentation there is: shake, hit flash, sparks, auras, KO burst and slow motion.
 ## OFF keeps the match calm; LOW and HIGH scale the particle amounts and the budget.
 var effects_level: int = EffectsLevel.NORMAL
+## Window, borderless fullscreen or exclusive fullscreen (see WindowMode).
+var window_mode: int = WindowMode.WINDOWED
 ## True whenever effects are not OFF (kept as a plain flag for the many code paths that ask).
 var screen_effects: bool:
 	get:
@@ -54,6 +59,19 @@ static func clamp_time_minutes(value: int) -> int:
 
 func _ready() -> void:
 	load_settings()
+	apply_window_mode()
+
+
+## F11 or Alt+Enter toggles fullscreen from any screen.
+func _input(event: InputEvent) -> void:
+	var key := event as InputEventKey
+	if key == null or not key.pressed or key.echo:
+		return
+	var alt_enter := key.alt_pressed and (key.keycode == KEY_ENTER or key.keycode == KEY_KP_ENTER)
+	if key.keycode == KEY_F11 or alt_enter:
+		toggle_fullscreen()
+		if is_inside_tree():
+			get_viewport().set_input_as_handled()
 
 
 func set_stocks(value: int) -> void:
@@ -108,6 +126,40 @@ func effects_name() -> String:
 	return EFFECT_NAMES[clampi(effects_level, 0, EFFECT_NAMES.size() - 1)]
 
 
+## Window, Fullscreen, Exclusive and around again.
+func cycle_window_mode() -> void:
+	set_window_mode((window_mode + 1) % WINDOW_NAMES.size())
+
+
+## F11 / Alt+Enter: windowed <-> fullscreen.
+func toggle_fullscreen() -> void:
+	set_window_mode(WindowMode.WINDOWED if window_mode != WindowMode.WINDOWED else WindowMode.FULLSCREEN)
+	save_settings()
+
+
+func set_window_mode(mode: int) -> void:
+	window_mode = clampi(mode, 0, WINDOW_NAMES.size() - 1)
+	apply_window_mode()
+	Events.settings_changed.emit()
+
+
+func window_mode_name() -> String:
+	return WINDOW_NAMES[clampi(window_mode, 0, WINDOW_NAMES.size() - 1)]
+
+
+## Puts the real window in the chosen mode. Does nothing without a window (headless tests).
+func apply_window_mode() -> void:
+	if DisplayServer.get_name() == "headless":
+		return
+	match window_mode:
+		WindowMode.FULLSCREEN:
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		WindowMode.EXCLUSIVE:
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
+		_:
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+
+
 func is_time_unlimited() -> bool:
 	return time_minutes == TIME_UNLIMITED
 
@@ -135,6 +187,7 @@ func save_settings() -> Error:
 	config.set_value(AUDIO_SECTION, "sfx", sfx_volume)
 	config.set_value(VIDEO_SECTION, "screen_effects", screen_effects)
 	config.set_value(VIDEO_SECTION, "effects_level", effects_level)
+	config.set_value(VIDEO_SECTION, "window_mode", window_mode)
 	config.set_value(TRIAL_SECTION, "done", trials_done)
 	return config.save(SETTINGS_PATH)
 
@@ -153,4 +206,5 @@ func load_settings() -> void:
 		VIDEO_SECTION, "effects_level", EffectsLevel.NORMAL if bool(config.get_value(VIDEO_SECTION, "screen_effects", true)) else EffectsLevel.OFF
 	))
 	effects_level = clampi(saved_level, 0, EFFECT_AMOUNT.size() - 1)
+	window_mode = clampi(int(config.get_value(VIDEO_SECTION, "window_mode", WindowMode.WINDOWED)), 0, WINDOW_NAMES.size() - 1)
 	trials_done = PackedStringArray(config.get_value(TRIAL_SECTION, "done", PackedStringArray()))

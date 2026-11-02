@@ -64,13 +64,13 @@ func _draw_backdrop() -> void:
 
 ## Outlined text centered on `position.x`; `position.y` is the baseline.
 func draw_centered(text: String, position: Vector2, font_size: int, color: Color) -> void:
-	var font := ThemeDB.fallback_font
+	var font := UiFont.get_font()
 	var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
 	draw_left(text, Vector2(position.x - width * 0.5, position.y), font_size, color)
 
 
 ## Outlined text starting at `position` (left end of the baseline).
 func draw_left(text: String, position: Vector2, font_size: int, color: Color) -> void:
-	var font := ThemeDB.fallback_font
+	var font := UiFont.get_font()
 	draw_string_outline(font, position, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, 3, OUTLINE)
 	draw_string(font, position, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, color)
