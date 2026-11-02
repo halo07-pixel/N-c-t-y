@@ -82,7 +82,6 @@ static func _skill_line(direction: String, skill: SpecialData) -> String:
 static func lines_for(character: CharacterData, player_id: int) -> PackedStringArray:
 	var attack := _key(player_id, &"attack")
 	var special := _key(player_id, &"special")
-	var special2 := _key(player_id, &"special2")
 	var guard := _key(player_id, &"guard")
 	var charge := _key(player_id, &"charge")
 	var moves := character.moveset
@@ -96,18 +95,14 @@ static func lines_for(character: CharacterData, player_id: int) -> PackedStringA
 	lines.append("  +Down %s" % moves.ground_down.display_name)
 	lines.append("Air %s: %s / %s / %s / %s" % [attack, moves.air_neutral.display_name, moves.air_forward.display_name, moves.air_up.display_name, moves.air_down.display_name])
 	lines.append("%s+%s close: %s (throw, 2s)" % [guard, attack, moves.throw_move.display_name])
+	lines.append("Cancel: %s hits, then %s within 12f = zone/rush skill   %s mid-hit = Gauge Cancel (40)" % [attack, special, charge])
 	lines.append("%s  Guard 20%% dmg; tap just before a hit = PARRY (10f)   2x direction: Dash (+%s = dash attack)" % [guard, attack])
 	var kit := character.specials
-	lines.append("%s  Special" % special)
+	lines.append("%s  Skill" % special)
 	lines.append(_skill_line("none", kit.neutral))
 	lines.append(_skill_line("fwd ", kit.forward))
 	lines.append(_skill_line("up  ", kit.up))
 	lines.append(_skill_line("down", kit.down))
-	lines.append("%s  Special 2" % special2)
-	lines.append(_skill_line("none", kit.alt_neutral))
-	lines.append(_skill_line("fwd ", kit.alt_forward))
-	lines.append(_skill_line("up  ", kit.alt_up))
-	lines.append(_skill_line("down", kit.alt_down))
 	var ultimate := character.ultimate.display_name if character.ultimate != null else "-"
 	lines.append("zone=poke rush=close in combo=set up heavy=strong defend=guard area=space recover=return")
 	lines.append("%s  Form: %s" % [charge, character.transform_title])

@@ -9,6 +9,7 @@ func _ready() -> void:
 	Events.dust_puff.connect(_on_dust_puff)
 	Events.fighter_guarded.connect(_on_guarded)
 	Events.fighter_dashed.connect(_on_dashed)
+	Events.fighter_gauge_cancelled.connect(_on_gauge_cancelled)
 	Events.projectile_flash.connect(_on_projectile_flash)
 	Events.mechanic_triggered.connect(_on_mechanic)
 
@@ -91,6 +92,20 @@ func _on_dashed(_id: int, start: Vector2, direction: int) -> void:
 	puff.position = start
 	puff.strength = 0.8
 	FxBudget.spawn(self, puff)
+
+
+## A Gauge Cancel: a blue-white flash on the fighter.
+func _on_gauge_cancelled(_id: int, spot: Vector2) -> void:
+	if not GameSettings.screen_effects:
+		return
+	var spark := HitSpark.new()
+	spark.position = spot
+	spark.power = 0.8
+	spark.color = Color(0.6, 0.85, 1.0)
+	spark.accent = Color.WHITE
+	spark.style = &"shards"
+	spark.amount = GameSettings.effect_amount()
+	FxBudget.spawn(self, spark)
 
 
 ## A small flash where a projectile appears or fades out.

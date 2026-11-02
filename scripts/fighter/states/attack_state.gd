@@ -28,6 +28,7 @@ func enter(_previous: StringName) -> void:
 	_frame = 0
 	_chain_buffered = false
 	fighter.hit_connected = false
+	fighter.hit_confirm_left = 0
 	_charge = 0
 	_released_charge = 0.0
 	if chosen_by_button and _special != null:
@@ -52,6 +53,9 @@ func physics_update(delta: float) -> StringName:
 	var cut_short := _apply_movement(delta)
 	if cut_short != &"":
 		return cut_short
+	var cancelled := _check_cancel()
+	if cancelled != &"":
+		return cancelled
 	var follow := _check_follow_up()
 	if follow != &"":
 		return follow
@@ -91,6 +95,17 @@ func _apply_movement(delta: float) -> StringName:
 	return &""
 
 
+## Cancels: the charge key while the attack is hitting is a Gauge Cancel (the fighter is free at once);
+## the skill key right after a normal attack hit cancels it into a zone/rush/combo/heavy skill.
+func _check_cancel() -> StringName:
+	if fighter.input.charge_just_pressed and fighter.can_gauge_cancel():
+		fighter.gauge_cancel()
+		return &"Idle" if fighter.is_on_floor() else &"Fall"
+	if _special == null and not _move.is_throw and fighter.skill_cancel_target() != null:
+		return &"Attack" # the new attack picks the same skill from the same key press
+	return &""
+
+
 ## Pressing special again after the active frames begin plays the follow-up, if it can be paid.
 func _check_follow_up() -> StringName:
 	if _special == null or _special.follow_up == null or not _special_pressed():
@@ -104,16 +119,11 @@ func _check_follow_up() -> StringName:
 	return &"Attack"
 
 
-## The button that started this special: Special 2 for its own skills, Special otherwise.
 func _special_pressed() -> bool:
-	if _special != null and _special.alt:
-		return fighter.input.special2_just_pressed
 	return fighter.input.special_just_pressed
 
 
 func _special_held() -> bool:
-	if _special != null and _special.alt:
-		return fighter.input.special2_held
 	return fighter.input.special_held
 
 

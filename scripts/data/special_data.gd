@@ -53,10 +53,6 @@ const ROLE_COOLDOWNS := {
 }
 const HEAVY_MIN_DAMAGE := 11.0
 
-@export_group("Slot")
-## True for the skills of the second special button (Special 2). Follow-ups share their parent's.
-@export var alt: bool = false
-
 @export_group("Cooldown")
 ## Frames before this slot (neutral, forward, up, down) can be used again. Follow-ups have none.
 @export var cooldown_frames: int = 0
@@ -86,9 +82,9 @@ const HEAVY_MIN_DAMAGE := 11.0
 @export var title: String = ""
 
 
-## Key of this skill's cooldown: neutral, forward, up, down, or alt_neutral ... alt_down.
+## Key of this skill's cooldown: neutral, forward, up or down.
 func slot_key() -> StringName:
-	return StringName("alt_" + String(direction)) if alt else direction
+	return direction
 
 
 const FREE_CHARGE_SHARE := 0.6

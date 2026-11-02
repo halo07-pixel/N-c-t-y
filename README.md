@@ -44,13 +44,13 @@ Arrows/Enter/Esc.
 | Jump / air jump | `W` | `↑` |
 | Drop through platform / fast-fall | `S` | `↓` |
 | Attack | `J` | `Numpad 1` |
-| Special | `K` | `Numpad 2` |
+| Skill | `K` | `Numpad 2` |
 | Guard / Parry / Throw | `L` | `Numpad 3` |
 | Dash | double-tap `A` / `D` | double-tap `←` / `→` |
 | Charge Reiatsu / Bankai / Ultimate | `I` | `Numpad 5` |
 
-**Attack** and **Special** change with the direction you hold (none, forward, up, down),
-on the ground and in the air. The up special is each character's recovery.
+**Attack** and **Skill** change with the direction you hold (none, forward, up, down),
+on the ground and in the air. The up skill is each character's recovery.
 
 **Combo chain:** tap Attack again after a ground neutral attack (jab) connects to continue it:
 a second hit, then a heavier finisher. Hold Up or Down with the second press for a launcher or a sweep
@@ -61,17 +61,21 @@ instead. A press during the active frames is buffered. Chains need a connected h
 normal guard (14+ frames of startup, so it is easy to see coming); neither a guard nor a parry stops it.
 2 second cooldown. Each fighter has their own throw (`MoveSet.throw_move`, `MoveData.is_throw`).
 
-**Special 2** (`U` / `Numpad 4`): a second special button with its own four skills per fighter (neutral, forward,
-up, down) and its own cooldowns. The HUD shows eight pips: Special, then Special 2. Dashes, lunges and
-teleports now hurt everything along their path (`Hitbox.cover_path`), not only at the end.
+**Skills** (`K` / `Numpad 2`): four per fighter, picked by the direction held: none = zone, forward = rush,
+up = recover (up, launch, back to the stage), down = defend (counter, trap, wall). The HUD shows one row of four
+pips. Dashes, lunges and teleports hurt everything along their path (`Hitbox.cover_path`), not only at the end.
 
-**Skill strip and move list:** beside each player panel, two rows of four cells show the Special row (K / N2)
-and the Special 2 row (U / N4). The symbol is the direction to hold (dot = none, triangles = forward, up, down). A
+**Cancels:** after a normal attack hits (or is blocked), press the skill key within 12 frames to cancel its
+recovery into a zone or rush skill (not defend or recover; a whiffed attack cannot cancel). A press made during
+the hitlag is remembered. **Gauge Cancel:** press `I` while one of your attacks is hitting to pay 40 Combat
+Gauge and be free at once. Numbers in `CombatGauge` (`CANCEL_WINDOW_FRAMES`, `CANCEL_ROLES`, `GAUGE_CANCEL_COST`).
+
+**Skill strip and move list:** beside each player panel, one row of four cells shows the skills (K / N2). The symbol is the direction to hold (dot = none, triangles = forward, up, down). A
 ready skill is lit; a cooling one is dark with the seconds left; a red frame means the skill needs Reiatsu you
 lack. **F3** opens the full move list of both fighters (buttons, combos, throw, skills with cooldowns, form, ultimate).
 
 **Canon:** the skills and effects follow the series as closely as we can draw them ourselves (see `docs/CANON.md`).
-Ichigo is done: Getsuga Tenshō (pale blue; black with a red rim in Bankai), Getsuga Jūjishō, Bringer Light, Cero,
+Ichigo is done: Getsuga Tenshō (pale blue; black with a red rim in Bankai), Shunpo Strike, Rising Cut, Ground Slam,
 Final Getsuga Tenshō. A projectile with a `rim` color is drawn dark and solid with a glowing edge; the `beam` style draws a Cero.
 
 **Signature mechanics** (`CharacterData.mechanic`):

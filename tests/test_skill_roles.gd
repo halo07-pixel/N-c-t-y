@@ -10,7 +10,7 @@ const CHARACTERS: Array[CharacterData] = [
 
 
 static func _slots(kit: SpecialSet) -> Array[SpecialData]:
-	return [kit.neutral, kit.forward, kit.up, kit.down, kit.alt_neutral, kit.alt_forward, kit.alt_up, kit.alt_down]
+	return [kit.neutral, kit.forward, kit.up, kit.down]
 
 
 func test_every_skill_has_a_role_inside_its_cooldown_band() -> void:
@@ -28,16 +28,16 @@ func test_heavy_skills_hit_hard() -> void:
 				check(skill.damage >= SpecialData.HEAVY_MIN_DAMAGE, "%s / %s is heavy" % [character.display_name, skill.display_name])
 
 
-func test_each_character_has_a_ranged_poke_and_a_way_back() -> void:
+func test_each_character_has_a_way_in_and_a_way_back() -> void:
 	for character in CHARACTERS:
 		var roles := {}
 		for skill in _slots(character.specials):
 			roles[skill.role] = true
-		check(roles.has("zone"), "%s has a zone skill" % character.display_name)
+		check(roles.has("zone") or roles.has("rush"), "%s can poke or close the gap" % character.display_name)
 		check(roles.has("recover"), "%s can get back to the stage" % character.display_name)
 
 
 func test_move_list_shows_the_role() -> void:
 	var lines := MoveListOverlay.lines_for(CHARACTERS[0], 1)
 	var text := "\n".join(lines)
-	check(text.contains("[ZONE]") and text.contains("[HEAVY]"), "tags appear in the F3 list")
+	check(text.contains("[ZONE]") and text.contains("[DEFEND]"), "tags appear in the F3 list")

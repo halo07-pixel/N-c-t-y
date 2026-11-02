@@ -29,9 +29,7 @@ const AIR_JUMP_MIN_STRENGTH := 0.4
 const FORM_COOLDOWN_SCALE := 0.6
 const GROUND_UP_COOLDOWN_SCALE := 0.4
 const COOLDOWN_ANNOUNCE_EVERY := 3
-const SKILL_SLOTS: Array[StringName] = [
-	&"neutral", &"forward", &"up", &"down", &"alt_neutral", &"alt_forward", &"alt_up", &"alt_down",
-]
+const SKILL_SLOTS: Array[StringName] = [&"neutral", &"forward", &"up", &"down"]
 const MAX_PERCENT := 999.0
 const RESPAWN_INVINCIBLE_FRAMES := 120
 const BLINK_PERIOD_FRAMES := 4
@@ -44,6 +42,8 @@ var facing: int = 1
 ## Air jumps used since the last landing; each one after the free ones is weaker.
 ## True once the current attack has hit something (a chain only continues from a hit).
 var hit_connected: bool = false
+## Frames left in which the attack that just hit can be cancelled (see CombatGauge.CANCEL_WINDOW_FRAMES).
+var hit_confirm_left: int = 0
 var air_jump_count: int = 0
 var air_jump_cooldown: int = 0
 var is_fast_falling: bool = false
@@ -92,6 +92,9 @@ var gathering: bool = false
 var speed_scale: float = 1.0
 
 var _input_source: InputSource
+var _buffered_special: bool = false
+var _buffered_charge: bool = false
+var _buffered_attack: bool = false
 var _drop_through_frames_left: int = 0
 var _invincible_blinks: bool = false
 var _queued_move: MoveData
@@ -154,6 +157,7 @@ func _physics_process(delta: float) -> void:
 	_tick_invincibility()
 	if hitlag_left > 0:
 		hitlag_left -= 1
+		_buffer_cancel_input()
 		_body.sync_to(_state_machine.current_name, facing, velocity)
 		return
 	_tick_bankai()
@@ -163,10 +167,31 @@ func _physics_process(delta: float) -> void:
 	_tick_cooldowns()
 	if _input_source != null:
 		input = _input_source.get_frame()
+		_apply_buffered_input()
 	_tick_drop_through()
 	_state_machine.physics_update(delta)
 	move_and_slide()
 	_body.sync_to(_state_machine.current_name, facing, velocity)
+
+
+## While our own attack is frozen in hitlag, the keys that cancel it are remembered, so a press made
+## right as the hit lands is not lost: it is applied on the first frame after the freeze.
+func _buffer_cancel_input() -> void:
+	if _input_source == null or hit_confirm_left <= 0:
+		return
+	var frame := _input_source.get_frame()
+	_buffered_special = _buffered_special or frame.special_just_pressed
+	_buffered_charge = _buffered_charge or frame.charge_just_pressed
+	_buffered_attack = _buffered_attack or frame.attack_just_pressed
+
+
+func _apply_buffered_input() -> void:
+	input.special_just_pressed = input.special_just_pressed or _buffered_special
+	input.charge_just_pressed = input.charge_just_pressed or _buffered_charge
+	input.attack_just_pressed = input.attack_just_pressed or _buffered_attack
+	_buffered_special = false
+	_buffered_charge = false
+	_buffered_attack = false
 
 
 func set_input_source(source: InputSource) -> void:
@@ -228,6 +253,7 @@ func _on_hit_received(info: HitInfo) -> void:
 
 func _on_hit_landed(info: HitInfo) -> void:
 	hit_connected = true
+	hit_confirm_left = CombatGauge.CANCEL_WINDOW_FRAMES
 	hitlag_left = Knockback.hitlag_frames(info.damage)
 	add_reiatsu(info.damage * Reiatsu.GAIN_DEALT)
 	_register_landed_hit(info.damage)
@@ -449,7 +475,34 @@ func _register_landed_hit(damage: float) -> void:
 		add_gauge(CombatGauge.gain_for_hit(damage, combo_count))
 
 
+## The skill the skill key asks for right now when it may cancel the normal attack in progress:
+## the attack hit (or was blocked) within the window and the skill has a cancelling role, is off
+## cooldown and affordable. Null otherwise.
+func skill_cancel_target() -> SpecialData:
+	if hit_confirm_left <= 0 or not input.special_just_pressed:
+		return null
+	var skill := current_specials().select(input.move)
+	if skill == null or not CombatGauge.CANCEL_ROLES.has(skill.role):
+		return null
+	if not skill_ready(skill.slot_key()) or not (skill.cost <= 0.0 or can_afford(skill.cost)):
+		return null
+	return skill
+
+
+## A Gauge Cancel is possible while an attack of ours is hitting and the gauge can pay.
+func can_gauge_cancel() -> bool:
+	return hit_confirm_left > 0 and gauge >= CombatGauge.GAUGE_CANCEL_COST
+
+
+func gauge_cancel() -> void:
+	set_gauge(gauge - CombatGauge.GAUGE_CANCEL_COST)
+	hit_confirm_left = 0
+	Events.fighter_gauge_cancelled.emit(player_id, global_position + Vector2(0.0, -14.0))
+
+
 func _tick_gauge() -> void:
+	if hit_confirm_left > 0:
+		hit_confirm_left -= 1
 	if _combo_frames > 0:
 		_combo_frames -= 1
 		if _combo_frames == 0:
@@ -569,22 +622,13 @@ func _on_ultimate_started(attacker_id: int, freeze_frames: int, _title: String) 
 # --- Attacks and specials ------------------------------------------------------
 
 func wants_attack() -> bool:
-	return input.attack_just_pressed or input.special_just_pressed or input.special2_just_pressed
+	return input.attack_just_pressed or input.special_just_pressed
 
 
 func current_specials() -> SpecialSet:
 	if is_bankai() and data.bankai_specials != null:
 		return data.bankai_specials
 	return data.specials
-
-
-## The Special 2 skill for a direction: the form's own when it has one, otherwise the base kit's.
-func current_alt(direction: Vector2) -> SpecialData:
-	var kit := current_specials()
-	var skill := kit.select_alt(direction)
-	if skill == null and kit != data.specials:
-		skill = data.specials.select_alt(direction)
-	return skill
 
 
 ## The move for the button just pressed and the direction held.
@@ -667,18 +711,10 @@ func skill_in_slot(slot: StringName) -> SpecialData:
 			return current_specials().up
 		&"down":
 			return current_specials().down
-		&"alt_neutral":
-			return current_alt(Vector2.ZERO)
-		&"alt_forward":
-			return current_alt(Vector2.RIGHT)
-		&"alt_up":
-			return current_alt(Vector2.UP)
-		&"alt_down":
-			return current_alt(Vector2.DOWN)
 	return null
 
 
-## What the HUD shows for each of the eight slots: how much cooldown is left (0..1), the seconds
+## What the HUD shows for each of the four slots: how much cooldown is left (0..1), the seconds
 ## left, and the Reiatsu the skill needs to start (0 when free).
 func skill_hud_info() -> Array:
 	var info: Array = []
@@ -695,10 +731,10 @@ func skill_hud_info() -> Array:
 func pick_move(aerial: bool) -> MoveData:
 	var from_dash := dash_attack
 	dash_attack = false
-	if from_dash and input.attack_just_pressed and not input.special_just_pressed and not input.special2_just_pressed:
+	if from_dash and input.attack_just_pressed and not input.special_just_pressed:
 		return data.moveset.select(aerial, Vector2(float(facing), 0.0)) # the dash attack: always the forward one
-	if input.special_just_pressed or input.special2_just_pressed:
-		var special := current_specials().select(input.move) if input.special_just_pressed else current_alt(input.move)
+	if input.special_just_pressed:
+		var special := current_specials().select(input.move)
 		if special == null:
 			return data.moveset.select(aerial, input.move)
 		var affordable := special.cost <= 0.0 or can_afford(special.cost)

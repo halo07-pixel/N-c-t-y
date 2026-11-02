@@ -1,5 +1,7 @@
 # Canon reference
 
+> Skills marked (U ...) belonged to the old Special 2 button, which was removed in the skill-core pass. They are kept here as reference for future skills.
+
 What the game follows from the series, and where it is only inspired by it. Everything here is drawn by code
 in our own stickman style; no official art, frames or sprites are copied. Facts were checked against public
 wiki pages in November 2026; lines marked "check" were not confirmed by a source and are the game's own take.

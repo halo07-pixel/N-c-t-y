@@ -28,7 +28,7 @@ signal hit_impact(position: Vector2, direction: Vector2, damage: float, launch_s
 ## A character mechanic fired: &"hollow" (empowered), &"heartless" (bounce), &"steal" (Reiatsu taken).
 @warning_ignore("unused_signal")
 signal mechanic_triggered(player_id: int, kind: StringName, spot: Vector2)
-## One entry per special slot (Special neutral..down, then Special 2): {fraction, seconds, cost}.
+## One entry per skill slot (neutral, forward, up, down): {fraction, seconds, cost}.
 @warning_ignore("unused_signal")
 signal fighter_skills_changed(player_id: int, info: Array)
 @warning_ignore("unused_signal")
@@ -55,6 +55,9 @@ signal fighter_guarded(victim_id: int, attacker_id: int, parried: bool, position
 ## The guard ran out and broke.
 @warning_ignore("unused_signal")
 signal fighter_guard_broken(player_id: int)
+## A fighter paid Combat Gauge to cancel an attack that was hitting, at `position`.
+@warning_ignore("unused_signal")
+signal fighter_gauge_cancelled(player_id: int, position: Vector2)
 ## A dash started from `position`, direction -1 or 1.
 @warning_ignore("unused_signal")
 signal fighter_dashed(player_id: int, position: Vector2, direction: int)

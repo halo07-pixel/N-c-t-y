@@ -16,6 +16,13 @@ const STOCK_LOSS_PITY := 20.0 # for losing a stock
 const IDLE_FRAMES := 360 # no combat for this long (6 s) and the gauge starts to fade
 const DECAY_PER_FRAME := 0.05
 
+## Cancels. After a normal attack hits (or is blocked) the skill key cancels its recovery into a
+## skill of one of CANCEL_ROLES within CANCEL_WINDOW_FRAMES. A Gauge Cancel (charge key while any
+## attack of ours is hitting) pays GAUGE_CANCEL_COST and frees the fighter at once.
+const CANCEL_WINDOW_FRAMES := 12
+const CANCEL_ROLES: Array[String] = ["zone", "rush", "combo", "heavy"]
+const GAUGE_CANCEL_COST := 40.0
+
 const TRANSFORM_FRAMES := 75 # the cinematic: invincible, opponents frozen, camera zoomed in
 const FORM_FRAMES := 900 # 15 s
 const HIT_EXTEND_FRAMES := 30 # +0.5 s per hit landed while transformed

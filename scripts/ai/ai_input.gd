@@ -7,9 +7,9 @@ extends InputSource
 
 const LEVELS := {
 	1: {"reaction": 22, "attack": 0.35, "special": 0.15, "mistake": 0.25, "reiatsu": false, "guard": 0.0, "dash": 0.0},
-	2: {"reaction": 11, "attack": 0.60, "special": 0.30, "mistake": 0.10, "reiatsu": true, "guard": 0.35, "dash": 0.02},
-	3: {"reaction": 5, "attack": 0.85, "special": 0.40, "mistake": 0.03, "reiatsu": true, "guard": 0.6, "dash": 0.04},
-	4: {"reaction": 3, "attack": 0.95, "special": 0.50, "mistake": 0.01, "reiatsu": true, "guard": 0.75, "dash": 0.06}, # boss
+	2: {"reaction": 11, "attack": 0.60, "special": 0.30, "mistake": 0.10, "reiatsu": true, "guard": 0.35, "dash": 0.10},
+	3: {"reaction": 5, "attack": 0.85, "special": 0.40, "mistake": 0.03, "reiatsu": true, "guard": 0.6, "dash": 0.20},
+	4: {"reaction": 3, "attack": 0.95, "special": 0.50, "mistake": 0.01, "reiatsu": true, "guard": 0.75, "dash": 0.30}, # boss
 }
 const MAX_LEVEL := 4
 const STAGE_SAFE_HALF_WIDTH := 150.0
@@ -27,6 +27,8 @@ const RANGED_MAX := 230.0
 const FACING_NUDGE := 0.4 # small push: faces the target without counting as "forward"
 const DEFEND_RANGE := 55.0
 const DEFEND_COOLDOWN := 30
+const CANCEL_SKILL_CHANCE := 0.12
+const CANCEL_GAUGE_CHANCE := 0.05
 const PARRY_HOLD_MIN := 11 # longer than the parry window, so the guard is never locked
 const DASH_MIN_DISTANCE := 90.0
 
@@ -68,6 +70,8 @@ func get_frame() -> InputFrame:
 		frame.special_just_pressed = _follow_up_in == 0 # press special again: the follow-up
 	if state == &"Attack" and fighter.hit_connected and level >= 2 and _rng.randf() < 0.3:
 		frame.attack_just_pressed = true # continue the combo string
+	elif state == &"Attack" and level >= 3 and fighter.hit_confirm_left > 0:
+		_try_cancel(frame)
 	if _is_off_stage():
 		_recover(frame)
 	elif _guard_frames_left > 0:
@@ -77,6 +81,17 @@ func get_frame() -> InputFrame:
 	else:
 		_fight(frame)
 	return frame
+
+
+## Level 3+ cancels a hit that just connected into a skill, now and then, or pays for a Gauge Cancel.
+func _try_cancel(frame: InputFrame) -> void:
+	if fighter.can_gauge_cancel() and _rng.randf() < CANCEL_GAUGE_CHANCE:
+		frame.charge_just_pressed = true
+		return
+	if _rng.randf() >= CANCEL_SKILL_CHANCE:
+		return
+	frame.special_just_pressed = true
+	frame.move = Vector2(FACING_NUDGE * signf(target.global_position.x - fighter.global_position.x), 0.0)
 
 
 func _params() -> Dictionary:
@@ -154,9 +169,6 @@ func _fight(frame: InputFrame) -> void:
 	if _retreat_frames > 0:
 		_retreat_frames -= 1
 		frame.move.x = -toward
-	if distance > DASH_MIN_DISTANCE and _retreat_frames <= 0 and fighter.can_dash() and _rng.randf() < _params()["dash"]:
-		frame.dash_just_pressed = true # close the gap with a dash
-		frame.dash_direction = int(toward)
 	if rise < -50.0 and distance < 80.0 and fighter.is_on_floor() and _rng.randf() < 0.05:
 		frame.up_just_pressed = true
 	_cooldown -= 1
@@ -174,7 +186,11 @@ func _decide(frame: InputFrame, gap: float, rise: float) -> void:
 	var distance := absf(gap)
 	if params["reiatsu"] and _manage_reiatsu(frame, distance):
 		return
-	if level >= 2 and _try_special2(frame, toward, distance, rise, params["special"]):
+	if distance > DASH_MIN_DISTANCE and _retreat_frames <= 0 and fighter.can_dash() and _rng.randf() < params["dash"]:
+		frame.dash_just_pressed = true # close the gap with a dash
+		frame.dash_direction = int(toward)
+		return
+	if level >= 2 and _try_skill(frame, toward, distance, rise, params["special"]):
 		return
 	if distance <= MELEE_RANGE and absf(rise) < 50.0:
 		_melee(frame, toward, distance, rise)
@@ -193,9 +209,9 @@ func _decide(frame: InputFrame, gap: float, rise: float) -> void:
 			_special_hold_left = _rng.randi_range(0, charge_special.charge_max_frames)
 
 
-## Uses a Special 2 skill that suits the distance: a dash or teleport at mid range, a shot from far
-## away, the rising skill when the opponent is overhead, the down skill when they are close.
-func _try_special2(frame: InputFrame, toward: float, distance: float, rise: float, special_chance: float) -> bool:
+## Uses a skill that suits the distance: a rush at mid range, a shot from far away, the rising
+## skill when the opponent is overhead, the down skill when they are close.
+func _try_skill(frame: InputFrame, toward: float, distance: float, rise: float, special_chance: float) -> bool:
 	if _rng.randf() >= special_chance * 0.6:
 		return false
 	var pick := Vector2.ZERO
@@ -209,7 +225,7 @@ func _try_special2(frame: InputFrame, toward: float, distance: float, rise: floa
 		pick = Vector2(FACING_NUDGE * toward, 0.0)
 	else:
 		return false
-	frame.special2_just_pressed = true
+	frame.special_just_pressed = true
 	frame.move = pick
 	return true
 

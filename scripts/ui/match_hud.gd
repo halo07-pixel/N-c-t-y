@@ -217,9 +217,9 @@ func _draw_reiatsu_bar(player_id: int, center_x: float) -> void:
 		_canvas.draw_rect(Rect2(area.position, Vector2(cell * share, BAR_HEIGHT)), BAR_READY if full or share >= 1.0 else BAR_NORMAL)
 
 
-## The skill strip beside the panel: two rows of four cells, one row per special button (its key
-## is written at the start of the row), each cell showing the direction to hold. A ready skill is lit,
-## a cooling one is dark with the seconds left, and a skill that needs Reiatsu you lack has a red frame.
+## The skill strip beside the panel: one row of four cells (the skill key is written at the start),
+## each cell showing the direction to hold. A ready skill is lit, a cooling one is dark with the
+## seconds left, and a skill that needs Reiatsu you lack has a red frame.
 func _draw_skill_strip(player_id: int, center_x: float) -> void:
 	var info: Array = _skills.get(player_id, [])
 	var cell := Vector2(15.0, 14.0)
@@ -228,15 +228,12 @@ func _draw_skill_strip(player_id: int, center_x: float) -> void:
 	var width := label_w + 4.0 * (cell.x + gap)
 	# P1 on the left of its panel, P2 on the right, so the strip sits at the outside of the screen.
 	var left := center_x - 46.0 - width if player_id == 1 else center_x + 46.0
-	var top := 226.0
-	for row in 2:
-		var action := &"special" if row == 0 else &"special2"
-		_text(skill_key_label(player_id, action), Vector2(left + label_w * 0.5, top + float(row) * (cell.y + gap) + 10.0), 8, WHITE)
-		for column in 4:
-			var index := row * 4 + column
-			var entry: Dictionary = info[index] if index < info.size() else {}
-			var area := Rect2(left + label_w + float(column) * (cell.x + gap), top + float(row) * (cell.y + gap), cell.x, cell.y)
-			_draw_skill_cell(area, column, entry, _reiatsu.get(player_id, 0.0))
+	var top := 234.0
+	_text(skill_key_label(player_id, &"special"), Vector2(left + label_w * 0.5, top + 10.0), 8, WHITE)
+	for column in 4:
+		var entry: Dictionary = info[column] if column < info.size() else {}
+		var area := Rect2(left + label_w + float(column) * (cell.x + gap), top, cell.x, cell.y)
+		_draw_skill_cell(area, column, entry, _reiatsu.get(player_id, 0.0))
 
 
 func _draw_skill_cell(area: Rect2, column: int, entry: Dictionary, reiatsu: float) -> void:
@@ -273,7 +270,7 @@ func _draw_direction_glyph(center: Vector2, column: int, color: Color) -> void:
 			_canvas.draw_colored_polygon(PackedVector2Array([center + Vector2(-3.5, -2.5), center + Vector2(3.5, -2.5), center + Vector2(0.0, 3.5)]), color)
 
 
-## The key printed on the strip: K and U for player 1, N2 and N4 for player 2 (Numpad).
+## The key printed on the strip: K for player 1, N2 for player 2 (Numpad).
 static func skill_key_label(player_id: int, action: StringName) -> String:
 	var keycode: Key = InputBindings.DEFAULT_KEYS[player_id][action]
 	return OS.get_keycode_string(keycode).replace("Kp ", "N")

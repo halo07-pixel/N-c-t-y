@@ -15,10 +15,10 @@ func _fighter(character: String) -> Fighter:
 	return fighter
 
 
-func test_skill_info_has_eight_slots() -> void:
+func test_skill_info_has_four_slots() -> void:
 	var fighter := _fighter("archer")
 	var info := fighter.skill_hud_info()
-	check_eq(info.size(), 8, "four Special and four Special 2 slots")
+	check_eq(info.size(), 4, "one slot per direction")
 	check(info[0]["fraction"] == 0.0 and info[0]["seconds"] == 0.0, "nothing cooling at the start")
 	fighter.free()
 
@@ -51,14 +51,13 @@ func test_the_hud_is_told_about_changes() -> void:
 	Events.fighter_skills_changed.connect(listener)
 	fighter.reset_cooldowns()
 	Events.fighter_skills_changed.disconnect(listener)
-	check(not seen.is_empty() and seen[0] == 8, "the HUD receives eight entries")
+	check(not seen.is_empty() and seen[0] == 4, "the HUD receives four entries")
 	fighter.free()
 
 
 func test_key_labels() -> void:
 	check_eq(MatchHud.skill_key_label(1, &"special"), "K", "player 1 Special is K")
-	check_eq(MatchHud.skill_key_label(1, &"special2"), "U", "player 1 Special 2 is U")
-	check(MatchHud.skill_key_label(2, &"special2").begins_with("N"), "player 2 uses the numpad")
+	check(MatchHud.skill_key_label(2, &"special").begins_with("N"), "player 2 uses the numpad")
 
 
 func test_move_list_names_every_skill() -> void:
@@ -68,6 +67,6 @@ func test_move_list_names_every_skill() -> void:
 		check(text.contains(data.display_name.to_upper()), "%s: the name" % name)
 		check(text.contains(data.moveset.throw_move.display_name), "%s: the throw" % name)
 		check(text.contains(data.moveset.ground_neutral.next_in_chain.display_name), "%s: the combo" % name)
-		for skill: SpecialData in [data.specials.neutral, data.specials.forward, data.specials.up, data.specials.down, data.specials.alt_neutral, data.specials.alt_forward, data.specials.alt_up, data.specials.alt_down]:
+		for skill: SpecialData in [data.specials.neutral, data.specials.forward, data.specials.up, data.specials.down]:
 			check(text.contains(skill.display_name), "%s: %s is listed" % [name, skill.display_name])
 		check(text.contains(data.ultimate.display_name), "%s: the ultimate" % name)

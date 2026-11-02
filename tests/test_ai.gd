@@ -105,3 +105,20 @@ func test_easy_cpu_never_defends() -> void:
 		_brain._defend_cooldown = 0
 		check(not _brain.get_frame().guard_just_pressed, "level 1 does not defend")
 	_teardown_world()
+
+
+func test_cpu_dashes_in_from_far_away() -> void:
+	_build_world(SWORDSMAN, Vector2(-120.0, 50.0), 120.0, 3)
+	await wait_frames(30)
+	var dashed := false
+	for i in 400:
+		await wait_frames(1)
+		if _cpu.get_state_name() == &"Dash":
+			dashed = true
+			break
+	check(dashed, "a level 3 CPU uses the dash to close the gap")
+	_teardown_world()
+
+
+func test_level_one_never_dashes() -> void:
+	check_eq(AIInput.LEVELS[1]["dash"], 0.0, "the easiest CPU has no dash")
