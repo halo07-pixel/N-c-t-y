@@ -1,12 +1,13 @@
 class_name MainMenu
 extends MenuScreen
-## Mode list: Arcade, Versus 2 Players, Versus CPU, Settings, Quit.
+## Mode list: Arcade, Versus 2 Players, Versus CPU, Combo Trial, Settings, Quit.
 
-const ITEMS: Array[StringName] = [&"arcade", &"versus", &"versus_cpu", &"settings", &"quit"]
+const ITEMS: Array[StringName] = [&"arcade", &"versus", &"versus_cpu", &"trial", &"settings", &"quit"]
 const LABELS := {
 	&"arcade": "ARCADE",
 	&"versus": "VERSUS  2 PLAYERS",
 	&"versus_cpu": "VERSUS  CPU",
+	&"trial": "COMBO TRIAL",
 	&"settings": "SETTINGS",
 	&"quit": "QUIT",
 }
@@ -41,6 +42,8 @@ func activate(item: StringName) -> void:
 		&"versus_cpu":
 			MatchConfig.cpu_level = DEFAULT_CPU_LEVEL
 			go_to(&"character_select")
+		&"trial":
+			go_to(&"trial_select")
 		&"settings":
 			go_to(&"settings")
 		&"quit":

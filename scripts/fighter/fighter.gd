@@ -90,9 +90,12 @@ var in_petal_zone: bool = false
 ## True during the wind-up of a skill that gathers reishi (drawn by MechanicAura).
 var gathering: bool = false
 var speed_scale: float = 1.0
+## Share of the knockback this fighter takes (the practice dummy takes less so combos can be reached).
+var knockback_scale: float = 1.0
 
 var _input_source: InputSource
 var _buffered_special: bool = false
+var _buffered_move: Vector2 = Vector2.ZERO
 var _buffered_charge: bool = false
 var _buffered_attack: bool = false
 var _drop_through_frames_left: int = 0
@@ -180,12 +183,16 @@ func _buffer_cancel_input() -> void:
 	if _input_source == null or hit_confirm_left <= 0:
 		return
 	var frame := _input_source.get_frame()
+	if frame.special_just_pressed:
+		_buffered_move = frame.move # the direction held when the skill key was pressed
 	_buffered_special = _buffered_special or frame.special_just_pressed
 	_buffered_charge = _buffered_charge or frame.charge_just_pressed
 	_buffered_attack = _buffered_attack or frame.attack_just_pressed
 
 
 func _apply_buffered_input() -> void:
+	if _buffered_special and not input.special_just_pressed:
+		input.move = _buffered_move
 	input.special_just_pressed = input.special_just_pressed or _buffered_special
 	input.charge_just_pressed = input.charge_just_pressed or _buffered_charge
 	input.attack_just_pressed = input.attack_just_pressed or _buffered_attack
@@ -235,7 +242,7 @@ func _on_hit_received(info: HitInfo) -> void:
 	add_reiatsu(info.damage * Reiatsu.GAIN_TAKEN)
 	var launch_speed := Knockback.magnitude(
 		info.base_knockback, info.knockback_growth, percent, data.weight
-	)
+	) * knockback_scale
 	velocity = info.direction * launch_speed
 	hitstun_frames_left = Knockback.hitstun_frames(launch_speed)
 	hitlag_left = Knockback.hitlag_frames(info.damage)
@@ -862,6 +869,38 @@ func enter_ko() -> void:
 	velocity = Vector2.ZERO
 	_state_machine.transition_to(&"Ko")
 	hide()
+
+
+## Puts the fighter back in a clean standing state at `spot` (practice mode): no damage, no
+## cooldowns, full Reiatsu, `start_gauge` Combat Gauge, never invincible.
+func reset_for_practice(spot: Vector2, new_facing: int, start_gauge: float) -> void:
+	global_position = spot
+	velocity = Vector2.ZERO
+	facing = new_facing
+	show()
+	set_percent(0.0)
+	empowered = false
+	empower_frames_left = 0
+	is_fast_falling = false
+	hitlag_left = 0
+	hitstun_frames_left = 0
+	hit_confirm_left = 0
+	hit_connected = false
+	combo_count = 0
+	counter_move = null
+	dash_attack = false
+	guard_lock_left = 0
+	guard_energy = GuardRules.ENERGY_MAX
+	invincible_left = 0
+	_body.modulate.a = 1.0
+	hurtbox.set_active(true)
+	end_bankai()
+	refill_jumps()
+	reset_cooldowns()
+	set_gauge(start_gauge)
+	set_reiatsu(Reiatsu.MAX)
+	_end_drop_through()
+	_state_machine.transition_to(&"Fall")
 
 
 func respawn_at(spawn_position: Vector2) -> void:

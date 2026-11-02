@@ -55,6 +55,9 @@ signal fighter_guarded(victim_id: int, attacker_id: int, parried: bool, position
 ## The guard ran out and broke.
 @warning_ignore("unused_signal")
 signal fighter_guard_broken(player_id: int)
+## A fighter started an attack, skill, throw or ultimate: its display name.
+@warning_ignore("unused_signal")
+signal fighter_attack_started(player_id: int, move_name: String)
 ## A fighter paid Combat Gauge to cancel an attack that was hitting, at `position`.
 @warning_ignore("unused_signal")
 signal fighter_gauge_cancelled(player_id: int, position: Vector2)

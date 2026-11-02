@@ -29,7 +29,7 @@ fighters are original placeholders drawn in code until real sprites are supplied
 ## Run it
 
 1. Open the folder in Godot 4.7 (`project.godot`).
-2. Press F5. Title screen, then the main menu: Arcade, Versus 2 Players, Versus CPU, Settings.
+2. Press F5. Title screen, then the main menu: Arcade, Versus 2 Players, Versus CPU, Combo Trial, Settings.
 3. Pick fighters (Left/Right, Attack to confirm, Guard to go back).
 4. In a match, **Esc** returns to the menu; when it ends, **Enter** plays again.
 
@@ -95,6 +95,15 @@ it, or stand still and hold the charge key. Press the charge key on the ground:
 sky step), Byakuya (fast, teleports, petal traps). In Versus CPU, player 1 picks their
 fighter, then the opponent and the CPU level (Up/Down, 1 to 3).
 
+**Combo Trial** (main menu): practice on a dummy that does not fight back. Pick a fighter and one of four exercises:
+the jab string, a cancel into a skill, a dash attack into a skill, and a Gauge Cancel that restarts the string.
+The HUD on the right lists the steps (the current one is lit); a wrong move, or more than 1.5 seconds between
+steps, shows RETRY and resets; finishing shows COMPLETE and ticks the exercise in the menu (saved in
+`user://settings.cfg`). `R` retries at once, `Esc` goes back. The dummy takes 35% knockback so combos stay in
+reach. Exercises are built from each fighter's own data (`scripts/trial/trial_library.gd`), the steps are tracked
+from `Events` only (`TrialTracker`), and `tests/test_trials.gd` plays every exercise with scripted input to prove
+it can be done. Yhwach is the Arcade boss and is not selectable, so he has no exercises.
+
 **Arcade:** pick a fighter, then win four CPU fights of rising difficulty: the two other
 fighters, a rival with your own fighter, and the boss Yhwach (CPU level 4). Each fight
 starts with a short story screen. If you lose you can continue the same fight (the
@@ -157,7 +166,8 @@ scripts/fighter/    Fighter, state machine, states, input sources, bodies (Sprit
 scripts/ai/         CPU opponent (AIInput)
 scripts/combat/     Hitbox, Hurtbox, Projectile, HitInfo, Knockback, Reiatsu
 scripts/match/      MatchManager (rules) and the versus match scene script
-scripts/menu/       Menu screens (title, main menu, character select, settings, Arcade)
+scripts/menu/       Menu screens (title, main menu, character select, settings, Arcade, trial select)
+scripts/trial/      Combo trial data, library, tracker and HUD (scenes/match/trial_match.tscn is the practice scene)
 scripts/ui/         Match HUD
 scripts/stage/      Stage rules and backdrop
 scripts/camera/     Dynamic two-fighter camera, RenderScale

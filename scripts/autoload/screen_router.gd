@@ -11,6 +11,8 @@ const SCREENS := {
 	&"arcade_continue": "res://scenes/ui/arcade_continue.tscn",
 	&"arcade_clear": "res://scenes/ui/arcade_clear.tscn",
 	&"versus_match": "res://scenes/match/versus_match.tscn",
+	&"trial_select": "res://scenes/ui/trial_select.tscn",
+	&"trial_match": "res://scenes/match/trial_match.tscn",
 }
 
 ## Tests switch this off so emitting a request does not replace the test scene.

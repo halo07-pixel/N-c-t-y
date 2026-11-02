@@ -18,6 +18,9 @@ var cpu_level: int = CPU_OFF
 var arcade: bool = false
 ## Replaces player 2's roster pick, e.g. the Arcade boss, who is not in the roster.
 var opponent_override: CharacterData
+## The combo trial being practised: roster index of the character and index of the exercise.
+var trial_character: int = 0
+var trial_index: int = 0
 
 
 func roster_size() -> int:

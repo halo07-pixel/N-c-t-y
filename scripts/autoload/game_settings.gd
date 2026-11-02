@@ -18,7 +18,10 @@ const MAX_VOLUME := 10
 const DEFAULT_VOLUME := 8
 const AUDIO_SECTION := "audio"
 const VIDEO_SECTION := "video"
+const TRIAL_SECTION := "trials"
 
+## Keys of the combo trials the player has completed (see ComboTrial.key).
+var trials_done: PackedStringArray = PackedStringArray()
 var stocks: int = DEFAULT_STOCKS
 var time_minutes: int = DEFAULT_TIME_MINUTES
 ## 0 to 10. Applied to the audio buses when sound arrives.
@@ -113,6 +116,17 @@ func time_limit_seconds() -> int:
 	return time_minutes * 60
 
 
+func is_trial_done(key: String) -> bool:
+	return trials_done.has(key)
+
+
+## Remembers a completed trial (and saves it).
+func mark_trial_done(key: String) -> void:
+	if not trials_done.has(key):
+		trials_done.append(key)
+		save_settings()
+
+
 func save_settings() -> Error:
 	var config := ConfigFile.new()
 	config.set_value(SECTION, "stocks", stocks)
@@ -121,6 +135,7 @@ func save_settings() -> Error:
 	config.set_value(AUDIO_SECTION, "sfx", sfx_volume)
 	config.set_value(VIDEO_SECTION, "screen_effects", screen_effects)
 	config.set_value(VIDEO_SECTION, "effects_level", effects_level)
+	config.set_value(TRIAL_SECTION, "done", trials_done)
 	return config.save(SETTINGS_PATH)
 
 
@@ -138,3 +153,4 @@ func load_settings() -> void:
 		VIDEO_SECTION, "effects_level", EffectsLevel.NORMAL if bool(config.get_value(VIDEO_SECTION, "screen_effects", true)) else EffectsLevel.OFF
 	))
 	effects_level = clampi(saved_level, 0, EFFECT_AMOUNT.size() - 1)
+	trials_done = PackedStringArray(config.get_value(TRIAL_SECTION, "done", PackedStringArray()))

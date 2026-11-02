@@ -25,6 +25,7 @@ func enter(_previous: StringName) -> void:
 	if chosen_by_button:
 		_move = fighter.pick_move(_aerial)
 	_special = _move as SpecialData
+	Events.fighter_attack_started.emit(fighter.player_id, _move.display_name)
 	_frame = 0
 	_chain_buffered = false
 	fighter.hit_connected = false

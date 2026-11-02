@@ -26,7 +26,9 @@ const SCREEN_SCENES := {
 	"story_boss": "res://scenes/ui/arcade_story.tscn",
 	"continue": "res://scenes/ui/arcade_continue.tscn",
 	"clear": "res://scenes/ui/arcade_clear.tscn",
+	"trial_select": "res://scenes/ui/trial_select.tscn",
 }
+const TRIAL_PATH := "res://scenes/match/trial_match.tscn"
 const UPSCALE := 2
 const MAX_FRAMES := 1500
 const ATTACK_RANGE := 46.0
@@ -49,6 +51,9 @@ func _run() -> void:
 	var scenario: String = args[1] if args.size() > 1 else "hit"
 	if SCREEN_SCENES.has(scenario):
 		await _capture_screen(output_path, scenario)
+		return
+	if scenario.begins_with("trial"):
+		await _capture_trial(output_path, scenario, args)
 		return
 	var config := root.get_node("MatchConfig")
 	if args.has("rig=noble"):
@@ -131,6 +136,32 @@ func _capture_screen(output_path: String, scenario: String) -> void:
 		screen.handle_action(&"down")
 		screen.handle_action(&"confirm")
 	await _frames(3)
+	await _save(output_path)
+
+
+## Combo trial practice scene. "trial": first two steps done; "trial_done": the whole jab string.
+## Arguments after the scenario: character index, exercise index (0-3).
+func _capture_trial(output_path: String, scenario: String, args: PackedStringArray) -> void:
+	root.get_node("ScreenRouter").enabled = false
+	var config := root.get_node("MatchConfig")
+	config.p1_index = int(args[2]) if args.size() > 2 else 0
+	config.trial_index = int(args[3]) if args.size() > 3 else 0
+	_match = (load(TRIAL_PATH) as PackedScene).instantiate()
+	root.add_child(_match)
+	await _frames(60)
+	var player: Node = null
+	for node in root.get_tree().get_nodes_in_group("fighters"):
+		if node.player_id == 1:
+			player = node
+	var input: Object = load(SCRIPTED_INPUT_PATH).new()
+	player.set_input_source(input)
+	input.tap_attack()
+	await _frames(14)
+	if scenario == "trial_done":
+		input.tap_attack()
+		await _frames(14)
+		input.tap_attack()
+		await _frames(10)
 	await _save(output_path)
 
 
