@@ -53,13 +53,37 @@ func go_to(screen: StringName) -> void:
 
 
 func _draw_backdrop() -> void:
-	var band_height := SCREEN.y / BACKDROP_BANDS
-	for band in BACKDROP_BANDS:
-		var color := BG_TOP.lerp(BG_BOTTOM, float(band) / (BACKDROP_BANDS - 1))
-		draw_rect(Rect2(0.0, band * band_height, SCREEN.x, band_height + 1.0), color)
-	draw_circle(Vector2(360.0, 96.0), 74.0, MOON)
-	draw_arc(Vector2(360.0, 96.0), 82.0, 0.0, TAU, 64, MOON, 1.0)
-	draw_rect(Rect2(0.0, 238.0, SCREEN.x, 32.0), Color(0.0, 0.0, 0.0, 0.45))
+	# Same night as the stage: smooth sky, stars, moon with a glow, far hills, dark ground.
+	var top := StagePalette.SKY_TOP
+	var mid := StagePalette.SKY_MID
+	var low := StagePalette.SKY_HORIZON.darkened(0.25)
+	_sky_band(0.0, 150.0, top, mid)
+	_sky_band(150.0, SCREEN.y, mid, low)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 11
+	for i in 70:
+		var at := Vector2(rng.randf_range(0.0, SCREEN.x), rng.randf_range(0.0, 150.0))
+		draw_circle(at, rng.randf_range(0.4, 0.9), Color(1.0, 0.97, 0.92, rng.randf_range(0.3, 0.9)))
+	var moon := Vector2(370.0, 80.0)
+	for ring in 10:
+		draw_circle(moon, 30.0 + ring * 5.0, Color(StagePalette.MOON_GLOW, 0.02))
+	draw_circle(moon, 30.0, StagePalette.MOON)
+	draw_circle(moon + Vector2(-9.0, -6.0), 6.0, Color(0.85, 0.82, 0.7, 0.45))
+	draw_circle(moon + Vector2(10.0, 8.0), 4.0, Color(0.85, 0.82, 0.7, 0.35))
+	var hills := PackedVector2Array([Vector2(0.0, SCREEN.y)])
+	for step in 25:
+		var x := step * SCREEN.x / 24.0
+		hills.append(Vector2(x, 205.0 - 14.0 * sin(x * 0.03 + 1.0) - 7.0 * sin(x * 0.08)))
+	hills.append(Vector2(SCREEN.x, SCREEN.y))
+	draw_colored_polygon(hills, StagePalette.FAR.darkened(0.2))
+	draw_rect(Rect2(0.0, 238.0, SCREEN.x, 32.0), Color(StagePalette.NEAR, 0.85))
+
+
+func _sky_band(from_y: float, to_y: float, from: Color, to: Color) -> void:
+	draw_polygon(
+		PackedVector2Array([Vector2(0.0, from_y), Vector2(SCREEN.x, from_y), Vector2(SCREEN.x, to_y), Vector2(0.0, to_y)]),
+		PackedColorArray([from, from, to, to])
+	)
 
 
 ## Outlined text centered on `position.x`; `position.y` is the baseline.

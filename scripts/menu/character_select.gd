@@ -155,9 +155,11 @@ func _draw_panel(player_id: int) -> void:
 	var color := RED if player_id == 1 else BLUE
 	var origin := Vector2(_panel_x(player_id), PANEL_TOP)
 	var active := _is_active(player_id)
-	draw_rect(Rect2(origin, PANEL_SIZE), Color(0.0, 0.0, 0.0, 0.4))
+	draw_rect(Rect2(origin, PANEL_SIZE), Color(0.05, 0.03, 0.1, 0.72))
+	draw_rect(Rect2(origin, Vector2(PANEL_SIZE.x, 3.0)), color if active else DIM)
 	draw_rect(Rect2(origin, PANEL_SIZE), color if active else DIM, false, 2.0 if active else 1.0)
-	draw_left(_panel_title(player_id), origin + Vector2(8.0, 16.0), 11, color)
+	PortraitArt.draw_portrait(self, origin + Vector2(16.0, 18.0), 9.0, character, color)
+	draw_left(_panel_title(player_id), origin + Vector2(32.0, 22.0), 11, color)
 	draw_centered(character.display_name.to_upper(), origin + Vector2(PANEL_SIZE.x * 0.5, 118.0), 14, WHITE)
 	_draw_bar("SPEED", origin + Vector2(8.0, 134.0), character.run_speed / SPEED_MAX, color)
 	_draw_bar("WEIGHT", origin + Vector2(100.0, 134.0), character.weight / WEIGHT_MAX, color)
