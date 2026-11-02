@@ -27,7 +27,17 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	var fade := 1.0 - _age / LIFETIME
+	var direction := (to_point - from_point)
+	if direction.length() < 1.0:
+		return
+	# A tapered wedge from the start to the fighter, plus thin speed lines on top of it.
+	var normal := direction.normalized().orthogonal()
+	var half := 9.0 * fade
+	var wedge := PackedVector2Array([
+		from_point + Vector2(0.0, -16.0), to_point + Vector2(0.0, -16.0) + normal * half,
+		to_point + Vector2(0.0, -16.0) - normal * half,
+	])
+	draw_colored_polygon(wedge, Color(color.r, color.g, color.b, 0.28 * fade))
 	for i in 5:
-		var y := -6.0 - float(i) * 5.0
-		var offset := Vector2(0.0, y)
-		draw_line(from_point + offset, to_point + offset, Color(color.r, color.g, color.b, 0.35 * fade), 0.8 * fade + 0.2)
+		var offset := Vector2(0.0, -6.0 - float(i) * 5.0)
+		draw_line(from_point + offset, to_point + offset, Color(color.r, color.g, color.b, 0.6 * fade), 1.0 * fade + 0.3)
