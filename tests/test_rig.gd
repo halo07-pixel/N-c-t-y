@@ -276,7 +276,7 @@ func test_spine_keeps_the_total_lean_and_adds_a_chest_bend() -> void:
 
 
 func test_run_cycle_moves_wrists_toes_and_shoulders() -> void:
-	var a := RigPoses.target(&"run", 0.0)["pose"] as Dictionary
+	var a := RigPoses.target(&"run", 0.1)["pose"] as Dictionary
 	var b := RigPoses.target(&"run", 0.3, &"active")["pose"] as Dictionary
 	for key in ["wrist_f", "toe_f", "toe_b", "chest", "shrug_f"]:
 		check(not is_equal_approx(a[key], b[key]), "run changes %s over the cycle" % key)
