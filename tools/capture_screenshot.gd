@@ -186,15 +186,14 @@ func _play_scenario(scenario: String) -> void:
 			_bot_input.held_guard = true
 			_bot_input.tap_guard()
 			await _frames(4)
-		"perfect_guard": # the first frames of a guard: the gold bubble
+		"parry": # the first frames of a guard: the gold bubble
 			await _frames(30)
 			_bot_input.held_guard = true
 			_bot_input.tap_guard()
 			await _frames(2)
-		"shunpo": # in the middle of a Shunpo
+		"dash": # in the middle of a dash
 			await _frames(30)
-			_bot_input.held_move = Vector2(1.0, 0.0)
-			_bot_input.tap_guard()
+			_bot_input.tap_dash(1)
 			await _frames(5)
 		"charge": # charging a special: the glow
 			_fighters[0].set_reiatsu(150.0)

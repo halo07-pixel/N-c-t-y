@@ -77,7 +77,7 @@ func test_guard_plus_attack_throws_through_a_guard() -> void:
 	await wait_frames(30)
 	_input_b.held_guard = true
 	_input_b.tap_guard()
-	await wait_frames(GuardRules.PERFECT_WINDOW_FRAMES + 3) # past the perfect window
+	await wait_frames(GuardRules.PARRY_WINDOW_FRAMES + 3) # past the parry window
 	await _start_throw()
 	check_eq(_a.current_attack_name(), _a.data.moveset.throw_move.display_name, "the throw plays")
 	check(_a.throw_cooldown > 0, "and goes on cooldown")
@@ -89,17 +89,16 @@ func test_guard_plus_attack_throws_through_a_guard() -> void:
 	_teardown()
 
 
-func test_a_shunpo_avoids_a_throw() -> void:
+func test_a_parry_does_not_stop_a_throw() -> void:
 	_build(24.0)
 	await _start_throw()
 	var throw := _a.data.moveset.throw_move
-	await wait_frames(throw.startup_frames - 6)
-	_input_b.held_move = Vector2(1.0, 0.0)
+	_input_b.held_guard = true
 	_input_b.tap_guard()
-	await wait_frames(throw.active_frames + 6)
-	check_eq(_b.percent, 0.0, "the Shunpo slips out of the throw")
+	await wait_frames(throw.startup_frames + throw.active_frames + 6)
+	check(_b.percent > 0.0, "a throw goes through the parry window")
 	_input_a.held_guard = false
-	_input_b.held_move = Vector2.ZERO
+	_input_b.held_guard = false
 	_teardown()
 
 

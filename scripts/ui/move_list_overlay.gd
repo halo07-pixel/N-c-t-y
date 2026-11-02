@@ -1,7 +1,7 @@
 class_name MoveListOverlay
 extends CanvasLayer
 ## The move list of both fighters, shown with F3 during a match: every attack with its button,
-## the specials with their cooldowns, throw, Shunpo, form and ultimate. It reads the characters'
+## the specials with their cooldowns, throw, parry, dash, form and ultimate. It reads the characters'
 ## data only, so it is always in step with the game.
 
 const FONT_SIZE := 8
@@ -96,7 +96,7 @@ static func lines_for(character: CharacterData, player_id: int) -> PackedStringA
 	lines.append("  +Down %s" % moves.ground_down.display_name)
 	lines.append("Air %s: %s / %s / %s / %s" % [attack, moves.air_neutral.display_name, moves.air_forward.display_name, moves.air_up.display_name, moves.air_down.display_name])
 	lines.append("%s+%s close: %s (throw, 2s)" % [guard, attack, moves.throw_move.display_name])
-	lines.append("%s+direction: Shunpo" % guard)
+	lines.append("%s  Guard 20%% dmg; tap just before a hit = PARRY (10f)   2x direction: Dash (+%s = dash attack)" % [guard, attack])
 	var kit := character.specials
 	lines.append("%s  Special" % special)
 	lines.append(_skill_line("none", kit.neutral))

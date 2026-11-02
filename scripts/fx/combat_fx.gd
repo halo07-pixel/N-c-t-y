@@ -8,8 +8,7 @@ func _ready() -> void:
 	Events.hit_impact.connect(_on_hit_impact)
 	Events.dust_puff.connect(_on_dust_puff)
 	Events.fighter_guarded.connect(_on_guarded)
-	Events.fighter_dodged.connect(_on_dodged)
-	Events.fighter_shunpo.connect(_on_shunpo)
+	Events.fighter_dashed.connect(_on_dashed)
 	Events.projectile_flash.connect(_on_projectile_flash)
 	Events.mechanic_triggered.connect(_on_mechanic)
 
@@ -66,34 +65,27 @@ func _on_dust_puff(puff_position: Vector2, strength: float) -> void:
 	FxBudget.spawn(self, puff)
 
 
-func _on_guarded(_victim: int, _attacker: int, perfect: bool, spot: Vector2) -> void:
+func _on_guarded(_victim: int, _attacker: int, parried: bool, spot: Vector2) -> void:
 	if not GameSettings.screen_effects:
 		return
+	if parried:
+		var ring := ParryFx.new()
+		ring.position = spot
+		FxBudget.spawn(self, ring)
 	var spark := HitSpark.new()
 	spark.position = spot
-	spark.power = 0.9 if perfect else 0.25
-	spark.color = Color(1.0, 0.9, 0.5) if perfect else Color(0.5, 0.8, 1.0)
+	spark.power = 0.9 if parried else 0.25
+	spark.color = Color(1.0, 0.9, 0.5) if parried else Color(0.5, 0.8, 1.0)
 	spark.amount = GameSettings.effect_amount()
 	FxBudget.spawn(self, spark)
 
 
-func _on_dodged(_victim: int, _attacker: int, spot: Vector2) -> void:
+func _on_dashed(_id: int, start: Vector2, direction: int) -> void:
 	if not GameSettings.screen_effects:
 		return
-	var spark := HitSpark.new()
-	spark.position = spot
-	spark.power = 0.7
-	spark.color = Color(0.9, 0.95, 1.0)
-	spark.amount = GameSettings.effect_amount()
-	FxBudget.spawn(self, spark)
-
-
-func _on_shunpo(_id: int, start: Vector2, direction: int) -> void:
-	if not GameSettings.screen_effects:
-		return
-	var streak := ShunpoStreak.new()
+	var streak := DashStreak.new()
 	streak.from_point = start
-	streak.to_point = start + Vector2(float(direction) * GuardRules.SHUNPO_DISTANCE, 0.0)
+	streak.to_point = start + Vector2(float(direction) * GuardRules.DASH_DISTANCE, 0.0)
 	FxBudget.spawn(self, streak)
 	var puff := DustPuff.new()
 	puff.position = start

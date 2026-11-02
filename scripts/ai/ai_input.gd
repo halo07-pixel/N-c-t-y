@@ -6,10 +6,10 @@ extends InputSource
 ## Difficulty (level 1 to 3, 4 for the Arcade boss) changes reaction time, aggression and mistakes.
 
 const LEVELS := {
-	1: {"reaction": 22, "attack": 0.35, "special": 0.15, "mistake": 0.25, "reiatsu": false, "guard": 0.0, "shunpo": 0.0},
-	2: {"reaction": 11, "attack": 0.60, "special": 0.30, "mistake": 0.10, "reiatsu": true, "guard": 0.35, "shunpo": 0.15},
-	3: {"reaction": 5, "attack": 0.85, "special": 0.40, "mistake": 0.03, "reiatsu": true, "guard": 0.6, "shunpo": 0.3},
-	4: {"reaction": 3, "attack": 0.95, "special": 0.50, "mistake": 0.01, "reiatsu": true, "guard": 0.75, "shunpo": 0.4}, # boss
+	1: {"reaction": 22, "attack": 0.35, "special": 0.15, "mistake": 0.25, "reiatsu": false, "guard": 0.0, "dash": 0.0},
+	2: {"reaction": 11, "attack": 0.60, "special": 0.30, "mistake": 0.10, "reiatsu": true, "guard": 0.35, "dash": 0.02},
+	3: {"reaction": 5, "attack": 0.85, "special": 0.40, "mistake": 0.03, "reiatsu": true, "guard": 0.6, "dash": 0.04},
+	4: {"reaction": 3, "attack": 0.95, "special": 0.50, "mistake": 0.01, "reiatsu": true, "guard": 0.75, "dash": 0.06}, # boss
 }
 const MAX_LEVEL := 4
 const STAGE_SAFE_HALF_WIDTH := 150.0
@@ -27,6 +27,8 @@ const RANGED_MAX := 230.0
 const FACING_NUDGE := 0.4 # small push: faces the target without counting as "forward"
 const DEFEND_RANGE := 55.0
 const DEFEND_COOLDOWN := 30
+const PARRY_HOLD_MIN := 11 # longer than the parry window, so the guard is never locked
+const DASH_MIN_DISTANCE := 90.0
 
 var fighter: Fighter
 var target: Fighter
@@ -112,7 +114,7 @@ func _recover(frame: InputFrame) -> void:
 
 
 ## Charging is only done while the opponent is far away; stop as soon as they close in.
-## Raises the guard when the opponent attacks close by, sometimes slipping behind with a Shunpo.
+## Raises the guard when the opponent attacks close by, a parry when the guard goes up just as the hit arrives.
 func _try_defend(frame: InputFrame) -> bool:
 	_defend_cooldown -= 1
 	var params := _params()
@@ -132,11 +134,7 @@ func _try_defend(frame: InputFrame) -> bool:
 		return true
 	frame.guard_just_pressed = true
 	frame.guard_held = true
-	if _rng.randf() < params["shunpo"]:
-		frame.move.x = signf(gap) # step through them, ending up behind
-		_guard_frames_left = 0
-	else:
-		_guard_frames_left = _rng.randi_range(10, 24)
+	_guard_frames_left = _rng.randi_range(PARRY_HOLD_MIN, 24) # holds past the parry window, then drops
 	return true
 
 
@@ -156,6 +154,9 @@ func _fight(frame: InputFrame) -> void:
 	if _retreat_frames > 0:
 		_retreat_frames -= 1
 		frame.move.x = -toward
+	if distance > DASH_MIN_DISTANCE and _retreat_frames <= 0 and fighter.can_dash() and _rng.randf() < _params()["dash"]:
+		frame.dash_just_pressed = true # close the gap with a dash
+		frame.dash_direction = int(toward)
 	if rise < -50.0 and distance < 80.0 and fighter.is_on_floor() and _rng.randf() < 0.05:
 		frame.up_just_pressed = true
 	_cooldown -= 1

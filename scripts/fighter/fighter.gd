@@ -61,9 +61,19 @@ var counter_move: SpecialData = null
 var guard_energy: float = GuardRules.ENERGY_MAX
 ## 0..1 while a special is being charged (drawn as a glow around the fighter).
 var special_charge: float = 0.0
+## Frames since guard was pressed; the first ones are the parry window.
 var guard_age: int = 0
-var dodge_frames_left: int = 0
-var shunpo_cooldown: int = 0
+## True once the current guard has blocked or parried something.
+var guard_acted: bool = false
+## Frames left in which guard cannot be raised (after tapping and letting go inside the parry window).
+var guard_lock_left: int = 0
+var dash_cooldown: int = 0
+## One dash in the air per time in the air; landing or being hit gives it back.
+var air_dash_used: bool = false
+## -1 or 1: the way the current (or last) dash goes.
+var dash_direction: int = 1
+## True when the attack about to start comes out of a dash: a forward attack that keeps the dash speed.
+var dash_attack: bool = false
 var throw_cooldown: int = 0
 ## Frames left before each special slot (neutral, forward, up, down) can be used again.
 var skill_cooldowns: Dictionary = {}
@@ -186,7 +196,7 @@ func set_percent(value: float) -> void:
 
 
 func _on_hit_received(info: HitInfo) -> void:
-	if hurtbox.evading:
+	if hurtbox.evades(info):
 		_evade_hit(info)
 		return
 	if is_guarding() and not info.is_throw:
@@ -251,27 +261,46 @@ func _on_projectile_hit(info: HitInfo) -> void:
 			_bounce(info)
 
 
-# --- Guard and Shunpo ----------------------------------------------------------
+# --- Guard, parry and dash ----------------------------------------------------
 
 func is_guarding() -> bool:
 	return _state_machine.current_name == &"Guard"
 
 
-## The state to enter when the guard key is pressed: a Shunpo with a direction held, a Guard
-## otherwise, nothing when the guard energy is too low.
+## True while a hit would be parried: the first frames of a guard on the ground.
+func in_parry_window() -> bool:
+	return is_guarding() and guard_age < GuardRules.PARRY_WINDOW_FRAMES
+
+
+## The state to enter when the guard key is pressed: a Guard, or nothing when the guard is locked
+## or the guard energy is too low.
 func guard_press_state() -> StringName:
-	if absf(input.move.x) > 0.0 and can_shunpo():
-		return &"Shunpo"
+	if guard_lock_left > 0:
+		return &""
 	return &"Guard" if guard_energy >= GuardRules.ENERGY_MIN_TO_GUARD else &""
 
 
-func can_shunpo() -> bool:
-	return shunpo_cooldown <= 0
+## Guard was tapped and let go inside the parry window with nothing hit: no guard for a short while.
+func lock_guard() -> void:
+	guard_lock_left = GuardRules.GUARD_LOCK_FRAMES
 
 
-func begin_shunpo() -> void:
-	dodge_frames_left = GuardRules.SHUNPO_DODGE_FRAMES
-	shunpo_cooldown = GuardRules.SHUNPO_COOLDOWN if is_on_floor() else GuardRules.SHUNPO_AIR_COOLDOWN
+func wants_dash() -> bool:
+	return input.dash_just_pressed
+
+
+## A dash is ready when its cooldown is over, and in the air only once per time in the air.
+func can_dash() -> bool:
+	if dash_cooldown > 0:
+		return false
+	return is_on_floor() or not air_dash_used
+
+
+func begin_dash() -> void:
+	dash_direction = input.dash_direction if input.dash_direction != 0 else facing
+	dash_cooldown = GuardRules.DASH_COOLDOWN
+	if not is_on_floor():
+		air_dash_used = true
 	is_fast_falling = false
 
 
@@ -298,40 +327,47 @@ func _tick_defense() -> void:
 	_tick_mechanics()
 	if air_jump_cooldown > 0:
 		air_jump_cooldown -= 1
-	if shunpo_cooldown > 0:
-		shunpo_cooldown -= 1
+	if dash_cooldown > 0:
+		dash_cooldown -= 1
+	if guard_lock_left > 0:
+		guard_lock_left -= 1
 	if throw_cooldown > 0:
 		throw_cooldown -= 1
-	if dodge_frames_left > 0:
-		dodge_frames_left -= 1
 	if not is_guarding():
 		guard_energy = minf(guard_energy + GuardRules.RECOVER_PER_FRAME, GuardRules.ENERGY_MAX)
-	var perfect_window := is_guarding() and guard_age < GuardRules.PERFECT_WINDOW_FRAMES
-	hurtbox.evading = dodge_frames_left > 0 or perfect_window or counter_move != null
+	hurtbox.parrying = in_parry_window()
+	hurtbox.evading = counter_move != null
 
 
-## A hit that arrived during a perfect-guard window or a Shunpo: nothing happens to us.
+## A hit that a counter stance or a parry answers: nothing lands on us.
 func _evade_hit(info: HitInfo) -> void:
 	if counter_move != null:
 		_counter_hit(info)
 		return
-	# A perfect dodge or guard gives the movement skills back: the comeback reward.
-	shunpo_cooldown = 0
-	skill_cooldowns[&"up"] = 0
-	var spot := global_position + Vector2(0.0, -14.0)
-	add_gauge(GuardRules.PERFECT_GAUGE)
-	add_reiatsu(Reiatsu.PERFECT_GAIN)
-	if is_guarding():
-		Events.fighter_guarded.emit(player_id, info.attacker_id, true, spot)
-	else:
-		Events.fighter_dodged.emit(player_id, info.attacker_id, spot)
+	_parry_hit(info)
+
+
+## The parry: no damage, no knockback and no guard energy spent. The attacker is held in hitlag (see
+## _on_guarded_by_other), we gain Combat Gauge and Reiatsu, and may attack at once. A normal
+## projectile is sent back at whoever fired it instead of freezing them.
+func _parry_hit(info: HitInfo) -> void:
+	guard_acted = true
+	add_gauge(GuardRules.PARRY_GAUGE)
+	add_reiatsu(Reiatsu.PARRY_GAIN)
+	var attacker := info.attacker_id
+	var shot := info.projectile as Projectile
+	if shot != null and shot.can_reflect():
+		shot.reflect(player_id)
+		shot.hit_landed.connect(_on_projectile_hit)
+		attacker = 0 # the shooter is not frozen: the shot comes back to them
+	Events.fighter_guarded.emit(player_id, attacker, true, global_position + Vector2(0.0, -14.0))
 
 
 ## A counter stance caught a hit: nothing lands, and the counter strike plays facing the attacker.
 func _counter_hit(info: HitInfo) -> void:
 	var spot := global_position + Vector2(0.0, -14.0)
 	Events.fighter_guarded.emit(player_id, info.attacker_id, true, spot)
-	add_gauge(GuardRules.PERFECT_GAUGE)
+	add_gauge(GuardRules.PARRY_GAUGE)
 	facing = -1 if info.direction.x > 0.0 else 1
 	if data.mechanic == &"steal":
 		_steal_reiatsu(info.attacker_id)
@@ -359,6 +395,7 @@ func set_counter(move: SpecialData) -> void:
 
 ## A hit absorbed by the guard: a little damage, a little push, the guard energy drains.
 func _block_hit(info: HitInfo) -> void:
+	guard_acted = true
 	set_percent(percent + info.damage * GuardRules.DAMAGE_SCALE)
 	last_attacker_id = info.attacker_id
 	add_gauge(info.damage * GuardRules.BLOCK_GAUGE_RATIO)
@@ -381,9 +418,9 @@ func break_guard() -> StringName:
 	return &"Hitstun"
 
 
-func _on_guarded_by_other(victim_id: int, attacker_id: int, perfect: bool, _spot: Vector2) -> void:
-	if perfect and attacker_id == player_id and victim_id != player_id:
-		hitlag_left = maxi(hitlag_left, GuardRules.PERFECT_ATTACKER_HITLAG)
+func _on_guarded_by_other(victim_id: int, attacker_id: int, parried: bool, _spot: Vector2) -> void:
+	if parried and attacker_id == player_id and victim_id != player_id:
+		hitlag_left = maxi(hitlag_left, GuardRules.PARRY_ATTACKER_HITLAG)
 
 
 # --- Combat Gauge ---------------------------------------------------------------
@@ -594,7 +631,8 @@ func begin_special_use(special: SpecialData, aerial: bool) -> void:
 func reset_cooldowns() -> void:
 	skill_cooldowns.clear()
 	_skill_cooldown_totals.clear()
-	shunpo_cooldown = 0
+	dash_cooldown = 0
+	guard_lock_left = 0
 	throw_cooldown = 0
 	air_jump_cooldown = 0
 	_announce_cooldowns()
@@ -655,6 +693,10 @@ func skill_hud_info() -> Array:
 
 
 func pick_move(aerial: bool) -> MoveData:
+	var from_dash := dash_attack
+	dash_attack = false
+	if from_dash and input.attack_just_pressed and not input.special_just_pressed and not input.special2_just_pressed:
+		return data.moveset.select(aerial, Vector2(float(facing), 0.0)) # the dash attack: always the forward one
 	if input.special_just_pressed or input.special2_just_pressed:
 		var special := current_specials().select(input.move) if input.special_just_pressed else current_alt(input.move)
 		if special == null:
@@ -770,7 +812,8 @@ func enter_ko() -> void:
 	hurtbox.set_active(false)
 	hitlag_left = 0
 	invincible_left = 0
-	dodge_frames_left = 0
+	guard_lock_left = 0
+	dash_attack = false
 	guard_energy = GuardRules.ENERGY_MAX
 	_queued_move = null
 	if not is_bankai():
@@ -879,6 +922,7 @@ func start_air_jump() -> void:
 func refill_jumps() -> void:
 	air_jump_count = 0
 	air_jump_cooldown = 0
+	air_dash_used = false
 
 
 func notify_landed() -> void:

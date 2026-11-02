@@ -16,6 +16,7 @@ var _pending_special: bool = false
 var _pending_special2: bool = false
 var _pending_charge: bool = false
 var _pending_guard: bool = false
+var _pending_dash: int = 0
 
 
 func tap_up() -> void:
@@ -48,6 +49,11 @@ func tap_guard() -> void:
 	_pending_guard = true
 
 
+## One dash in `direction` (-1 or 1), as if the key had been double-tapped.
+func tap_dash(direction: int) -> void:
+	_pending_dash = direction
+
+
 func get_frame() -> InputFrame:
 	var frame := InputFrame.new()
 	frame.move = held_move
@@ -63,6 +69,9 @@ func get_frame() -> InputFrame:
 	frame.special_held = held_special or _pending_special
 	frame.guard_just_pressed = _pending_guard
 	frame.guard_held = held_guard or _pending_guard
+	frame.dash_just_pressed = _pending_dash != 0
+	frame.dash_direction = _pending_dash
+	_pending_dash = 0
 	_pending_guard = false
 	_pending_up = false
 	_pending_down = false

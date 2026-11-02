@@ -4,6 +4,8 @@ extends InputSource
 
 @export var player_id: int = 1
 
+var _dash_tap := DashTap.new()
+
 
 func get_frame() -> InputFrame:
 	var frame := InputFrame.new()
@@ -23,6 +25,8 @@ func get_frame() -> InputFrame:
 	frame.guard_held = Input.is_action_pressed(_action(&"guard"))
 	frame.charge_held = Input.is_action_pressed(_action(&"charge"))
 	frame.charge_just_pressed = Input.is_action_just_pressed(_action(&"charge"))
+	frame.dash_direction = _dash_tap.update(frame.move.x)
+	frame.dash_just_pressed = frame.dash_direction != 0
 	return frame
 
 

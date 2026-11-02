@@ -14,6 +14,7 @@ const SHOT_GROUP := &"shots"
 const COMMAND_GROUP := &"commandable"
 const COMMAND_DAMAGE_SCALE := 1.3
 const COMMAND_MIN_LIFE := 50
+const REFLECT_MIN_LIFE := 40
 
 var owner_id: int = 0
 
@@ -30,6 +31,8 @@ var _size: Vector2 = Vector2.ONE
 var _pierce: bool = false
 var _age: float = 0.0
 var _trail: Array[Vector2] = []
+## Set by reflect() while the hit that was parried is still being handled.
+var _reflected_now: bool = false
 
 
 ## Sets everything up; call before adding to the scene tree.
@@ -81,6 +84,30 @@ func command(direction: int, speed: float) -> void:
 	_damage_scale *= COMMAND_DAMAGE_SCALE
 	_already_hit.clear()
 	_pierce = true
+
+
+## True for an ordinary shot: traps and ultimates are not sent back by a parry.
+func can_reflect() -> bool:
+	if _data == null or is_trap():
+		return false
+	var special := _move as SpecialData
+	return special == null or special.cinematic_frames <= 0
+
+
+## A parry sends the shot back: it now belongs to `new_owner`, flies the other way, and can hit
+## whoever fired it. Nobody is credited for it until the new owner connects to `hit_landed`.
+func reflect(new_owner: int) -> void:
+	for connection in hit_landed.get_connections():
+		hit_landed.disconnect(connection["callable"])
+	owner_id = new_owner
+	_velocity = -_velocity
+	_facing = -_facing
+	_already_hit.clear()
+	_trail.clear()
+	_frames_left = maxi(_frames_left, REFLECT_MIN_LIFE)
+	_reflected_now = true
+	if _data.style != &"":
+		Events.projectile_flash.emit(position, _velocity.normalized(), _data.color, false)
 
 
 func _ready() -> void:
@@ -193,8 +220,12 @@ func _on_area_entered(area: Area2D) -> void:
 	info.base_knockback = _move.base_knockback
 	info.knockback_growth = _move.knockback_growth
 	info.direction = Knockback.direction(_move.angle_degrees, _facing)
-	if not hurtbox.evading:
+	info.projectile = self
+	if not hurtbox.evades(info):
 		hit_landed.emit(info)
 	hurtbox.receive_hit(info)
+	if _reflected_now:
+		_reflected_now = false
+		return # a parry sent it back: it lives on
 	if not _pierce:
 		queue_free()

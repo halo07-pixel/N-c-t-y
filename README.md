@@ -45,12 +45,12 @@ Arrows/Enter/Esc.
 | Drop through platform / fast-fall | `S` | `↓` |
 | Attack | `J` | `Numpad 1` |
 | Special | `K` | `Numpad 2` |
-| Guard / Shunpo | `L` | `Numpad 3` |
+| Guard / Parry / Throw | `L` | `Numpad 3` |
+| Dash | double-tap `A` / `D` | double-tap `←` / `→` |
 | Charge Reiatsu / Bankai / Ultimate | `I` | `Numpad 5` |
 
 **Attack** and **Special** change with the direction you hold (none, forward, up, down),
 on the ground and in the air. The up special is each character's recovery.
-Guard / Shunpo is wired to input but does nothing yet.
 
 **Combo chain:** tap Attack again after a ground neutral attack (jab) connects to continue it:
 a second hit, then a heavier finisher. Hold Up or Down with the second press for a launcher or a sweep
@@ -58,7 +58,7 @@ instead. A press during the active frames is buffered. Chains need a connected h
 `MoveData.next_in_chain / chain_up / chain_down`.
 
 **Throw:** hold Guard and press Attack next to an opponent to grab them. A throw goes through a
-normal guard (14+ frames of startup, so it is easy to see coming); a Shunpo or a Perfect Guard avoids it.
+normal guard (14+ frames of startup, so it is easy to see coming); neither a guard nor a parry stops it.
 2 second cooldown. Each fighter has their own throw (`MoveSet.throw_move`, `MoveData.is_throw`).
 
 **Special 2** (`U` / `Numpad 4`): a second special button with its own four skills per fighter (neutral, forward,
@@ -206,14 +206,19 @@ Yhwach starts with half a gauge. The CPU transforms on its own.
 `form_style` / `form_color`): Ichigo a hollow mask, long hair and a red aura; Uryu light wings
 and a halo; Byakuya orbiting blades; Yhwach large dark wings with a halo.
 
-## Guard and Shunpo
+## Guard, parry and dash
 
-Hold guard (P1 `L`, P2 `Numpad 3`) on the ground: hits do 30% damage and 40% knockback while the
-guard energy drains (empty = guard break, a long stun). Pressing guard just before a hit lands is a
-Perfect Guard (no damage, the attacker freezes, +8 Combat Gauge). Guard plus a direction is a
-Shunpo: a quick 60-unit step, dodging hits for its first frames (a dodged hit also gives +8 gauge),
-with a cooldown, and one per jump in the air. CPU level 2+ guards and sometimes Shunpos through
-attacks. All numbers are in `scripts/combat/guard_rules.gd`.
+Hold guard (P1 `L`, P2 `Numpad 3`) on the ground: hits do 20% damage and 40% knockback while the
+guard energy drains (empty = guard break, a long stun). The first 10 frames of a guard are a **parry**:
+a hit that lands then does nothing to you (no damage, no knockback, no guard energy), freezes the
+attacker for about 30 frames, gives +15 Combat Gauge, and you can attack at once. A normal projectile
+is sent back at whoever fired it (traps and ultimates are not). Throws go through both guard and parry.
+Tapping guard and letting go inside the parry window with nothing hit locks the guard for 20 frames.
+
+Dash: double-tap a direction, on the ground or in the air (once per time in the air). About 64 units in
+14 frames, no invincibility, cannot turn around, short cooldown. Attack from the 8th frame of a dash is a
+dash attack (the forward attack, keeping part of the speed). CPU level 2+ guards and parries, and dashes in.
+All numbers are in `scripts/combat/guard_rules.gd`.
 
 ## Balance
 
@@ -310,6 +315,6 @@ dimming stays below the HUD.
   four pips under the Reiatsu bar (full = ready). Follow-ups and normal attacks have none. The form
   shortens cooldowns to 60%; an up special used on the ground has 40% of the air cooldown.
 - A Reiatsu block refreshes a cooling-down **up** special (a comeback tool). A respawn clears all
-  cooldowns, and a perfect dodge or perfect guard gives back the up special and the Shunpo.
+  cooldowns, and 
 - Air jumps have no limit, only a half-second wait; after the free jumps each one is 20% weaker
-  (never below 40%), and landing or being hit resets that. The air Shunpo has a 1.5 s cooldown.
+  (never below 40%), and landing or being hit resets that. The air dash can be used once per time in the air.

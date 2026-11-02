@@ -1,6 +1,6 @@
-class_name ShunpoStreak
+class_name DashStreak
 extends Node2D
-## The streak left by a Shunpo: thin lines from where it began to where it ended, fading fast.
+## The streak left by a dash: thin lines from where it began to where it ended, fading fast.
 
 const LIFETIME := 0.25
 

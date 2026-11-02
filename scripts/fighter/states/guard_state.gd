@@ -1,10 +1,13 @@
 extends FighterState
 ## Holding the guard key on the ground. Hits are mostly absorbed (see GuardRules). The first
-## frames are the Perfect Guard window. Guard plus a direction steps away with a Shunpo.
+## frames are the parry window. Attack from here (or after a parry) at once; with an opponent right
+## in front, attack is a throw. Letting go inside the parry window with nothing hit locks the guard
+## for a moment, so tapping guard over and over does not work.
 
 
 func enter(_previous: StringName) -> void:
 	fighter.guard_age = 0
+	fighter.guard_acted = false
 
 
 func physics_update(delta: float) -> StringName:
@@ -23,9 +26,9 @@ func physics_update(delta: float) -> StringName:
 	if fighter.input.up_just_pressed:
 		fighter.start_jump()
 		return &"Jump"
-	if absf(fighter.input.move.x) > 0.0 and fighter.can_shunpo():
-		return &"Shunpo"
 	if not fighter.input.guard_held:
+		if fighter.guard_age < GuardRules.PARRY_WINDOW_FRAMES and not fighter.guard_acted:
+			fighter.lock_guard()
 		return &"Idle"
 	fighter.guard_energy -= GuardRules.DRAIN_PER_FRAME
 	if fighter.guard_energy <= 0.0:

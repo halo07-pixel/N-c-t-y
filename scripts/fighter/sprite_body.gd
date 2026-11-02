@@ -10,7 +10,7 @@ const FRAME_TICKS := 3 # physics frames each attack frame is held
 const MARKER_GAP := 5.0
 const FALLBACK_ANIMATIONS := {
 	&"ko": &"hitstun", &"charge": &"guard", &"hitstun": &"fall", &"guard": &"idle",
-	&"land": &"idle", &"shunpo": &"run", &"jump": &"fall", &"fall": &"idle", &"run": &"idle",
+	&"land": &"idle", &"dash": &"run", &"jump": &"fall", &"fall": &"idle", &"run": &"idle",
 	&"air_attack": &"attack_neutral", &"special": &"attack_neutral",
 	&"attack_forward": &"attack_neutral", &"attack_up": &"attack_neutral",
 	&"attack_down": &"attack_neutral",
@@ -138,8 +138,8 @@ static func animation_for(
 			return &"charge"
 		&"Guard":
 			return &"guard"
-		&"Shunpo":
-			return &"shunpo"
+		&"Dash":
+			return &"dash"
 		&"Attack":
 			if special:
 				return &"special"

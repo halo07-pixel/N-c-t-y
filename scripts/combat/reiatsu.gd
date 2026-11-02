@@ -15,8 +15,8 @@ const FORM_REGEN_MULTIPLIER := 2.0
 ## Meter gained per point of damage dealt and taken.
 const GAIN_DEALT := 0.6
 const GAIN_TAKEN := 0.4
-## A perfect guard or dodge gives this much.
-const PERFECT_GAIN := 25.0
+## A parry gives this much.
+const PARRY_GAIN := 25.0
 
 ## Extra invincible frames at the end of an ultimate so it cannot be interrupted.
 const ULTIMATE_SAFE_FRAMES := 10

@@ -35,7 +35,7 @@ func _process(_delta: float) -> void:
 
 
 func _draw() -> void:
-	var perfect := _fighter.guard_age < GuardRules.PERFECT_WINDOW_FRAMES
+	var perfect := _fighter.in_parry_window()
 	var s := strength(_fighter.guard_energy)
 	var tint := Color(1.0, 0.9, 0.5) if perfect else Color(0.5, 0.8, 1.0)
 	var radius := RADIUS * (1.1 if perfect else 1.0)

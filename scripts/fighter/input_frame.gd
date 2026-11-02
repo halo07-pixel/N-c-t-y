@@ -17,3 +17,6 @@ var guard_just_pressed: bool = false
 var guard_held: bool = false
 var charge_held: bool = false
 var charge_just_pressed: bool = false
+## A dash was asked for (a double tap of a direction, or the AI): `dash_direction` is -1 or 1.
+var dash_just_pressed: bool = false
+var dash_direction: int = 0

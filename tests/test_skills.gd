@@ -448,23 +448,7 @@ func test_the_form_shortens_cooldowns_and_a_respawn_clears_them() -> void:
 	_a.begin_special_use(special, true)
 	check(int(_a.skill_cooldowns[&"up"]) < normal, "shorter in the form")
 	_a.respawn_at(Vector2(0.0, -70.0))
-	check(_a.skill_ready(&"up") and _a.shunpo_cooldown == 0, "a respawn clears the cooldowns")
-	_teardown()
-
-
-func test_a_perfect_dodge_gives_the_movement_skills_back() -> void:
-	_build(NOBLE)
-	await wait_frames(30)
-	_a.begin_special_use(NOBLE.specials.up, true)
-	_a.shunpo_cooldown = 60
-	_a.dodge_frames_left = 5
-	_a.hurtbox.evading = true
-	var info := HitInfo.new()
-	info.attacker_id = 2
-	info.damage = 5.0
-	info.direction = Vector2.RIGHT
-	_a.hurtbox.receive_hit(info)
-	check(_a.skill_ready(&"up") and _a.shunpo_cooldown == 0, "the dodge refunds the up special and the Shunpo")
+	check(_a.skill_ready(&"up") and _a.dash_cooldown == 0, "a respawn clears the cooldowns")
 	_teardown()
 
 

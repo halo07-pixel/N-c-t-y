@@ -29,7 +29,7 @@ extends Resource
 
 
 @export_group("Throw")
-## A throw is not stopped by the guard; only a Shunpo or a perfect guard avoids it.
+## A throw is not stopped by the guard; neither a guard nor a parry stops it.
 @export var is_throw: bool = false
 
 
