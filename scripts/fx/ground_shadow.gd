@@ -5,10 +5,10 @@ extends Node2D
 ## shadow shrinks and fades the higher the fighter is. Visual only.
 
 const MAX_DROP := 140.0
-const BASE_RADIUS := 11.0
+const BASE_RADIUS := 14.0
 const SQUASH := 0.28
-const MAX_ALPHA := 0.38
-const RINGS := 4
+const MAX_ALPHA := 0.6
+const RINGS := 5
 
 var _owner_body: CollisionObject2D
 var _drop: float = 0.0
@@ -60,4 +60,14 @@ func _draw() -> void:
 		var radius := BASE_RADIUS * look.x * fraction
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, SQUASH))
 		draw_circle(Vector2.ZERO, radius, Color(0.0, 0.0, 0.0, MAX_ALPHA * look.y / float(RINGS)))
+	# A thin ring in the player's colour so you can tell the fighters apart on the ground.
+	var ring_color := Color(0.95, 0.3, 0.3) if _player_id() == 1 else Color(0.3, 0.55, 0.95)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, SQUASH))
+	draw_arc(Vector2.ZERO, BASE_RADIUS * look.x * 0.85, 0.0, TAU, 24, Color(ring_color, 0.55 * look.y), 1.2)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+func _player_id() -> int:
+	if _owner_body == null:
+		return 1
+	return int(_owner_body.get("player_id")) if _owner_body.get("player_id") != null else 1

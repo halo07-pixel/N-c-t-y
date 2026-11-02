@@ -177,19 +177,51 @@ func _on_canvas_draw() -> void:
 
 func _draw_player_panel(player_id: int, center_x: float) -> void:
 	var color: Color = PLAYER_COLORS.get(player_id, WHITE)
-	_text(_player_label(player_id), Vector2(center_x, 216.0), 8, color)
+	var character := MatchConfig.character_for(player_id)
+	# Plate behind the numbers, with a stripe in the player's colour.
+	var plate := Rect2(center_x - 38.0, 203.0, 76.0, 63.0)
+	_canvas.draw_rect(plate.grow(1.0), OUTLINE)
+	_canvas.draw_rect(plate, Color(0.06, 0.04, 0.11, 0.72))
+	_canvas.draw_rect(Rect2(plate.position, Vector2(plate.size.x, 2.0)), color)
+	_draw_portrait(Vector2(center_x - 27.0, 214.0), 8.0, character, color)
+	_text(_player_label(player_id), Vector2(center_x + 8.0, 217.0), 8, color)
 	var percent: float = _percents.get(player_id, 0.0)
 	_text("%d%%" % int(percent), Vector2(center_x, 240.0), 24, percent_color(percent))
 	var stock_count: int = _stocks.get(player_id, 0)
 	var pip_gap := 9.0
 	var first_x := center_x - pip_gap * float(stock_count - 1) * 0.5
 	for pip in stock_count:
-		var pip_rect := Rect2(first_x + pip_gap * float(pip) - 3.0, 246.0, 6.0, 6.0)
-		_canvas.draw_rect(pip_rect.grow(1.0), OUTLINE)
-		_canvas.draw_rect(pip_rect, color)
+		_draw_stock_icon(Vector2(first_x + pip_gap * float(pip), 249.0), 3.4, character, color)
 	_draw_gauge_bar(player_id, center_x)
 	_draw_reiatsu_bar(player_id, center_x)
 	_draw_skill_strip(player_id, center_x)
+
+
+## A small round portrait: the fighter's head and hair colours drawn in code (no artwork).
+func _draw_portrait(center: Vector2, radius: float, character: CharacterData, ring: Color) -> void:
+	_canvas.draw_circle(center, radius + 1.5, ring)
+	_canvas.draw_circle(center, radius, Color(0.10, 0.07, 0.16))
+	_draw_head(center + Vector2(0.0, 1.0), radius * 0.62, character)
+
+
+func _draw_head(center: Vector2, radius: float, character: CharacterData) -> void:
+	_canvas.draw_circle(center, radius + 0.8, OUTLINE)
+	_canvas.draw_circle(center, radius, character.body_color)
+	# Hair or hood in the accent colour across the top of the head.
+	var cap := PackedVector2Array()
+	for step in 9:
+		var angle := PI + PI * float(step) / 8.0
+		cap.append(center + Vector2(cos(angle), sin(angle) * 0.9) * radius)
+	_canvas.draw_colored_polygon(cap, character.accent_color)
+	_canvas.draw_rect(Rect2(center + Vector2(-radius * 0.45, radius * 0.15), Vector2(radius * 0.25, 1.0)), OUTLINE)
+	_canvas.draw_rect(Rect2(center + Vector2(radius * 0.2, radius * 0.15), Vector2(radius * 0.25, 1.0)), OUTLINE)
+
+
+func _draw_stock_icon(center: Vector2, radius: float, character: CharacterData, ring: Color) -> void:
+	_canvas.draw_circle(center, radius + 1.0, OUTLINE)
+	_canvas.draw_circle(center, radius, character.body_color)
+	_canvas.draw_arc(center, radius, PI, TAU, 8, character.accent_color, 1.6)
+	_canvas.draw_rect(Rect2(center + Vector2(-radius, radius + 1.2), Vector2(radius * 2.0, 1.0)), ring)
 
 
 func _player_label(player_id: int) -> String:
