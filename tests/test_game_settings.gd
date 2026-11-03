@@ -62,3 +62,13 @@ func test_f11_and_alt_enter_toggle_fullscreen() -> void:
 	settings._input(plain_enter)
 	check_eq(settings.window_mode, SETTINGS_SCRIPT.WindowMode.WINDOWED, "plain Enter does nothing")
 	settings.free()
+
+
+func test_anti_aliasing_cycles_and_defaults_to_4x() -> void:
+	var settings = SETTINGS_SCRIPT.new()
+	check_eq(settings.anti_aliasing_name(), "4X", "smooth by default")
+	settings.cycle_anti_aliasing()
+	check_eq(settings.anti_aliasing_name(), "OFF", "wraps to off")
+	settings.cycle_anti_aliasing()
+	check_eq(settings.anti_aliasing_name(), "2X", "then 2x")
+	settings.free()

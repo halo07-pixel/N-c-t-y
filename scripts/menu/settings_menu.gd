@@ -3,12 +3,12 @@ extends MenuScreen
 ## Match rules (stocks, time limit), volume and a read-only key list.
 ## Changes go to GameSettings at once and are saved when leaving.
 
-const ROWS: Array[StringName] = [&"stocks", &"time", &"music", &"sfx", &"effects", &"window", &"controls", &"back"]
+const ROWS: Array[StringName] = [&"stocks", &"time", &"music", &"sfx", &"effects", &"window", &"aa", &"controls", &"back"]
 const LABELS := {
 	&"stocks": "STOCKS", &"time": "TIME LIMIT", &"music": "MUSIC VOLUME",
-	&"sfx": "SFX VOLUME", &"effects": "SCREEN EFFECTS", &"window": "WINDOW", &"controls": "CONTROLS", &"back": "BACK",
+	&"sfx": "SFX VOLUME", &"effects": "SCREEN EFFECTS", &"window": "WINDOW", &"aa": "ANTI-ALIASING", &"controls": "CONTROLS", &"back": "BACK",
 }
-const ROW_HEIGHT := 20.0
+const ROW_HEIGHT := 18.0
 const FIRST_ROW_Y := 84.0
 const ACTION_LABELS := {
 	&"left": "Left", &"right": "Right", &"up": "Jump", &"down": "Down / drop",
@@ -57,6 +57,8 @@ func change(row: StringName, direction: int) -> void:
 			GameSettings.cycle_effects_level()
 		&"window":
 			GameSettings.cycle_window_mode()
+		&"aa":
+			GameSettings.cycle_anti_aliasing()
 
 
 func leave() -> void:
@@ -90,6 +92,8 @@ func value_text(row: StringName) -> String:
 			return GameSettings.effects_name()
 		&"window":
 			return GameSettings.window_mode_name()
+		&"aa":
+			return GameSettings.anti_aliasing_name()
 	return ""
 
 

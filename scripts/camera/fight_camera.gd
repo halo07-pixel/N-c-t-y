@@ -22,7 +22,7 @@ const KO_PUSH_ZOOM := 1.14
 const KO_PUSH_DECAY := 0.3 # the push-in relaxes by this much zoom per second
 
 ## Round the picture to whole screen pixels so sprites do not shimmer while the camera moves.
-@export var snap_to_pixels: bool = true
+@export var snap_to_pixels: bool = false
 ## Zoom levels the camera may rest at (multiples of the base scale), or empty for a free zoom.
 @export var zoom_steps: PackedFloat32Array = PackedFloat32Array()
 

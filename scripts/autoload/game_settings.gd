@@ -20,6 +20,10 @@ const AUDIO_SECTION := "audio"
 const VIDEO_SECTION := "video"
 const TRIAL_SECTION := "trials"
 
+enum AntiAliasing { OFF, X2, X4 }
+const AA_NAMES: PackedStringArray = ["OFF", "2X", "4X"]
+const AA_MODES: Array[int] = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X]
+
 enum WindowMode { WINDOWED, FULLSCREEN, EXCLUSIVE }
 const WINDOW_NAMES: PackedStringArray = ["WINDOW", "FULLSCREEN", "EXCLUSIVE"]
 
@@ -39,6 +43,8 @@ const EFFECT_NAMES: PackedStringArray = ["OFF", "LOW", "NORMAL", "HIGH"]
 var effects_level: int = EffectsLevel.NORMAL
 ## Window, borderless fullscreen or exclusive fullscreen (see WindowMode).
 var window_mode: int = WindowMode.WINDOWED
+## Smooth edges on everything drawn in 2D (MSAA). Costs speed on weak machines.
+var anti_aliasing: int = AntiAliasing.X4
 ## True whenever effects are not OFF (kept as a plain flag for the many code paths that ask).
 var screen_effects: bool:
 	get:
@@ -60,6 +66,7 @@ static func clamp_time_minutes(value: int) -> int:
 func _ready() -> void:
 	load_settings()
 	apply_window_mode()
+	apply_anti_aliasing()
 
 
 ## F11 or Alt+Enter toggles fullscreen from any screen.
@@ -143,6 +150,22 @@ func set_window_mode(mode: int) -> void:
 	Events.settings_changed.emit()
 
 
+## OFF, 2X, 4X and around again.
+func cycle_anti_aliasing() -> void:
+	anti_aliasing = (anti_aliasing + 1) % AA_NAMES.size()
+	apply_anti_aliasing()
+	Events.settings_changed.emit()
+
+
+func anti_aliasing_name() -> String:
+	return AA_NAMES[clampi(anti_aliasing, 0, AA_NAMES.size() - 1)]
+
+
+func apply_anti_aliasing() -> void:
+	if is_inside_tree():
+		get_viewport().msaa_2d = AA_MODES[clampi(anti_aliasing, 0, AA_MODES.size() - 1)] as Viewport.MSAA
+
+
 func window_mode_name() -> String:
 	return WINDOW_NAMES[clampi(window_mode, 0, WINDOW_NAMES.size() - 1)]
 
@@ -188,6 +211,7 @@ func save_settings() -> Error:
 	config.set_value(VIDEO_SECTION, "screen_effects", screen_effects)
 	config.set_value(VIDEO_SECTION, "effects_level", effects_level)
 	config.set_value(VIDEO_SECTION, "window_mode", window_mode)
+	config.set_value(VIDEO_SECTION, "anti_aliasing", anti_aliasing)
 	config.set_value(TRIAL_SECTION, "done", trials_done)
 	return config.save(SETTINGS_PATH)
 
@@ -207,4 +231,5 @@ func load_settings() -> void:
 	))
 	effects_level = clampi(saved_level, 0, EFFECT_AMOUNT.size() - 1)
 	window_mode = clampi(int(config.get_value(VIDEO_SECTION, "window_mode", WindowMode.WINDOWED)), 0, WINDOW_NAMES.size() - 1)
+	anti_aliasing = clampi(int(config.get_value(VIDEO_SECTION, "anti_aliasing", AntiAliasing.X4)), 0, AA_NAMES.size() - 1)
 	trials_done = PackedStringArray(config.get_value(TRIAL_SECTION, "done", PackedStringArray()))
