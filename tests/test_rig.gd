@@ -280,3 +280,20 @@ func test_run_cycle_moves_wrists_toes_and_shoulders() -> void:
 	var b := RigPoses.target(&"run", 0.3, &"active")["pose"] as Dictionary
 	for key in ["wrist_f", "toe_f", "toe_b", "chest", "shrug_f"]:
 		check(not is_equal_approx(a[key], b[key]), "run changes %s over the cycle" % key)
+
+
+func test_form_look_is_anchored_on_the_middle_of_the_head() -> void:
+	for path in ["swordsman", "archer", "noble", "emperor"]:
+		var character := (load(NOBLE) as CharacterData).duplicate() as CharacterData
+		character.rig = load("res://resources/rigs/%s_rig.tres" % path)
+		var body := BodyFactory.create(character, 1) as RigBody
+		tree.root.add_child(body)
+		body.set_bankai(true)
+		body._update_form_anchors()
+		var radius := body.rig.head_size.y * 0.5
+		var top: Vector2 = body._flip.to_local(body._head.to_global(Vector2(0.0, -body.rig.head_size.y)))
+		var base: Vector2 = body._flip.to_local(body._head.global_position)
+		var anchor: Vector2 = body._form_front.head_anchor
+		check_near(anchor.distance_to(top), radius, 0.6, "%s: the form anchor is a head radius below the top of the head" % path)
+		check_near(anchor.distance_to(base), radius, 0.6, "%s: and a head radius above the neck" % path)
+		body.queue_free()

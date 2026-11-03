@@ -185,8 +185,9 @@ func _make_form_fx(which: StringName) -> FormFx:
 func _update_form_anchors() -> void:
 	if _form_back == null or not (_bankai and rig.form_style != &""):
 		return
-	var head := _flip.to_local(_head.global_position)
-	var back := _flip.to_local(_chest.to_global(Vector2(-rig.torso_size.x * 0.3, -rig.torso_size.y * 0.2)))
+	# The anchor is the middle of the head (the head pivot is the neck, at its base).
+	var head := _flip.to_local(_head.to_global(Vector2(0.0, -rig.head_size.y * 0.5)))
+	var back := _flip.to_local(_chest.to_global(Vector2(-rig.torso_size.x * 0.3, -rig.torso_size.y * 0.12)))
 	for form in [_form_back, _form_front]:
 		form.head_anchor = head
 		form.back_anchor = back

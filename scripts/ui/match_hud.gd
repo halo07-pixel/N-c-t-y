@@ -160,6 +160,12 @@ static func percent_color(percent: float) -> Color:
 
 
 func _on_canvas_draw() -> void:
+	# The dimming and black bars go first so the player plates stay readable on top of them.
+	if _cinematic_frames > 0:
+		_canvas.draw_rect(Rect2(Vector2.ZERO, SCREEN), Color(0.0, 0.0, 0.05, 0.35))
+		_draw_letterbox(1.0)
+	if _transform_frames > 0:
+		_draw_letterbox(_transform_pop())
 	var ids := _percents.keys()
 	ids.sort()
 	for index in ids.size():
@@ -184,7 +190,9 @@ func _draw_player_panel(player_id: int, center_x: float) -> void:
 	_canvas.draw_rect(plate, Color(0.06, 0.04, 0.11, 0.72))
 	_canvas.draw_rect(Rect2(plate.position, Vector2(plate.size.x, 2.0)), color)
 	PortraitArt.draw_portrait(_canvas, Vector2(center_x - 27.0, 214.0), 8.0, character, color)
-	_text(_player_label(player_id), Vector2(center_x + 8.0, 217.0), 8, color)
+	_text_left(_player_label(player_id), Vector2(center_x - 14.0, 217.0), 8, color)
+	if _bankai.get(player_id, false):
+		_text_left("FORM", Vector2(center_x + 15.0, 210.0), 6, WARM)
 	var percent: float = _percents.get(player_id, 0.0)
 	_text("%d%%" % int(percent), Vector2(center_x, 240.0), 24, percent_color(percent))
 	var stock_count: int = _stocks.get(player_id, 0)
@@ -201,8 +209,6 @@ func _player_label(player_id: int) -> String:
 	var label := "P%d" % player_id
 	if player_id == 2 and MatchConfig.cpu_level > MatchConfig.CPU_OFF:
 		label += " CPU"
-	if _bankai.get(player_id, false):
-		label += "  FORM"
 	return label
 
 
@@ -299,14 +305,21 @@ func _draw_gauge_bar(player_id: int, center_x: float) -> void:
 
 
 ## The transformation title: a dark band across the screen with the name popping in.
+func _transform_pop() -> float:
+	var t := clampf(float(_transform_total - _transform_frames) / 18.0, 0.0, 1.0)
+	return 1.0 - pow(1.0 - t, 3.0)
+
+
+## Black bars at the top and bottom edge; `amount` 0..1 is how far they have slid in.
+func _draw_letterbox(amount: float) -> void:
+	_canvas.draw_rect(Rect2(0.0, 0.0, SCREEN.x, LETTERBOX_HEIGHT * amount), Color.BLACK)
+	_canvas.draw_rect(Rect2(0.0, SCREEN.y - LETTERBOX_HEIGHT * amount, SCREEN.x, LETTERBOX_HEIGHT * amount), Color.BLACK)
+
+
 func _draw_transform() -> void:
-	var age := _transform_total - _transform_frames
-	var t := clampf(float(age) / 18.0, 0.0, 1.0)
-	var pop := 1.0 - pow(1.0 - t, 3.0)
+	var pop := _transform_pop()
 	var fade := clampf(float(_transform_frames) / 12.0, 0.0, 1.0)
 	var color: Color = PLAYER_COLORS.get(_transform_player, WHITE)
-	_canvas.draw_rect(Rect2(0.0, 0.0, SCREEN.x, LETTERBOX_HEIGHT * pop), Color.BLACK)
-	_canvas.draw_rect(Rect2(0.0, SCREEN.y - LETTERBOX_HEIGHT * pop, SCREEN.x, LETTERBOX_HEIGHT), Color.BLACK)
 	var band_height := 30.0 * pop
 	var band := Rect2(0.0, SCREEN.y * 0.22 - band_height * 0.5, SCREEN.x, band_height)
 	_canvas.draw_rect(band, Color(color.r * 0.3, color.g * 0.3, color.b * 0.3, 0.85 * fade))
@@ -323,9 +336,6 @@ static func cutin_slide(age: int) -> float:
 
 
 func _draw_cinematic() -> void:
-	_canvas.draw_rect(Rect2(Vector2.ZERO, SCREEN), Color(0.0, 0.0, 0.05, 0.35))
-	_canvas.draw_rect(Rect2(0.0, 0.0, SCREEN.x, LETTERBOX_HEIGHT), Color.BLACK)
-	_canvas.draw_rect(Rect2(0.0, SCREEN.y - LETTERBOX_HEIGHT, SCREEN.x, LETTERBOX_HEIGHT), Color.BLACK)
 	var slide := cutin_slide(_cinematic_total - _cinematic_frames)
 	var color: Color = PLAYER_COLORS.get(_cinematic_player, WHITE)
 	# A slanted band that sweeps in from the left, with the move name on it.
@@ -359,6 +369,13 @@ func _draw_result() -> void:
 	_text(headline, Vector2(SCREEN.x * 0.5, 130.0), 26, headline_color)
 	var hint := "Enter: continue     Esc: quit Arcade" if ArcadeRun.active else "Enter: play again     Esc: menu"
 	_text(hint, Vector2(SCREEN.x * 0.5, 156.0), 10, WHITE)
+
+
+## Outlined text starting at `position` (left end of the baseline).
+func _text_left(text: String, position: Vector2, font_size: int, color: Color) -> void:
+	var font := UiFont.get_font()
+	_canvas.draw_string_outline(font, position, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, 3, OUTLINE)
+	_canvas.draw_string(font, position, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, color)
 
 
 ## Centered outlined text. `position` is the middle of the baseline.
