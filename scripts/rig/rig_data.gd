@@ -14,6 +14,8 @@ extends Resource
 @export var line_width: float = 2.0
 ## A signature of the face: glasses.
 @export var glasses: bool = false
+## Which motion profile this fighter moves with (see RigMotion): swordsman, noble, archer, emperor.
+@export var motion: StringName = &""
 @export var glasses_color: Color = Color(0.4, 0.8, 1.0)
 
 @export_group("Proportions")

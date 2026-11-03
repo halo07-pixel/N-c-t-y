@@ -6,6 +6,7 @@
 script = ExtResource("1")
 head_size = Vector2(9.6, 9.6)
 style = &"stick"
+motion = &"swordsman"
 form_style = &"mask"
 form_color = Color(0.95, 0.1, 0.1, 1)
 line = Color(1, 0.62, 0.2, 1)

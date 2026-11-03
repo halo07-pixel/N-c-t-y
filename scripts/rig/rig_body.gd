@@ -8,6 +8,9 @@ extends FighterBody
 
 const MARKER_GAP := 6.0
 const LAND_SECONDS := 0.1
+const SKID_SECONDS := 0.16
+const SKID_MIN_SPEED := 60.0
+const TURN_RATE := 16.0
 const SQUASH_DECAY := 7.0
 const HIP_FOLLOW_RATE := 30.0
 const LAG_RATE := 9.0
@@ -72,6 +75,8 @@ var _current: Dictionary = RigPoses.NEUTRAL.duplicate()
 var _hip_y: float = 0.0
 var _squash: float = 0.0
 var _land_time: float = 0.0
+var _skid_time: float = 0.0
+var _flip_scale: float = 1.0
 var _was_airborne: bool = false
 var _spin: float = 0.0
 var _spin_direction: float = 1.0
@@ -295,6 +300,8 @@ func set_attack_visual(kind: StringName, phase: StringName, aerial: bool = false
 
 
 func sync_to(pose: StringName, facing: int, velocity: Vector2) -> void:
+	if _pose == &"Run" and pose == &"Idle" and absf(_velocity.x) > SKID_MIN_SPEED:
+		_skid_time = SKID_SECONDS # stopping from a run: lean back and slide
 	set_pose(pose)
 	_facing = facing
 	_velocity = velocity
@@ -312,12 +319,13 @@ func _process(delta: float) -> void:
 	if _root == null:
 		return
 	_land_time = maxf(_land_time - delta, 0.0)
+	_skid_time = maxf(_skid_time - delta, 0.0)
 	var wanted := _wanted_animation()
 	if wanted != _animation:
 		_animation = wanted
 		_anim_time = 0.0
 	_anim_time += delta * _time_scale()
-	_target_info = RigPoses.target(_animation, _anim_time, _attack_phase, rig.weapon)
+	_target_info = RigPoses.target(_animation, _anim_time, _attack_phase, rig.weapon, rig.motion)
 	_spring_toward(_target_info["pose"], float(_target_info["rate"]), delta)
 	_update_secondary(delta)
 	_update_spin(delta)
@@ -356,6 +364,8 @@ func _spring_toward(target: Dictionary, rate: float, delta: float) -> void:
 func _wanted_animation() -> StringName:
 	if _land_time > 0.0 and (_pose == &"Idle" or _pose == &"Run"):
 		return &"land"
+	if _skid_time > 0.0 and _pose == &"Idle":
+		return &"skid"
 	var attacking := _pose == &"Attack" and _attack_kind != &""
 	if attacking and _attack_aerial and not _attack_special and (_attack_kind == &"up" or _attack_kind == &"down"):
 		return &"air_up" if _attack_kind == &"up" else &"air_down"
@@ -390,7 +400,12 @@ func _update_spin(delta: float) -> void:
 
 ## Puts the skeleton into `pose`. When `plant` is set the lowest foot rests on the ground.
 func _apply(pose: Dictionary, plant: bool, delta: float) -> void:
-	_flip.scale.x = float(_facing)
+	# Turning around swings the body through a thin edge instead of snapping.
+	if delta <= 0.0:
+		_flip_scale = float(_facing)
+	else:
+		_flip_scale = move_toward(_flip_scale, float(_facing), TURN_RATE * delta)
+	_flip.scale.x = _flip_scale if absf(_flip_scale) >= 0.06 else 0.06 * signf(float(_facing))
 	_root.scale = Vector2(1.0 + 0.15 * _squash, 1.0 - 0.2 * _squash)
 	_hip.rotation = deg_to_rad(pose["body"])
 	_torso.rotation = deg_to_rad(pose["torso"] * 0.45)
@@ -495,7 +510,7 @@ func _snap(animation: StringName, time: float, phase: StringName) -> void:
 	_animation = animation
 	_anim_time = time
 	_attack_phase = phase
-	_target_info = RigPoses.target(animation, time, phase, rig.weapon)
+	_target_info = RigPoses.target(animation, time, phase, rig.weapon, rig.motion)
 	_current = (_target_info["pose"] as Dictionary).duplicate()
 	_velocities.clear()
 	_hip_y = 0.0

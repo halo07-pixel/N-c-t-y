@@ -5,6 +5,7 @@
 [resource]
 script = ExtResource("1")
 style = &"stick"
+motion = &"noble"
 form_style = &"blades"
 form_color = Color(1, 0.55, 0.8, 1)
 line = Color(0.95, 0.62, 0.8, 1)

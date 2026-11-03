@@ -297,3 +297,40 @@ func test_form_look_is_anchored_on_the_middle_of_the_head() -> void:
 		check_near(anchor.distance_to(top), radius, 0.6, "%s: the form anchor is a head radius below the top of the head" % path)
 		check_near(anchor.distance_to(base), radius, 0.6, "%s: and a head radius above the neck" % path)
 		body.queue_free()
+
+
+func test_each_fighter_has_a_motion_profile_that_changes_the_idle_and_run() -> void:
+	var idle_torso := {}
+	var run_lean := {}
+	for motion in [&"swordsman", &"noble", &"archer", &"emperor"]:
+		check(not RigMotion.profile(motion).is_empty(), "%s has a motion profile" % motion)
+		idle_torso[motion] = RigPoses.target(&"idle", 0.0, &"active", &"katana", motion)["pose"]["torso"]
+		run_lean[motion] = RigPoses.target(&"run", 0.0, &"active", &"katana", motion)["pose"]["torso"]
+	var plain: float = RigPoses.target(&"idle", 0.0)["pose"]["torso"]
+	check(idle_torso[&"archer"] > plain and idle_torso[&"noble"] < plain, "the archer crouches and the noble stands tall")
+	check(run_lean[&"archer"] > run_lean[&"emperor"], "the archer runs leaning further forward than the emperor")
+
+
+func test_no_motion_profile_means_the_shared_pose() -> void:
+	var a := RigPoses.target(&"run", 0.2)["pose"] as Dictionary
+	var b := RigPoses.target(&"run", 0.2, &"active", &"katana", &"")["pose"] as Dictionary
+	for key: String in a:
+		check_near(a[key], b[key], 0.0001, "%s unchanged" % key)
+
+
+func test_stopping_from_a_run_skids_and_turning_goes_through_an_edge() -> void:
+	var body := _body()
+	body.sync_to(&"Run", 1, Vector2(120.0, 0.0))
+	body._land_time = 0.0
+	body.sync_to(&"Idle", 1, Vector2.ZERO)
+	body._land_time = 0.0
+	check_eq(body._wanted_animation(), &"skid", "a stop from a run skids")
+	body._skid_time = 0.0
+	check_eq(body._wanted_animation(), &"idle", "the skid ends")
+	body.sync_to(&"Idle", -1, Vector2.ZERO)
+	body._apply(body._current, true, 0.016)
+	check(absf(body._flip.scale.x) < 1.0, "turning around is not instant")
+	for _i in 20:
+		body._apply(body._current, true, 0.016)
+	check_near(body._flip.scale.x, -1.0, 0.01, "and finishes facing the other way")
+	body.queue_free()

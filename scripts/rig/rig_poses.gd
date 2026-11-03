@@ -23,7 +23,7 @@ const NEUTRAL := {
 
 const RUN_CYCLES_PER_SECOND := 2.4
 const ANIMATIONS: Array[StringName] = [
-	&"idle", &"run", &"jump", &"fall", &"land", &"guard", &"dash", &"hitstun", &"ko", &"charge",
+	&"idle", &"run", &"skid", &"jump", &"fall", &"land", &"guard", &"dash", &"hitstun", &"ko", &"charge",
 	&"attack_neutral", &"attack_forward", &"attack_up", &"attack_down", &"air_attack", &"air_up",
 	&"air_down", &"special",
 ]
@@ -41,6 +41,10 @@ const POSES := {
 	&"land": {
 		"thigh_f": 46.0, "knee_f": 88.0, "thigh_b": -20.0, "knee_b": 80.0, "torso": 22.0,
 		"arm_f": 30.0, "elbow_f": 40.0, "blade": 100.0, "arm_b": -30.0, "elbow_b": 30.0,
+	},
+	&"skid": {
+		"thigh_f": 26.0, "knee_f": 12.0, "foot_f": 12.0, "thigh_b": -28.0, "knee_b": 30.0, "torso": -12.0,
+		"head": 4.0, "arm_f": 60.0, "elbow_f": 30.0, "blade": 115.0, "arm_b": -50.0, "elbow_b": 20.0, "hip_x": -1.5,
 	},
 	&"guard": {
 		"thigh_f": 18.0, "knee_f": 30.0, "thigh_b": -14.0, "knee_b": 24.0, "torso": 8.0,
@@ -171,7 +175,7 @@ const BOW_SPECIAL := {
 
 ## How quickly the body moves toward the target, per second (higher is snappier).
 const RATES := {
-	&"idle": 12.0, &"run": 34.0, &"jump": 16.0, &"fall": 12.0, &"land": 24.0, &"guard": 20.0, &"dash": 46.0,
+	&"idle": 12.0, &"run": 34.0, &"jump": 16.0, &"fall": 12.0, &"land": 24.0, &"skid": 30.0, &"guard": 20.0, &"dash": 46.0,
 	&"hitstun": 26.0, &"ko": 20.0, &"charge": 14.0,
 }
 const PHASE_RATES := {&"startup": 15.0, &"active": 55.0, &"recovery": 11.0}
@@ -189,8 +193,10 @@ const AIR_LEGS := {
 ## whether the feet are planted on the ground. `time` is seconds since the animation began
 ## (run cycles use it); `phase` is the attack phase for attack animations.
 static func target(
-	animation: StringName, time: float, phase: StringName = &"active", weapon: StringName = &"katana"
+	animation: StringName, time: float, phase: StringName = &"active", weapon: StringName = &"katana",
+	motion: StringName = &""
 ) -> Dictionary:
+	time = RigMotion.time_for(motion, animation, time, RUN_CYCLES_PER_SECOND)
 	var pose := NEUTRAL.duplicate()
 	var rate: float = RATES.get(animation, 14.0)
 	match animation:
@@ -211,7 +217,9 @@ static func target(
 				rate = PHASE_RATES.get(phase, 14.0)
 			else:
 				pose.merge(entry, true)
+	RigMotion.apply(pose, motion, animation, phase, NEUTRAL)
 	_extras(pose, animation, time, phase)
+	rate *= RigMotion.rate_scale(motion)
 	return {"pose": pose, "rate": rate, "plant": not AIRBORNE.has(animation)}
 
 
