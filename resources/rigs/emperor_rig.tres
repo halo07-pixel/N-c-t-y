@@ -5,6 +5,10 @@
 [resource]
 script = ExtResource("1")
 style = &"stick"
+outfit = &"robe"
+outfit_length = 10.0
+emblem = &"trim"
+headwear = &"crown"
 motion = &"emperor"
 form_style = &"dark_wings"
 form_color = Color(0.8, 0.1, 0.3, 1)

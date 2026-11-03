@@ -5,6 +5,9 @@
 [resource]
 script = ExtResource("1")
 style = &"stick"
+outfit = &"robe"
+outfit_length = 9.0
+emblem = &"diamond"
 motion = &"noble"
 form_style = &"blades"
 form_color = Color(1, 0.55, 0.8, 1)

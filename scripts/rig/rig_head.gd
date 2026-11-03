@@ -36,6 +36,7 @@ func _draw() -> void:
 		draw_colored_polygon(RigPart.rounded(face.grow(0.9), 3.4), rig.outline)
 		draw_colored_polygon(RigPart.rounded(face, 2.6), rig.skin)
 	_draw_hair(face)
+	_draw_headwear(face)
 	_draw_eyes(face)
 	if rig.glasses:
 		_draw_glasses(face)
@@ -96,3 +97,17 @@ func _draw_hair(face: Rect2) -> void:
 			draw_colored_polygon(cap, color)
 		_:
 			pass
+
+
+## Crown: three points standing on top of the hair.
+func _draw_headwear(face: Rect2) -> void:
+	if rig.headwear != &"crown":
+		return
+	var top := face.position.y - 1.2
+	var base_y := top + 1.6
+	for index in 3:
+		var x := face.position.x + face.size.x * (0.22 + 0.28 * index)
+		draw_colored_polygon(PackedVector2Array([
+			Vector2(x - 1.6, base_y), Vector2(x, base_y - 3.4 - (1.2 if index == 1 else 0.0)), Vector2(x + 1.6, base_y),
+		]), rig.accent)
+	draw_rect(Rect2(face.position.x + face.size.x * 0.12, base_y - 0.2, face.size.x * 0.76, 1.3), rig.accent.darkened(0.25))

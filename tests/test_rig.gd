@@ -334,3 +334,17 @@ func test_stopping_from_a_run_skids_and_turning_goes_through_an_edge() -> void:
 		body._apply(body._current, true, 0.016)
 	check_near(body._flip.scale.x, -1.0, 0.01, "and finishes facing the other way")
 	body.queue_free()
+
+
+func test_every_fighter_is_dressed_with_a_chest_panel_and_a_skirt_or_coat() -> void:
+	for name in ["swordsman", "noble", "archer", "emperor"]:
+		var character := (load(NOBLE) as CharacterData).duplicate() as CharacterData
+		character.rig = load("res://resources/rigs/%s_rig.tres" % name)
+		var body := BodyFactory.create(character, 1) as RigBody
+		tree.root.add_child(body)
+		check(body.rig.outfit != &"", "%s has an outfit" % name)
+		check(body._skirt != null, "%s has a skirt or coat tail" % name)
+		check(body._chest.get_child_count() > 0, "%s has a chest panel" % name)
+		check(body._skirt.length > 0.0, "%s skirt hangs below the hip" % name)
+		body.queue_free()
+	check_eq((load("res://resources/rigs/emperor_rig.tres") as CharacterRigData).headwear, &"crown", "the emperor wears a crown")

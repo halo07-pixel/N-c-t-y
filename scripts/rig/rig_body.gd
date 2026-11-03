@@ -42,6 +42,7 @@ var _root: Node2D
 var _hip: RigPart
 var _torso: RigPart # the lower torso (belly)
 var _chest: RigPart
+var _skirt: RigOutfit
 var _neck: RigPart
 var _hand := {}
 var _toe := {}
@@ -160,10 +161,24 @@ func _build() -> void:
 	_torso.band = rig.accent
 	_torso.band_at = 0.18
 	_torso.band_height = 1.8
+	if rig.outfit != &"":
+		# The skirt is the belly's first child, so it is drawn over the legs and under the chest.
+		_skirt = RigOutfit.new()
+		_skirt.rig = rig
+		_skirt.kind = &"skirt"
+		_skirt.length = rig.outfit_length
+		_torso.add_child(_skirt)
 	_chest = _part(_torso, Vector2(torso.x, chest_height), rig.cloth, Vector2(0.0, -belly_height + 0.4), true, 2.0)
 	if rig.style == &"stick":
 		_torso.stick_width = rig.line_width * 1.35
 		_chest.stick_width = rig.line_width * 1.35
+	if rig.outfit != &"":
+		var panel := RigOutfit.new()
+		panel.rig = rig
+		panel.kind = &"chest"
+		panel.length = chest_height
+		panel.drop = belly_height - 0.4
+		_chest.add_child(panel)
 	_build_cape(chest_height, belly_height)
 	var shoulder_y := -(torso.y - belly_height) + 2.0
 	_build_arm(&"b", Vector2(-1.0, shoulder_y))
@@ -387,6 +402,8 @@ func _update_secondary(delta: float) -> void:
 	var follow := 1.0 - exp(-LAG_RATE * delta)
 	_lag = lerpf(_lag, wanted, follow)
 	_lag_2 = lerpf(_lag_2, _lag, follow)
+	if _skirt != null:
+		_skirt.set_sway(_lag)
 
 
 func _update_spin(delta: float) -> void:

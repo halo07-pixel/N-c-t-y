@@ -43,6 +43,16 @@ extends Resource
 ## Length of the loose hair behind the head (0 for none), in two swinging segments.
 @export var hair_tail: float = 0.0
 
+@export_group("Outfit")
+## "robe" (a wide skirt), "coat" (a coat tail behind) or empty for none. Drawn over the body.
+@export var outfit: StringName = &""
+## How far the skirt or coat tail hangs from the hip.
+@export var outfit_length: float = 8.0
+## Mark on the chest: "cross", "diamond", "strap", "trim" or empty. Only with an outfit.
+@export var emblem: StringName = &""
+## Worn on the head: "crown" or empty.
+@export var headwear: StringName = &""
+
 @export_group("Weapon")
 ## "katana", "greatsword" or "bow".
 @export var weapon: StringName = &"katana"
