@@ -23,7 +23,7 @@ const NEUTRAL := {
 
 const RUN_CYCLES_PER_SECOND := 2.4
 const ANIMATIONS: Array[StringName] = [
-	&"idle", &"run", &"skid", &"jump", &"fall", &"land", &"guard", &"dash", &"hitstun", &"ko", &"charge",
+	&"idle", &"run", &"skid", &"jump", &"fall", &"land", &"guard", &"dash", &"hitstun", &"ko", &"charge", &"win", &"lose",
 	&"attack_neutral", &"attack_forward", &"attack_up", &"attack_down", &"air_attack", &"air_up",
 	&"air_down", &"special",
 ]
@@ -61,6 +61,15 @@ const POSES := {
 	&"ko": {
 		"thigh_f": 40.0, "knee_f": 50.0, "thigh_b": -36.0, "knee_b": 46.0, "torso": -28.0, "head": -26.0,
 		"arm_f": 140.0, "elbow_f": 10.0, "blade": 40.0, "arm_b": 150.0, "elbow_b": 10.0,
+	},
+	# Match over: the winner raises the weapon high, the loser slumps.
+	&"win": {
+		"thigh_f": 16.0, "knee_f": 12.0, "thigh_b": -16.0, "knee_b": 10.0, "torso": -6.0, "head": -8.0,
+		"arm_f": 128.0, "elbow_f": 20.0, "blade": 140.0, "arm_b": -30.0, "elbow_b": 100.0,
+	},
+	&"lose": {
+		"thigh_f": 10.0, "knee_f": 22.0, "thigh_b": -8.0, "knee_b": 26.0, "torso": 11.0, "head": 12.0,
+		"arm_f": 8.0, "elbow_f": 14.0, "blade": 20.0, "arm_b": -10.0, "elbow_b": 12.0,
 	},
 	&"charge": {
 		"thigh_f": 34.0, "knee_f": 60.0, "thigh_b": -26.0, "knee_b": 52.0, "torso": 12.0,
@@ -176,7 +185,7 @@ const BOW_SPECIAL := {
 ## How quickly the body moves toward the target, per second (higher is snappier).
 const RATES := {
 	&"idle": 12.0, &"run": 34.0, &"jump": 16.0, &"fall": 12.0, &"land": 24.0, &"skid": 30.0, &"guard": 20.0, &"dash": 46.0,
-	&"hitstun": 26.0, &"ko": 20.0, &"charge": 14.0,
+	&"hitstun": 26.0, &"ko": 20.0, &"charge": 14.0, &"win": 10.0, &"lose": 6.0,
 }
 const PHASE_RATES := {&"startup": 15.0, &"active": 55.0, &"recovery": 11.0}
 ## Animations where the lowest foot is kept on the ground (the others float).
@@ -248,6 +257,10 @@ static func _extras(pose: Dictionary, animation: StringName, time: float, phase:
 			_joints(pose, -12.0, -10.0, 30.0, 30.0, -18.0, -18.0, 1.2, 1.2)
 		&"charge":
 			_joints(pose, -4.0, 2.0, 12.0, 12.0, 0.0, 0.0, 0.9, 0.9)
+		&"win":
+			_joints(pose, -6.0, -5.0, 6.0, 24.0, 0.0, 0.0, -0.8, 0.4)
+		&"lose":
+			_joints(pose, 10.0, 12.0, -6.0, -6.0, 0.0, 0.0, 1.2, 1.2)
 		_:
 			if animation.begins_with("attack_") or animation.begins_with("air_") or animation == &"special":
 				match phase:

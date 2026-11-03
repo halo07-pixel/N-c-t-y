@@ -348,3 +348,39 @@ func test_every_fighter_is_dressed_with_a_chest_panel_and_a_skirt_or_coat() -> v
 		check(body._skirt.length > 0.0, "%s skirt hangs below the hip" % name)
 		body.queue_free()
 	check_eq((load("res://resources/rigs/emperor_rig.tres") as CharacterRigData).headwear, &"crown", "the emperor wears a crown")
+
+
+func test_expression_follows_the_fighter_state() -> void:
+	check_eq(RigBody.look_for(&"Idle"), &"calm", "calm when standing")
+	check_eq(RigBody.look_for(&"Attack"), &"fierce", "fierce when attacking")
+	check_eq(RigBody.look_for(&"Hitstun"), &"hurt", "hurt when hit")
+	check_eq(RigBody.look_for(&"Ko"), &"ko", "crossed-out eyes when knocked out")
+	check_eq(RigBody.look_for(&"Idle", &"win"), &"happy", "the winner smiles")
+	check_eq(RigBody.look_for(&"Idle", &"lose"), &"sad", "the loser is sad")
+	check_eq(RigBody.look_for(&"Hitstun", &"win"), &"hurt", "being hit beats the result")
+
+
+func test_eyes_blink_only_when_calm_or_sad() -> void:
+	var head := RigHead.new()
+	head.rig = load(NOBLE_RIG)
+	check(not head.is_blinking(), "eyes start open")
+	head.force_blink()
+	check(head.is_blinking(), "a forced blink closes the eyes")
+	head.set_look(&"hurt")
+	check(not head.is_blinking(), "no blink while hurt (eyes are already shut)")
+	head.free()
+
+
+func test_winner_celebrates_and_loser_slumps_when_the_match_ends() -> void:
+	var body := _body() # player 1
+	body.sync_to(&"Idle", 1, Vector2.ZERO)
+	Events.match_ended.emit(1)
+	body._process(0.016)
+	check_eq(body._animation, &"win", "the winner plays the win pose")
+	Events.match_ended.emit(2)
+	body._process(0.016)
+	check_eq(body._animation, &"lose", "the loser plays the lose pose")
+	body.sync_to(&"Hitstun", 1, Vector2.ZERO)
+	body._process(0.016)
+	check_eq(body._animation, &"hitstun", "a fighter still being hit keeps the hit pose")
+	body.queue_free()

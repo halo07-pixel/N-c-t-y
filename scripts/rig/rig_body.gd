@@ -84,6 +84,7 @@ var _spin_direction: float = 1.0
 var _lag: float = 0.0
 var _lag_2: float = 0.0
 var _bankai: bool = false
+var _result: StringName = &"" # "win" or "lose" once the match is over
 var _form_back: FormFx
 var _form_front: FormFx
 var _target_info := {"pose": RigPoses.NEUTRAL, "rate": 12.0, "plant": true}
@@ -95,6 +96,8 @@ func setup(character: CharacterData, player_id: int) -> void:
 	rig = character.rig
 	assert(rig != null, "RigBody needs CharacterData.rig; use BodyFactory")
 	_build()
+	if not Events.match_ended.is_connected(_on_match_ended):
+		Events.match_ended.connect(_on_match_ended)
 	_aura.configure(character.accent_color, rig.height())
 	_aura.set_active(false)
 	_snap(&"idle", 0.0, &"active")
@@ -282,6 +285,28 @@ func _build_cape(_chest_height: float, belly_height: float) -> void:
 
 # --- FighterBody interface ----------------------------------------------------------
 
+## Match over: the winner celebrates and the loser slumps while standing (signal up from the match).
+func _on_match_ended(winner_id: int) -> void:
+	_result = &"" if winner_id == 0 else (&"win" if winner_id == _player_id else &"lose")
+
+
+## The expression for a fighter state (and the match result, once it is over and the fighter stands).
+static func look_for(pose: StringName, result: StringName = &"") -> StringName:
+	match pose:
+		&"Attack", &"Charge":
+			return &"fierce"
+		&"Hitstun":
+			return &"hurt"
+		&"Ko":
+			return &"ko"
+		&"Idle", &"Run":
+			if result == &"win":
+				return &"happy"
+			if result == &"lose":
+				return &"sad"
+	return &"calm"
+
+
 func set_bankai(active: bool) -> void:
 	_bankai = active
 	_update_aura()
@@ -348,7 +373,7 @@ func _process(delta: float) -> void:
 	_update_trail()
 	_update_ghosts(delta)
 	_update_form_anchors()
-	_head.set_look(&"fierce" if _pose == &"Attack" or _pose == &"Hitstun" or _pose == &"Charge" else &"calm")
+	_head.set_look(look_for(_pose, _result))
 
 
 ## One step of a damped spring: where `x` (moving at `v`) is after `dt` when pulled toward
@@ -377,6 +402,8 @@ func _spring_toward(target: Dictionary, rate: float, delta: float) -> void:
 
 
 func _wanted_animation() -> StringName:
+	if _result != &"" and (_pose == &"Idle" or _pose == &"Run"):
+		return _result
 	if _land_time > 0.0 and (_pose == &"Idle" or _pose == &"Run"):
 		return &"land"
 	if _skid_time > 0.0 and _pose == &"Idle":
@@ -521,6 +548,8 @@ func _update_aura() -> void:
 func preview(animation: StringName, time: float = 0.0, phase: StringName = &"active") -> void:
 	set_process(false)
 	_snap(animation, time, phase)
+	var pose_name := {&"hitstun": &"Hitstun", &"ko": &"Ko", &"charge": &"Charge"}.get(animation, &"Idle") as StringName
+	_head.set_look(look_for(pose_name, animation if animation == &"win" or animation == &"lose" else &""))
 
 
 func _snap(animation: StringName, time: float, phase: StringName) -> void:

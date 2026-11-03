@@ -11,7 +11,7 @@ const UPSCALE := 2
 const MOVEMENT := [
 	["idle", 0.0, ""], ["idle", 1.2, ""], ["run", 0.0, ""], ["run", 0.1, ""], ["run", 0.21, ""], ["run", 0.31, ""],
 	["jump", 0.0, ""], ["fall", 0.0, ""], ["land", 0.0, ""], ["guard", 0.0, ""], ["hitstun", 0.0, ""],
-	["ko", 0.0, ""], ["charge", 0.0, ""],
+	["ko", 0.0, ""], ["charge", 0.0, ""], ["win", 0.0, ""], ["lose", 0.0, ""],
 ]
 const ATTACKS := [
 	["attack_neutral", 0.0, "startup"], ["attack_neutral", 0.0, "active"], ["attack_neutral", 0.0, "recovery"],
