@@ -419,3 +419,43 @@ func test_bow_is_drawn_while_winding_up_the_special_and_relaxed_otherwise() -> v
 	body.preview(&"idle")
 	check_near(body._weapon.draw_amount, 0.0, 0.001, "relaxed at rest")
 	body.queue_free()
+
+
+func _fighter_body(name: String) -> RigBody:
+	var character := (load(NOBLE) as CharacterData).duplicate() as CharacterData
+	character.rig = load("res://resources/rigs/%s_rig.tres" % name)
+	var body := BodyFactory.create(character, 1) as RigBody
+	tree.root.add_child(body)
+	return body
+
+
+func test_weapon_stays_in_the_hand_and_inside_reach_in_every_pose() -> void:
+	for name in ["swordsman", "noble", "archer", "emperor"]:
+		var body := _fighter_body(name)
+		for animation in RigPoses.ANIMATIONS:
+			for phase in [&"startup", &"active", &"recovery"]:
+				body.preview(animation, 0.2, phase)
+				var hand_end: Vector2 = body._hand[&"f"].to_global(Vector2(0.0, 1.0))
+				var hilt: Vector2 = body._weapon.to_global(Vector2.ZERO)
+				var label := "%s %s/%s" % [name, animation, phase]
+				check(hand_end.distance_to(hilt) < 3.0, "%s: the weapon sits in the hand" % label)
+				var tip := body.weapon_tip()
+				check(is_finite(tip.x) and is_finite(tip.y), "%s: weapon tip is a real number" % label)
+				check(absf(tip.x) < 60.0 and tip.y > -75.0 and tip.y < 20.0, "%s: weapon tip within reach (%s)" % [label, tip])
+		body.queue_free()
+
+
+func test_form_look_follows_the_head_in_every_pose() -> void:
+	for name in ["swordsman", "noble", "archer", "emperor"]:
+		var body := _fighter_body(name)
+		if body._form_front == null:
+			body.queue_free()
+			continue
+		body.set_bankai(true)
+		for animation in [&"idle", &"run", &"jump", &"guard", &"hitstun", &"ko", &"charge", &"win", &"lose", &"attack_up", &"air_down"]:
+			body.preview(animation, 0.2)
+			body._update_form_anchors()
+			var head_centre := body._flip.to_local(body._head.to_global(Vector2(0.0, -body.rig.head_size.y * 0.5)))
+			check(body._form_front.head_anchor.distance_to(head_centre) < 0.5, "%s %s: the form is anchored on the head centre" % [name, animation])
+			check(body._form_back.back_anchor.distance_to(body._form_back.head_anchor) < 30.0, "%s %s: wings stay near the head" % [name, animation])
+		body.queue_free()
