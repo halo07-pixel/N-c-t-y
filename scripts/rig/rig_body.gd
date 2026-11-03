@@ -84,6 +84,7 @@ var _spin_direction: float = 1.0
 var _lag: float = 0.0
 var _lag_2: float = 0.0
 var _bankai: bool = false
+var _bow_draw: float = 0.0
 var _result: StringName = &"" # "win" or "lose" once the match is over
 var _form_back: FormFx
 var _form_front: FormFx
@@ -133,7 +134,8 @@ func _build() -> void:
 	add_child(_ghosts)
 	_stick_parts.clear()
 	_trail = RigTrail.new()
-	_trail.color = rig.weapon_color.lerp(Color.WHITE, 0.3)
+	_trail.color = rig.trail_color if rig.trail_color.a > 0.0 else rig.weapon_color.lerp(Color.WHITE, 0.3)
+	_trail.set_style(rig.trail_style)
 	add_child(_trail)
 	_spinner = Node2D.new()
 	add_child(_spinner)
@@ -342,6 +344,7 @@ func set_attack_visual(kind: StringName, phase: StringName, aerial: bool = false
 func sync_to(pose: StringName, facing: int, velocity: Vector2) -> void:
 	if _pose == &"Run" and pose == &"Idle" and absf(_velocity.x) > SKID_MIN_SPEED:
 		_skid_time = SKID_SECONDS # stopping from a run: lean back and slide
+		Events.dust_puff.emit(global_position, 0.6)
 	set_pose(pose)
 	_facing = facing
 	_velocity = velocity
@@ -367,6 +370,7 @@ func _process(delta: float) -> void:
 	_anim_time += delta * _time_scale()
 	_target_info = RigPoses.target(_animation, _anim_time, _attack_phase, rig.weapon, rig.motion)
 	_spring_toward(_target_info["pose"], float(_target_info["rate"]), delta)
+	_bow_draw = move_toward(_bow_draw, _bow_draw_target(), delta * (6.0 if _bow_draw_target() > 0.0 else 30.0))
 	_update_secondary(delta)
 	_update_spin(delta)
 	_apply(_current, _target_info["plant"], delta)
@@ -468,6 +472,7 @@ func _apply(pose: Dictionary, plant: bool, delta: float) -> void:
 	_weapon.set_blade_mode(_animation.begins_with("attack_") or _animation.begins_with("air_"))
 	var weapon_angle := 0.0 if _weapon.is_bow() else RigPoses.weapon_relative(pose)
 	_weapon.rotation = -deg_to_rad(weapon_angle) + deg_to_rad(pose["wrist_f"]) # the wrist flexes, the blade angle stays
+	_update_bow_string()
 	_apply_trailing_parts()
 	_hip.position.x = pose["hip_x"]
 	var standing := rig.leg_length.x + rig.leg_length.y
@@ -499,6 +504,19 @@ func _lowest_foot_y() -> float:
 		var bottom := _root.to_local(foot.to_global(Vector2(0.6, foot.rect().end.y)))
 		lowest = maxf(lowest, bottom.y)
 	return lowest
+
+
+## A bow fighter's special: the string is drawn back to the rear hand while winding up and
+## snaps back when the arrow is loosed.
+func _update_bow_string() -> void:
+	if not _weapon.is_bow():
+		return
+	var hand_end := _hand[&"b"].to_global(Vector2(0.0, 1.0)) as Vector2
+	_weapon.set_draw(_bow_draw, _weapon.to_local(hand_end))
+
+
+func _bow_draw_target() -> float:
+	return 1.0 if _animation == &"special" and _attack_phase == &"startup" and _weapon.is_bow() else 0.0
 
 
 ## The streak follows the blade while a swing is active and for a moment after.
@@ -560,6 +578,7 @@ func _snap(animation: StringName, time: float, phase: StringName) -> void:
 	_current = (_target_info["pose"] as Dictionary).duplicate()
 	_velocities.clear()
 	_hip_y = 0.0
+	_bow_draw = _bow_draw_target()
 	_apply(_current, _target_info["plant"], 0.0)
 	_hip_y = _hip.position.y
 	_apply(_current, _target_info["plant"], 0.0)

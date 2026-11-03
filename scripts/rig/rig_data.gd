@@ -61,6 +61,12 @@ extends Resource
 @export var weapon_color: Color = Color(0.9, 0.92, 0.97)
 @export var grip_color: Color = Color(0.15, 0.12, 0.2)
 
+@export_group("Trail")
+## The streak a swing leaves: "slash", "lines" (thin ribbons), "wide" (a heavy sweep) or "thin".
+@export var trail_style: StringName = &"slash"
+## Colour of the streak (alpha 0 = the weapon colour).
+@export var trail_color: Color = Color(0, 0, 0, 0)
+
 @export_group("Cape")
 ## Length of the cape or scarf behind the shoulders (0 for none), in two segments.
 @export var cape_length: float = 0.0

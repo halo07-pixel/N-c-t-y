@@ -9,6 +9,11 @@ var rig: CharacterRigData
 var blade_mode: bool = false
 
 
+## How far the bow is drawn (0 relaxed, 1 fully drawn) and where the string hand is, in this node's coordinates.
+var draw_amount: float = 0.0
+var nock: Vector2 = Vector2(0.0, -6.0)
+
+
 func _init() -> void:
 	use_parent_material = true
 
@@ -16,6 +21,15 @@ func _init() -> void:
 func set_blade_mode(on: bool) -> void:
 	if on != blade_mode:
 		blade_mode = on
+		queue_redraw()
+
+
+func set_draw(amount: float, hand_in_local: Vector2) -> void:
+	amount = clampf(amount, 0.0, 1.0)
+	var pulled := Vector2(clampf(hand_in_local.x, -2.0, 2.0), clampf(hand_in_local.y, -8.0, -2.0))
+	if not is_equal_approx(amount, draw_amount) or not nock.is_equal_approx(pulled):
+		draw_amount = amount
+		nock = pulled
 		queue_redraw()
 
 
@@ -90,4 +104,17 @@ func _draw_bow() -> void:
 		points.append(Vector2(lerpf(-half, half, t), 3.2 * sin(t * PI)))
 	draw_polyline(points, rig.outline, 2.8)
 	draw_polyline(points, rig.weapon_color, 1.4)
-	draw_line(Vector2(-half, 0.0), Vector2(half, 0.0), Color(1.0, 1.0, 1.0, 0.6), 0.5)
+	var string_colour := Color(1.0, 1.0, 1.0, 0.7)
+	if draw_amount < 0.05:
+		draw_line(Vector2(-half, 0.0), Vector2(half, 0.0), string_colour, 0.5)
+		return
+	# Drawn: the string runs from each limb tip back to the nocked hand, with an arrow on it.
+	var pulled := Vector2.ZERO.lerp(nock, draw_amount)
+	draw_line(Vector2(-half, 0.0), pulled, string_colour, 0.6)
+	draw_line(pulled, Vector2(half, 0.0), string_colour, 0.6)
+	var head := Vector2(0.0, 7.5)
+	draw_line(pulled, head, rig.outline, 1.5)
+	draw_line(pulled, head, Color(0.95, 0.9, 0.8), 0.8)
+	draw_colored_polygon(PackedVector2Array([head + Vector2(0.0, 2.2), head + Vector2(-1.1, -0.6), head + Vector2(1.1, -0.6)]), rig.weapon_color.lerp(Color.WHITE, 0.5))
+	draw_line(pulled, pulled + Vector2(-1.0, -1.4), rig.accent, 0.7) # fletching
+	draw_line(pulled, pulled + Vector2(1.0, -1.4), rig.accent, 0.7)

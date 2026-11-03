@@ -8,6 +8,7 @@ style = &"stick"
 outfit = &"coat"
 outfit_length = 8.0
 emblem = &"cross"
+trail_style = &"thin"
 motion = &"archer"
 form_style = &"wings"
 form_color = Color(0.45, 0.8, 1, 1)

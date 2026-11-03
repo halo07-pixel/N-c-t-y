@@ -384,3 +384,38 @@ func test_winner_celebrates_and_loser_slumps_when_the_match_ends() -> void:
 	body._process(0.016)
 	check_eq(body._animation, &"hitstun", "a fighter still being hit keeps the hit pose")
 	body.queue_free()
+
+
+func test_each_fighter_has_its_own_trail_style() -> void:
+	var styles := {}
+	for name in ["swordsman", "noble", "archer", "emperor"]:
+		var rig := load("res://resources/rigs/%s_rig.tres" % name) as CharacterRigData
+		check(RigTrail.STYLES.has(rig.trail_style), "%s trail style exists" % name)
+		styles[rig.trail_style] = true
+	check_eq(styles.size(), 4, "four fighters, four different trails")
+
+
+func test_trail_styles_set_lifetime_and_start_of_streak() -> void:
+	var trail := RigTrail.new()
+	trail.set_style(&"wide")
+	check_near(trail.lifetime(), 0.26, 0.001, "a heavy sweep lingers longer")
+	trail.add_sample(Vector2(10.0, 0.0), Vector2.ZERO)
+	check_near((trail._samples[0]["base"] as Vector2).x, 0.5, 0.01, "a wide streak starts near the hilt")
+	trail.set_style(&"nonsense")
+	check_eq(trail.style, &"slash", "unknown styles fall back to slash")
+	trail.free()
+
+
+func test_bow_is_drawn_while_winding_up_the_special_and_relaxed_otherwise() -> void:
+	var character := (load(NOBLE) as CharacterData).duplicate() as CharacterData
+	character.rig = load("res://resources/rigs/archer_rig.tres")
+	var body := BodyFactory.create(character, 1) as RigBody
+	tree.root.add_child(body)
+	body.preview(&"special", 0.0, &"startup")
+	check(body._weapon.is_bow(), "the archer holds a bow")
+	check_near(body._weapon.draw_amount, 1.0, 0.001, "drawn while winding up")
+	body.preview(&"special", 0.0, &"active")
+	check_near(body._weapon.draw_amount, 0.0, 0.001, "the string snaps back when the arrow is loosed")
+	body.preview(&"idle")
+	check_near(body._weapon.draw_amount, 0.0, 0.001, "relaxed at rest")
+	body.queue_free()
