@@ -183,3 +183,10 @@ func test_cpu_select_picks_the_player_then_the_opponent_and_level() -> void:
 	check_eq(_requested, [&"versus_match"] as Array[StringName], "confirming the opponent starts the match")
 	screen.free()
 	_end()
+
+
+func test_every_action_has_a_label_and_the_controls_list_fits_above_the_hint() -> void:
+	for action in InputBindings.ACTIONS:
+		check(SettingsMenu.ACTION_LABELS.has(action), "%s has a label in the controls list" % action)
+	var last_row_y := 98.0 + (InputBindings.ACTIONS.size() - 1) * SettingsMenu.CONTROLS_ROW_HEIGHT
+	check(last_row_y < 240.0, "the last control row (%s) stays above the hint line" % last_row_y)

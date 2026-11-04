@@ -9,6 +9,7 @@ const LABELS := {
 	&"sfx": "SFX VOLUME", &"effects": "SCREEN EFFECTS", &"window": "WINDOW", &"aa": "ANTI-ALIASING", &"controls": "CONTROLS", &"back": "BACK",
 }
 const ROW_HEIGHT := 18.0
+const CONTROLS_ROW_HEIGHT := 15.0 # nine actions must stay above the hint bar
 const FIRST_ROW_Y := 84.0
 const ACTION_LABELS := {
 	&"left": "Left", &"right": "Right", &"up": "Jump", &"down": "Down / drop",
@@ -125,15 +126,15 @@ func _draw_row(row: int) -> void:
 
 
 func _draw_controls() -> void:
-	draw_left("ACTION", Vector2(60.0, 82.0), 9, DIM)
-	draw_left("PLAYER 1", Vector2(250.0, 82.0), 9, RED)
-	draw_left("PLAYER 2", Vector2(350.0, 82.0), 9, BLUE)
+	draw_left("ACTION", Vector2(50.0, 82.0), 9, DIM)
+	draw_left("PLAYER 1", Vector2(190.0, 82.0), 9, RED)
+	draw_left("PLAYER 2", Vector2(280.0, 82.0), 9, BLUE)
 	for row in InputBindings.ACTIONS.size():
 		var action := InputBindings.ACTIONS[row]
-		var y := 100.0 + row * 17.0
-		draw_left(ACTION_LABELS[action], Vector2(60.0, y), 9, WHITE)
-		draw_left(_key_name(1, action), Vector2(250.0, y), 9, WHITE)
-		draw_left(_key_name(2, action), Vector2(350.0, y), 9, WHITE)
+		var y := 98.0 + row * CONTROLS_ROW_HEIGHT
+		draw_left(ACTION_LABELS[action], Vector2(50.0, y), 9, WHITE)
+		draw_left(_key_name(1, action), Vector2(190.0, y), 9, WHITE)
+		draw_left(_key_name(2, action), Vector2(280.0, y), 9, WHITE)
 	draw_centered("Attack or Guard: close", Vector2(SCREEN.x * 0.5, 256.0), 8, DIM)
 
 

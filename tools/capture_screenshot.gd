@@ -131,10 +131,8 @@ func _capture_screen(output_path: String, scenario: String) -> void:
 	elif scenario == "settings":
 		screen.handle_action(&"down")
 	elif scenario == "controls":
-		screen.handle_action(&"down")
-		screen.handle_action(&"down")
-		screen.handle_action(&"down")
-		screen.handle_action(&"down")
+		for _i in screen.ROWS.find(&"controls"): # down to the CONTROLS row, wherever it is
+			screen.handle_action(&"down")
 		screen.handle_action(&"confirm")
 	await _frames(3)
 	await _save(output_path)

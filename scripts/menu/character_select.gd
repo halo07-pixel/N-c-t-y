@@ -155,7 +155,7 @@ func _draw_panel(player_id: int) -> void:
 	var color := RED if player_id == 1 else BLUE
 	var origin := Vector2(_panel_x(player_id), PANEL_TOP)
 	var active := _is_active(player_id)
-	draw_rect(Rect2(origin, PANEL_SIZE), Color(0.05, 0.03, 0.1, 0.72))
+	draw_rect(Rect2(origin, PANEL_SIZE), Color(0.05, 0.03, 0.1, 0.96))
 	draw_rect(Rect2(origin, Vector2(PANEL_SIZE.x, 3.0)), color if active else DIM)
 	draw_rect(Rect2(origin, PANEL_SIZE), color if active else DIM, false, 2.0 if active else 1.0)
 	PortraitArt.draw_portrait(self, origin + Vector2(16.0, 18.0), 9.0, character, color)
