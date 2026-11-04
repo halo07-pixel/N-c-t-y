@@ -10,6 +10,8 @@ const ROSTER_PATHS: PackedStringArray = [
 	"res://resources/characters/ice.tres",
 	"res://resources/characters/brute.tres",
 ]
+## A pick that stays undecided until the player locks in: the Random slot of the select screen.
+const RANDOM_PICK := -1
 const CPU_OFF := 0
 const CPU_MAX_LEVEL := 3
 
@@ -34,7 +36,34 @@ func character_for(player_id: int) -> CharacterData:
 	if player_id == 2 and opponent_override != null:
 		return opponent_override
 	var index := p1_index if player_id == 1 else p2_index
+	if index == RANDOM_PICK: # never leave a match with an undecided pick
+		index = lock_in(player_id)
 	return load(ROSTER_PATHS[index]) as CharacterData
+
+
+func is_random(player_id: int) -> bool:
+	return (p1_index if player_id == 1 else p2_index) == RANDOM_PICK
+
+
+## Settles a player's pick: a Random pick becomes a real roster index (chosen with `rng`, or the
+## global one). Returns the final index.
+func lock_in(player_id: int, rng: RandomNumberGenerator = null) -> int:
+	var index := p1_index if player_id == 1 else p2_index
+	if index == RANDOM_PICK:
+		index = rng.randi_range(0, roster_size() - 1) if rng != null else randi_range(0, roster_size() - 1)
+		if player_id == 1:
+			p1_index = index
+		else:
+			p2_index = index
+	return index
+
+
+## The roster's characters in select-screen order.
+func roster() -> Array[CharacterData]:
+	var result: Array[CharacterData] = []
+	for path in ROSTER_PATHS:
+		result.append(load(path) as CharacterData)
+	return result
 
 
 func cycle_character(player_id: int) -> void:
