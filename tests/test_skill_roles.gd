@@ -5,6 +5,7 @@ const CHARACTERS: Array[CharacterData] = [
 	preload("res://resources/characters/swordsman.tres"),
 	preload("res://resources/characters/archer.tres"),
 	preload("res://resources/characters/noble.tres"),
+	preload("res://resources/characters/lieutenant.tres"),
 	preload("res://resources/characters/emperor.tres"),
 ]
 

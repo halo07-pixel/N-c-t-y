@@ -3,7 +3,7 @@ extends TestCase
 
 const STAGE_SCENE: PackedScene = preload("res://scenes/stages/test_stage.tscn")
 const FIGHTER_SCENE: PackedScene = preload("res://scenes/fighter/fighter.tscn")
-const ROSTER: Array[String] = ["swordsman", "archer", "noble", "emperor"]
+const ROSTER: Array[String] = ["swordsman", "archer", "noble", "lieutenant", "emperor"]
 
 
 func _fighter(character: String) -> Fighter:

@@ -218,12 +218,14 @@ func test_hit_tiers_and_impact_styles() -> void:
 	var styles: Array[StringName] = []
 	for path in MatchConfig.ROSTER_PATHS:
 		styles.append((load(path) as CharacterData).fx_profile.impact_style)
-	check_eq(styles.size(), 3, "three roster characters")
-	check(styles[0] != styles[1] and styles[1] != styles[2] and styles[0] != styles[2], "each bursts differently")
+	check_eq(styles.size(), MatchConfig.roster_size(), "every roster character has a style")
+	for i in styles.size():
+		for j in range(i + 1, styles.size()):
+			check(styles[i] != styles[j], "each bursts differently (%d and %d)" % [i, j])
 
 
 func test_every_impact_style_draws() -> void:
-	for style: StringName in [&"slash", &"shards", &"petals", &"ink"]:
+	for style: StringName in [&"slash", &"shards", &"petals", &"lash", &"ink"]:
 		for power in [0.2, 0.9]:
 			var spark := HitSpark.new()
 			spark.style = style
@@ -320,9 +322,9 @@ func test_presentation_sequence_builds_holds_and_releases() -> void:
 
 func test_every_character_has_its_own_motif() -> void:
 	var motifs: Array[StringName] = []
-	for path in ["swordsman", "archer", "noble", "emperor"]:
+	for path in ["swordsman", "archer", "noble", "emperor", "lieutenant"]:
 		motifs.append((load("res://resources/characters/%s.tres" % path) as CharacterData).fx_profile.motif)
-	check_eq(motifs, [&"frame", &"glyph", &"petal_ring", &"shadow"], "four different motifs")
+	check_eq(motifs, [&"frame", &"glyph", &"petal_ring", &"shadow", &"chain"], "five different motifs")
 
 
 func test_the_presentation_plays_on_a_transform_and_ends() -> void:

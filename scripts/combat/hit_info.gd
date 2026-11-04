@@ -10,5 +10,7 @@ var knockback_growth: float = 0.0
 var direction: Vector2 = Vector2.RIGHT
 ## A throw grabs through a guard and through a parry.
 var is_throw: bool = false
+## How far along the hitbox the target stood: 0 at the fighter, 1 at the far edge (the blade tip).
+var reach_fraction: float = 0.0
 ## The projectile that carries this hit, or null for a melee hit (a parry can send it back).
 var projectile: Node = null

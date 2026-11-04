@@ -1,0 +1,90 @@
+[gd_resource type="Resource" script_class="SpecialSet" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/special_set.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/data/special_data.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/data/projectile_data.gd" id="3"]
+
+[sub_resource type="Resource" id="P_lieutenant_roar_b"]
+script = ExtResource("3")
+offset = Vector2(20, -17)
+velocity = Vector2(520, 0)
+lifetime_frames = 15
+size = Vector2(64, 12)
+pierce = true
+color = Color(1.0, 0.55, 0.45, 1)
+style = &"blade"
+
+[sub_resource type="Resource" id="S_lieutenantb_neutral"]
+script = ExtResource("2")
+display_name = "Hikotsu Taiho"
+role = &"zone"
+direction = &"neutral"
+damage = 9.774999999999999
+base_knockback = 170
+knockback_growth = 80
+angle_degrees = 28
+startup_frames = 11
+active_frames = 2
+recovery_frames = 18
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+projectiles = Array[ExtResource("3")]([SubResource("P_lieutenant_roar_b")])
+cooldown_frames = 40
+
+[sub_resource type="Resource" id="S_lieutenantb_forward"]
+script = ExtResource("2")
+display_name = "Fang Dash +"
+role = &"rush"
+direction = &"forward"
+damage = 10.924999999999999
+base_knockback = 200
+knockback_growth = 115
+angle_degrees = 38
+startup_frames = 6
+active_frames = 5
+recovery_frames = 20
+hitbox_size = Vector2(40, 16)
+hitbox_offset = Vector2(24, -16)
+self_velocity = Vector2(300, 0)
+ignore_gravity = true
+cooldown_frames = 80
+
+[sub_resource type="Resource" id="S_lieutenantb_up"]
+script = ExtResource("2")
+display_name = "Snake Hook +"
+role = &"recover"
+direction = &"up"
+damage = 8.625
+base_knockback = 195
+knockback_growth = 105
+angle_degrees = 85
+startup_frames = 5
+active_frames = 4
+recovery_frames = 22
+hitbox_size = Vector2(26, 34)
+hitbox_offset = Vector2(4, -40)
+self_velocity = Vector2(50, -370)
+cooldown_frames = 240
+
+[sub_resource type="Resource" id="S_lieutenantb_down"]
+script = ExtResource("2")
+display_name = "Coil Spin +"
+role = &"area"
+direction = &"down"
+damage = 8.625
+base_knockback = 190
+knockback_growth = 105
+angle_degrees = 60
+startup_frames = 8
+active_frames = 8
+recovery_frames = 22
+hitbox_size = Vector2(68, 30)
+hitbox_offset = Vector2(0, -14)
+cooldown_frames = 130
+
+[resource]
+script = ExtResource("1")
+neutral = SubResource("S_lieutenantb_neutral")
+forward = SubResource("S_lieutenantb_forward")
+up = SubResource("S_lieutenantb_up")
+down = SubResource("S_lieutenantb_down")

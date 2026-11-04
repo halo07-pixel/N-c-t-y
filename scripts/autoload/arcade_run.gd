@@ -75,7 +75,9 @@ func opponent_for(fight: int) -> CharacterData:
 	for index in MatchConfig.roster_size():
 		if index != player_index:
 			others.append(index)
-	var chosen := player_index if fight >= others.size() else others[fight]
+	# The rival is the player's own fighter, always the fight just before the boss; the fights
+	# before it are other fighters, in roster order.
+	var chosen := player_index if fight >= FIGHT_COUNT - 2 or fight >= others.size() else others[fight]
 	return load(MatchConfig.ROSTER_PATHS[chosen]) as CharacterData
 
 

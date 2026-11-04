@@ -102,6 +102,8 @@ func _on_draw() -> void:
 			_draw_petal_ring(motif, amount)
 		&"shadow":
 			_draw_shadow(motif, amount)
+		&"chain":
+			_draw_chain(motif, amount)
 	var flash: float = beat["flash"]
 	if flash > 0.0:
 		_canvas.draw_rect(Rect2(Vector2.ZERO, SCREEN), Color(_accent.r, _accent.g, _accent.b, 0.22 * flash * amount))
@@ -152,6 +154,20 @@ func _draw_petal_ring(motif: float, amount: float) -> void:
 			var p := float(step) * TAU / 8.0
 			petal.append(center + Vector2(cos(p) * 5.0, sin(p) * 2.2).rotated(a + 1.2))
 		_canvas.draw_colored_polygon(petal, Color(_color.r, _color.g, _color.b, 0.85 * motif))
+
+
+## Renji: a ring of jointed bone segments snapping outward around the fighter, like Zabimaru's blade.
+func _draw_chain(motif: float, amount: float) -> void:
+	var count := int(round(14.0 * amount))
+	for i in count:
+		var a := _age * 0.03 + float(i) * TAU / float(maxi(count, 1))
+		var radius := (38.0 + 34.0 * float(i % 2)) * motif
+		var centre := CENTER + Vector2(cos(a) * radius, sin(a) * radius * 0.7)
+		var along := Vector2.from_angle(a + PI * 0.5)
+		var half := along * 7.0 * motif
+		_canvas.draw_line(centre - half, centre + half, Color(0.0, 0.0, 0.0, 0.8 * motif), 4.0)
+		_canvas.draw_line(centre - half, centre + half, Color(_color.r, _color.g, _color.b, 0.9 * motif), 2.4)
+		_canvas.draw_circle(centre + half, 1.8, Color(_accent.r, _accent.g, _accent.b, 0.9 * motif))
 
 
 ## Yhwach: the dark closes in from the edges and a shadow spreads along the ground.

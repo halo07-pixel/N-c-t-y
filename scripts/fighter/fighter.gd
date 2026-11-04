@@ -16,6 +16,10 @@ const HOLLOW_SCALE := 1.25
 const HEARTLESS_HITS := 3
 const HEARTLESS_WINDOW := 150 # frames between arrow hits to keep the streak
 const HEARTLESS_BOUNCE := 1.4
+## Renji's tip strike: a melee hit with the target this far along the blade hits harder.
+const TIP_FRACTION := 0.7
+const TIP_DAMAGE := 1.2
+const TIP_KNOCKBACK := 1.15
 const PETAL_ZONE_RADIUS := 80.0
 const PETAL_RUN_SCALE := 1.25
 const FIGHTER_GROUP := &"fighters"
@@ -259,6 +263,10 @@ func _on_hit_received(info: HitInfo) -> void:
 
 
 func _on_hit_landed(info: HitInfo) -> void:
+	if data.mechanic == &"reach" and is_tip_hit(info):
+		info.damage *= TIP_DAMAGE
+		info.base_knockback *= TIP_KNOCKBACK
+		Events.mechanic_triggered.emit(player_id, &"reach", global_position + Vector2(float(facing) * 34.0, -16.0))
 	hit_connected = true
 	hit_confirm_left = CombatGauge.CANCEL_WINDOW_FRAMES
 	hitlag_left = Knockback.hitlag_frames(info.damage)
@@ -268,6 +276,11 @@ func _on_hit_landed(info: HitInfo) -> void:
 		empowered = true
 		empower_frames_left = HOLLOW_FRAMES
 		Events.mechanic_triggered.emit(player_id, &"hollow", global_position + Vector2(0.0, -16.0))
+
+
+## A melee hit that landed on the far part of the blade (not a throw, not a projectile).
+func is_tip_hit(info: HitInfo) -> bool:
+	return not info.is_throw and info.projectile == null and info.reach_fraction >= TIP_FRACTION
 
 
 ## How many arrows in a row have hit (the Heartless streak).

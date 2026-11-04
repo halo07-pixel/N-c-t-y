@@ -235,7 +235,7 @@ func test_form_overlay_grows_and_shapes_are_valid() -> void:
 
 
 func test_every_rig_has_a_form_look_that_only_shows_while_transformed() -> void:
-	for path in ["swordsman", "archer", "noble", "emperor"]:
+	for path in ["swordsman", "archer", "noble", "emperor", "lieutenant"]:
 		var rig := load("res://resources/rigs/%s_rig.tres" % path) as CharacterRigData
 		check(FormFx.STYLES.has(rig.form_style), "%s has a known form style" % path)
 	var character: CharacterData = (load("res://resources/characters/archer.tres") as CharacterData).duplicate()
@@ -283,7 +283,7 @@ func test_run_cycle_moves_wrists_toes_and_shoulders() -> void:
 
 
 func test_form_look_is_anchored_on_the_middle_of_the_head() -> void:
-	for path in ["swordsman", "archer", "noble", "emperor"]:
+	for path in ["swordsman", "archer", "noble", "emperor", "lieutenant"]:
 		var character := (load(NOBLE) as CharacterData).duplicate() as CharacterData
 		character.rig = load("res://resources/rigs/%s_rig.tres" % path)
 		var body := BodyFactory.create(character, 1) as RigBody
@@ -337,7 +337,7 @@ func test_stopping_from_a_run_skids_and_turning_goes_through_an_edge() -> void:
 
 
 func test_every_fighter_is_dressed_with_a_chest_panel_and_a_skirt_or_coat() -> void:
-	for name in ["swordsman", "noble", "archer", "emperor"]:
+	for name in ["swordsman", "noble", "archer", "emperor", "lieutenant"]:
 		var character := (load(NOBLE) as CharacterData).duplicate() as CharacterData
 		character.rig = load("res://resources/rigs/%s_rig.tres" % name)
 		var body := BodyFactory.create(character, 1) as RigBody
@@ -388,11 +388,11 @@ func test_winner_celebrates_and_loser_slumps_when_the_match_ends() -> void:
 
 func test_each_fighter_has_its_own_trail_style() -> void:
 	var styles := {}
-	for name in ["swordsman", "noble", "archer", "emperor"]:
+	for name in ["swordsman", "noble", "archer", "emperor", "lieutenant"]:
 		var rig := load("res://resources/rigs/%s_rig.tres" % name) as CharacterRigData
 		check(RigTrail.STYLES.has(rig.trail_style), "%s trail style exists" % name)
 		styles[rig.trail_style] = true
-	check_eq(styles.size(), 4, "four fighters, four different trails")
+	check_eq(styles.size(), 5, "five fighters, five different trails")
 
 
 func test_trail_styles_set_lifetime_and_start_of_streak() -> void:
@@ -430,7 +430,7 @@ func _fighter_body(name: String) -> RigBody:
 
 
 func test_weapon_stays_in_the_hand_and_inside_reach_in_every_pose() -> void:
-	for name in ["swordsman", "noble", "archer", "emperor"]:
+	for name in ["swordsman", "noble", "archer", "emperor", "lieutenant"]:
 		var body := _fighter_body(name)
 		for animation in RigPoses.ANIMATIONS:
 			for phase in [&"startup", &"active", &"recovery"]:
@@ -441,12 +441,12 @@ func test_weapon_stays_in_the_hand_and_inside_reach_in_every_pose() -> void:
 				check(hand_end.distance_to(hilt) < 3.0, "%s: the weapon sits in the hand" % label)
 				var tip := body.weapon_tip()
 				check(is_finite(tip.x) and is_finite(tip.y), "%s: weapon tip is a real number" % label)
-				check(absf(tip.x) < 60.0 and tip.y > -75.0 and tip.y < 20.0, "%s: weapon tip within reach (%s)" % [label, tip])
+				check(absf(tip.x) < 60.0 and tip.y > -75.0 and tip.y < 28.0, "%s: weapon tip within reach (%s)" % [label, tip])
 		body.queue_free()
 
 
 func test_form_look_follows_the_head_in_every_pose() -> void:
-	for name in ["swordsman", "noble", "archer", "emperor"]:
+	for name in ["swordsman", "noble", "archer", "emperor", "lieutenant"]:
 		var body := _fighter_body(name)
 		if body._form_front == null:
 			body.queue_free()

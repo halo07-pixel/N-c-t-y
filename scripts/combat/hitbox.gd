@@ -64,6 +64,16 @@ func cover_path(from: Vector2, to: Vector2) -> void:
 	queue_redraw()
 
 
+## How far along this hitbox (from the fighter to its far edge, in the facing direction) a point is.
+func reach_fraction_of(point: Vector2) -> float:
+	if _move == null:
+		return 0.0
+	var edge := _move.hitbox_offset.x + _move.hitbox_size.x * 0.5
+	if edge <= 0.0:
+		return 0.0
+	return clampf((point.x - global_position.x) * float(_facing) / edge, 0.0, 1.5)
+
+
 func deactivate() -> void:
 	if is_active:
 		_deactivated_frame = Engine.get_physics_frames()
@@ -101,6 +111,7 @@ func _on_area_entered(area: Area2D) -> void:
 	info.knockback_growth = _move.knockback_growth
 	info.direction = Knockback.direction(_move.angle_degrees, _facing)
 	info.is_throw = _move.is_throw
+	info.reach_fraction = reach_fraction_of(hurtbox.global_position)
 	if not hurtbox.evades(info):
 		hit_landed.emit(info)
 	hurtbox.receive_hit(info)

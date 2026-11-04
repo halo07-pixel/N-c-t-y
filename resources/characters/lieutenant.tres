@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="CharacterData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_data.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/movesets/lieutenant_moveset.tres" id="r0"]
+[ext_resource type="Resource" path="res://resources/specials/lieutenant_specials.tres" id="r1"]
+[ext_resource type="Resource" path="res://resources/specials/lieutenant_bankai_specials.tres" id="r2"]
+[ext_resource type="Resource" path="res://resources/specials/lieutenant_ultimate.tres" id="r3"]
+[ext_resource type="Resource" path="res://resources/rigs/lieutenant_rig.tres" id="r4"]
+[ext_resource type="Resource" path="res://resources/fx/lieutenant_fx.tres" id="r5"]
+
+[resource]
+script = ExtResource("1")
+mechanic = &"reach"
+display_name = "Renji"
+transform_title = "BANKAI: SOO ZABIMARU"
+weight = 100.0
+run_speed = 138.0
+gravity = 960.0
+body_color = Color(0.14, 0.13, 0.18, 1)
+accent_color = Color(0.85, 0.12, 0.14, 1)
+weapon_style = &"sword"
+weapon_color = Color(0.82, 0.84, 0.9, 1)
+sprite_dir = "res://assets/original/lieutenant/"
+sprite_id = "lieutenant"
+moveset = ExtResource("r0")
+specials = ExtResource("r1")
+bankai_specials = ExtResource("r2")
+ultimate = ExtResource("r3")
+rig = ExtResource("r4")
+fx_profile = ExtResource("r5")

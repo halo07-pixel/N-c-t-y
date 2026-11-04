@@ -36,6 +36,16 @@ const PROFILES := {
 			&"guard": {"torso": 4.0},
 		},
 	},
+	# Renji: loose and long-limbed, leaning into every lash.
+	&"whip": {
+		"idle_speed": 1.05, "idle_amp": 1.1, "cycles": 2.7, "stride": 1.15, "arm_swing": 1.0,
+		"lean": 6.0, "rate": 1.0,
+		"offsets": {
+			&"idle": {"torso": 3.0, "thigh_f": 8.0, "knee_f": 8.0, "thigh_b": -8.0, "knee_b": 6.0},
+			&"attack_forward:active": {"torso": 8.0, "hip_x": 2.0},
+			&"guard": {"knee_f": 6.0, "knee_b": 6.0},
+		},
+	},
 	# Yhwach: stately, slow breathing, heavy blows.
 	&"emperor": {
 		"idle_speed": 0.7, "idle_amp": 0.6, "cycles": 2.0, "stride": 0.9, "arm_swing": 0.5,
