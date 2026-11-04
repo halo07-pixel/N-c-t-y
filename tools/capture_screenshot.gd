@@ -115,7 +115,7 @@ func _film(output_path: String) -> void:
 
 func _capture_screen(output_path: String, scenario: String) -> void:
 	root.get_node("ScreenRouter").enabled = false
-	root.get_node("MatchConfig").cpu_level = 2 if scenario.begins_with("select") else 0
+	root.get_node("MatchConfig").cpu_level = 2 if scenario in ["select_cpu", "select_arcade"] else 0
 	root.get_node("MatchConfig").arcade = scenario == "select_arcade"
 	if scenario in ["story", "story_boss", "continue", "clear"]:
 		_start_arcade(scenario == "story_boss" or scenario == "clear")
@@ -125,6 +125,7 @@ func _capture_screen(output_path: String, scenario: String) -> void:
 	if scenario == "select":
 		screen.handle_player_action(1, &"confirm")
 		screen.handle_player_action(2, &"right")
+		screen.handle_player_action(2, &"down")
 	elif scenario == "select_cpu":
 		screen.handle_player_action(1, &"confirm")
 		screen.handle_player_action(1, &"right")

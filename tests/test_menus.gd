@@ -151,11 +151,65 @@ func test_two_player_select_needs_both_players_ready() -> void:
 	check_eq(MatchConfig.p2_index, 2, "player 2 moves only their own pick")
 	check_eq(MatchConfig.p1_index, 0, "player 1 is untouched")
 	screen.handle_player_action(1, &"confirm")
-	check(_requested.is_empty(), "one ready player is not enough")
+	check(_requested.is_empty() and screen.countdown < 0, "one ready player is not enough")
 	screen.handle_player_action(1, &"right")
 	check_eq(MatchConfig.p1_index, 0, "a ready player cannot change their pick")
 	screen.handle_player_action(2, &"confirm")
-	check_eq(_requested, [&"versus_match"] as Array[StringName], "both ready starts the match")
+	check(_requested.is_empty(), "both ready starts a countdown, not the match")
+	check_eq(screen.countdown, CharacterSelect.COUNTDOWN_FRAMES, "the FIGHT countdown runs")
+	screen.advance(CharacterSelect.COUNTDOWN_FRAMES - 1)
+	check(_requested.is_empty(), "the match waits for the countdown")
+	screen.advance(1)
+	check_eq(_requested, [&"versus_match"] as Array[StringName], "the match starts when it ends")
+	screen.free()
+	_end()
+
+
+func test_guard_cancels_ready_and_the_countdown() -> void:
+	_begin()
+	MatchConfig.cpu_level = 0
+	var screen := SELECT_SCENE.instantiate() as CharacterSelect
+	screen.handle_player_action(1, &"confirm")
+	screen.handle_player_action(2, &"confirm")
+	screen.handle_player_action(2, &"back")
+	check_eq(screen.countdown, -1, "guard stops the countdown")
+	check(not screen.confirmed[2], "and unreadies that player")
+	check(screen.confirmed[1], "the other player stays ready")
+	screen.advance(100)
+	check(_requested.is_empty(), "no match starts after a cancel")
+	screen.free()
+	_end()
+
+
+func test_grid_cursor_moves_up_down_and_both_cursors_can_share_a_tile() -> void:
+	_begin()
+	MatchConfig.cpu_level = 0
+	MatchConfig.p1_index = 0
+	MatchConfig.p2_index = 1
+	var screen := SELECT_SCENE.instantiate() as CharacterSelect
+	var columns := screen.grid.columns
+	screen.handle_player_action(1, &"down")
+	check_eq(MatchConfig.p1_index, columns, "down moves one row of the grid")
+	screen.handle_player_action(1, &"up")
+	check_eq(MatchConfig.p1_index, 0, "up moves back")
+	screen.handle_player_action(2, &"left")
+	check_eq(screen.slots[1], screen.slots[2], "both cursors may stand on one tile")
+	screen.free()
+	_end()
+
+
+func test_random_tile_settles_a_fighter_when_confirmed() -> void:
+	_begin()
+	MatchConfig.cpu_level = 0
+	var screen := SELECT_SCENE.instantiate() as CharacterSelect
+	screen.slots[1] = screen.grid.slot_count() - 2
+	screen.handle_player_action(1, &"right")
+	check(screen.grid.is_random_slot(screen.slots[1]), "the cursor reaches the Random tile")
+	check(MatchConfig.is_random(1), "the pick is undecided")
+	check(screen.hovered(1) == null, "no fighter is previewed on Random")
+	screen.handle_player_action(1, &"confirm")
+	check(not MatchConfig.is_random(1), "confirming settles a real fighter")
+	check(screen.confirmed[1], "and the player is ready")
 	screen.free()
 	_end()
 
@@ -168,14 +222,16 @@ func test_cpu_select_picks_the_player_then_the_opponent_and_level() -> void:
 	check_eq(MatchConfig.p2_index, 1, "the CPU's keys do nothing")
 	screen.handle_player_action(1, &"right")
 	check_eq(MatchConfig.p1_index, 1, "player 1 chooses first")
+	screen.handle_player_action(1, &"skill")
+	check_eq(MatchConfig.cpu_level, 2, "the skill key changes the level only when choosing the opponent")
 	screen.handle_player_action(1, &"confirm")
 	check(screen.picking_opponent, "then the opponent is chosen")
 	screen.handle_player_action(1, &"right")
 	check_eq(MatchConfig.p2_index, 2, "right now moves the opponent's pick")
-	screen.handle_player_action(1, &"up")
-	check_eq(MatchConfig.cpu_level, 3, "up raises the CPU level")
-	screen.handle_player_action(1, &"up")
-	check_eq(MatchConfig.cpu_level, 3, "the level stops at 3")
+	screen.handle_player_action(1, &"skill")
+	check_eq(MatchConfig.cpu_level, 3, "the skill key raises the CPU level")
+	screen.handle_player_action(1, &"skill")
+	check_eq(MatchConfig.cpu_level, 1, "and wraps from 3 back to 1")
 	screen.handle_player_action(1, &"back")
 	check(not screen.picking_opponent, "back returns to picking the player")
 	screen.handle_player_action(1, &"confirm")

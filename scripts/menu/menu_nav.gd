@@ -1,17 +1,17 @@
 class_name MenuNav
 extends RefCounted
-## Turns key events into menu actions: up, down, left, right, confirm, back.
+## Turns key events into menu actions: up, down, left, right, confirm, back, skill.
 ## Both players' game keys work (attack confirms, guard goes back); with
 ## player_id 0 the standard UI keys (arrows, Enter, Esc) work too.
 
 const DIRECTIONS: Array[StringName] = [&"up", &"down", &"left", &"right"]
 const GAME_ACTION := {
 	&"up": &"up", &"down": &"down", &"left": &"left", &"right": &"right",
-	&"confirm": &"attack", &"back": &"guard",
+	&"confirm": &"attack", &"back": &"guard", &"skill": &"special",
 }
 const UI_ACTION := {
 	&"up": &"ui_up", &"down": &"ui_down", &"left": &"ui_left", &"right": &"ui_right",
-	&"confirm": &"ui_accept", &"back": &"ui_cancel",
+	&"confirm": &"ui_accept", &"back": &"ui_cancel", &"skill": &"ui_focus_next",
 }
 
 
