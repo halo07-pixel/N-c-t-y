@@ -11,6 +11,7 @@ enum Kind { FOG, DUST, FIREFLIES }
 const AREA := Rect2(-380.0, -200.0, 760.0, 340.0)
 const DUST_COUNT := 36
 const FIREFLY_COUNT := 12
+const MAX_AMOUNT := 1.5
 
 var _time: float = 0.0
 var _seeds: Array[Vector4] = []
@@ -19,7 +20,7 @@ var _seeds: Array[Vector4] = []
 func _ready() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
-	for i in maxi(DUST_COUNT, FIREFLY_COUNT):
+	for i in ceili(maxi(DUST_COUNT, FIREFLY_COUNT) * MAX_AMOUNT): # enough for the highest effects level
 		_seeds.append(Vector4(rng.randf(), rng.randf(), rng.randf_range(0.3, 1.0), rng.randf() * TAU))
 	if kind == Kind.FIREFLIES:
 		var add := CanvasItemMaterial.new()
@@ -71,7 +72,7 @@ func _draw_fog() -> void:
 
 
 func _draw_dust() -> void:
-	var count := int(round(DUST_COUNT * minf(amount(), 1.5)))
+	var count := int(round(DUST_COUNT * minf(amount(), MAX_AMOUNT)))
 	for i in count:
 		var s := _seeds[i]
 		var x := AREA.position.x + fposmod(s.x * AREA.size.x + _time * 4.0 * s.z, AREA.size.x)

@@ -72,12 +72,12 @@ static func snap_to_pixel_grid(value: Vector2, zoom_level: float) -> Vector2:
 
 func _on_fighter_launched(_victim_id: int, speed: float, _direction: Vector2) -> void:
 	if GameSettings.screen_effects:
-		_shake_amplitude = maxf(_shake_amplitude, shake_for_launch(speed))
+		_shake_amplitude = maxf(_shake_amplitude, shake_for_launch(speed) * GameSettings.effect_amount())
 
 
 func _on_fighter_ko(_player_id: int, _position: Vector2) -> void:
 	if GameSettings.screen_effects:
-		_shake_amplitude = maxf(_shake_amplitude, KO_SHAKE)
+		_shake_amplitude = maxf(_shake_amplitude, KO_SHAKE * GameSettings.effect_amount())
 		_push = KO_PUSH_ZOOM
 
 

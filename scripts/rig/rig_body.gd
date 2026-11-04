@@ -301,6 +301,8 @@ static func look_for(pose: StringName, result: StringName = &"") -> StringName:
 			return &"hurt"
 		&"Ko":
 			return &"ko"
+		&"Taunt":
+			return &"happy"
 		&"Idle", &"Run":
 			if result == &"win":
 				return &"happy"
@@ -408,6 +410,8 @@ func _spring_toward(target: Dictionary, rate: float, delta: float) -> void:
 func _wanted_animation() -> StringName:
 	if _result != &"" and (_pose == &"Idle" or _pose == &"Run"):
 		return _result
+	if _pose == &"Taunt":
+		return &"win"
 	if _land_time > 0.0 and (_pose == &"Idle" or _pose == &"Run"):
 		return &"land"
 	if _skid_time > 0.0 and _pose == &"Idle":
@@ -472,6 +476,8 @@ func _apply(pose: Dictionary, plant: bool, delta: float) -> void:
 	_weapon.set_blade_mode(_animation.begins_with("attack_") or _animation.begins_with("air_"))
 	var weapon_angle := 0.0 if _weapon.is_bow() else RigPoses.weapon_relative(pose)
 	_weapon.rotation = -deg_to_rad(weapon_angle) + deg_to_rad(pose["wrist_f"]) # the wrist flexes, the blade angle stays
+	if _weapon.is_bow():
+		_hold_bow_upright()
 	_update_bow_string()
 	_apply_trailing_parts()
 	_hip.position.x = pose["hip_x"]
@@ -504,6 +510,13 @@ func _lowest_foot_y() -> float:
 		var bottom := _root.to_local(foot.to_global(Vector2(0.6, foot.rect().end.y)))
 		lowest = maxf(lowest, bottom.y)
 	return lowest
+
+
+## The bow stays upright (limbs vertical, belly towards the target) whatever the arm does, so it
+## never tilts or points at the floor.
+func _hold_bow_upright() -> void:
+	var hand_basis: float = (_flip.global_transform.affine_inverse() * _hand[&"f"].global_transform).get_rotation()
+	_weapon.rotation = -hand_basis - PI * 0.5
 
 
 ## A bow fighter's special: the string is drawn back to the rear hand while winding up and

@@ -168,3 +168,35 @@ func test_respawn_resets_motion_and_position() -> void:
 	check_eq(_fighter.global_position, _stage.get_spawn_position(1), "moved to the spawn")
 	check_eq(_fighter.air_jump_count, 0, "jumps refilled")
 	_teardown_world()
+
+
+func test_taunt_starts_from_idle_and_ends_by_itself() -> void:
+	_build_world(Vector2(-70.0, 40.0))
+	await wait_frames(40)
+	_input.tap_taunt()
+	await wait_frames(3)
+	check_eq(_fighter.get_state_name(), &"Taunt", "the taunt key starts a taunt")
+	await wait_frames(TauntState.TAUNT_FRAMES + 6)
+	check_eq(_fighter.get_state_name(), &"Idle", "the taunt ends by itself")
+	_teardown_world()
+
+
+func test_taunt_is_cancelled_by_attack_and_by_a_hit() -> void:
+	_build_world(Vector2(-70.0, 40.0))
+	await wait_frames(40)
+	_input.tap_taunt()
+	await wait_frames(3)
+	_input.tap_attack()
+	await wait_frames(3)
+	check(_fighter.get_state_name() != &"Taunt", "attack cancels the taunt")
+	await wait_frames(60)
+	_input.tap_taunt()
+	await wait_frames(3)
+	var info := HitInfo.new()
+	info.attacker_id = 2
+	info.damage = 5.0
+	info.base_knockback = 150.0
+	_fighter.hurtbox.receive_hit(info)
+	await wait_frames(2)
+	check_eq(_fighter.get_state_name(), &"Hitstun", "a hit interrupts the taunt")
+	_teardown_world()

@@ -19,6 +19,8 @@ func physics_update(delta: float) -> StringName:
 		var defend := fighter.guard_press_state()
 		if defend != &"":
 			return defend
+	if fighter.input.taunt_just_pressed:
+		return &"Taunt"
 	if fighter.input.up_just_pressed:
 		fighter.start_jump()
 		return &"Jump"

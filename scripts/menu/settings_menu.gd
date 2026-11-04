@@ -13,7 +13,7 @@ const FIRST_ROW_Y := 84.0
 const ACTION_LABELS := {
 	&"left": "Left", &"right": "Right", &"up": "Jump", &"down": "Down / drop",
 	&"attack": "Attack", &"special": "Skill", &"guard": "Guard / Parry",
-	&"charge": "Charge / Bankai / Ult",
+	&"charge": "Charge / Bankai / Ult", &"taunt": "Taunt",
 }
 
 var cursor := MenuCursor.new(ROWS.size())

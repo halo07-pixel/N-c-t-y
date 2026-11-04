@@ -14,6 +14,7 @@ var _pending_attack: bool = false
 var _pending_special: bool = false
 var _pending_charge: bool = false
 var _pending_guard: bool = false
+var _pending_taunt: bool = false
 var _pending_dash: int = 0
 
 
@@ -43,6 +44,11 @@ func tap_guard() -> void:
 	_pending_guard = true
 
 
+## One press of the taunt key.
+func tap_taunt() -> void:
+	_pending_taunt = true
+
+
 ## One dash in `direction` (-1 or 1), as if the key had been double-tapped.
 func tap_dash(direction: int) -> void:
 	_pending_dash = direction
@@ -61,6 +67,8 @@ func get_frame() -> InputFrame:
 	frame.special_held = held_special or _pending_special
 	frame.guard_just_pressed = _pending_guard
 	frame.guard_held = held_guard or _pending_guard
+	frame.taunt_just_pressed = _pending_taunt
+	_pending_taunt = false
 	frame.dash_just_pressed = _pending_dash != 0
 	frame.dash_direction = _pending_dash
 	_pending_dash = 0

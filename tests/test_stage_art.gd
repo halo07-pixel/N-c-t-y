@@ -37,3 +37,12 @@ func test_atmosphere_follows_the_effects_setting() -> void:
 	check(dust.amount() > 1.0, "HIGH has more of them")
 	GameSettings.effects_level = before
 	stage.queue_free()
+
+
+func test_atmosphere_has_enough_particles_for_the_highest_effects_level() -> void:
+	var atmosphere := StageAtmosphere.new()
+	atmosphere.kind = StageAtmosphere.Kind.DUST
+	tree.root.add_child(atmosphere)
+	var wanted := int(round(StageAtmosphere.DUST_COUNT * minf(GameSettings.EFFECT_AMOUNT.max(), StageAtmosphere.MAX_AMOUNT)))
+	check(atmosphere._seeds.size() >= wanted, "a seed for every dust mote at the highest level")
+	atmosphere.free()

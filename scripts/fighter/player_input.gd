@@ -23,6 +23,7 @@ func get_frame() -> InputFrame:
 	frame.guard_held = Input.is_action_pressed(_action(&"guard"))
 	frame.charge_held = Input.is_action_pressed(_action(&"charge"))
 	frame.charge_just_pressed = Input.is_action_just_pressed(_action(&"charge"))
+	frame.taunt_just_pressed = Input.is_action_just_pressed(_action(&"taunt"))
 	frame.dash_direction = _dash_tap.update(frame.move.x)
 	frame.dash_just_pressed = frame.dash_direction != 0
 	return frame

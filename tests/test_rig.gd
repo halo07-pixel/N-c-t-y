@@ -459,3 +459,26 @@ func test_form_look_follows_the_head_in_every_pose() -> void:
 			check(body._form_front.head_anchor.distance_to(head_centre) < 0.5, "%s %s: the form is anchored on the head centre" % [name, animation])
 			check(body._form_back.back_anchor.distance_to(body._form_back.head_anchor) < 30.0, "%s %s: wings stay near the head" % [name, animation])
 		body.queue_free()
+
+
+func test_archer_bow_stays_upright_whatever_the_arm_does() -> void:
+	var body := _fighter_body("archer")
+	for animation in [&"idle", &"run", &"jump", &"guard", &"win", &"lose", &"special"]:
+		for phase in [&"startup", &"active", &"recovery"]:
+			body.preview(animation, 0.2, phase)
+			if not body._weapon.is_bow():
+				continue
+			var up := body._flip.global_transform.basis_xform_inv(body._weapon.global_transform.basis_xform(Vector2.RIGHT))
+			var belly := body._flip.global_transform.basis_xform_inv(body._weapon.global_transform.basis_xform(Vector2.DOWN))
+			check(absf(up.normalized().x) < 0.05, "%s/%s: the limbs are vertical" % [animation, phase])
+			check(belly.normalized().x > 0.95, "%s/%s: the belly faces the target" % [animation, phase])
+	body.queue_free()
+
+
+func test_taunt_pose_shows_the_victory_pose_and_a_smile() -> void:
+	check_eq(RigBody.look_for(&"Taunt"), &"happy", "a taunting fighter smiles")
+	var body := _body()
+	body.sync_to(&"Taunt", 1, Vector2.ZERO)
+	body._process(0.016)
+	check_eq(body._animation, &"win", "taunt plays the victory pose")
+	body.queue_free()

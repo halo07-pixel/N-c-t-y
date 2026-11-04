@@ -140,6 +140,8 @@ static func animation_for(
 			return &"guard"
 		&"Dash":
 			return &"dash"
+		&"Taunt":
+			return &"idle"
 		&"Attack":
 			if special:
 				return &"special"

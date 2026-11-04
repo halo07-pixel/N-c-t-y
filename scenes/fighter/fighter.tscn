@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://scripts/fighter/states/hitstun_state.gd" id="9"]
 [ext_resource type="Script" path="res://scripts/fighter/states/ko_state.gd" id="10"]
 [ext_resource type="Script" path="res://scripts/fighter/states/transform_state.gd" id="14"]
+[ext_resource type="Script" path="res://scripts/fighter/states/taunt_state.gd" id="taunt"]
 [ext_resource type="Script" path="res://scripts/fighter/states/guard_state.gd" id="20"]
 [ext_resource type="Script" path="res://scripts/fighter/states/dash_state.gd" id="21"]
 [ext_resource type="Script" path="res://scripts/combat/hurtbox.gd" id="11"]
@@ -65,6 +66,9 @@ script = ExtResource("10")
 
 [node name="Transform" type="Node" parent="StateMachine"]
 script = ExtResource("14")
+
+[node name="Taunt" type="Node" parent="StateMachine"]
+script = ExtResource("taunt")
 
 [node name="Guard" type="Node" parent="StateMachine"]
 script = ExtResource("20")
