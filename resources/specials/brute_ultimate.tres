@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="SpecialData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/special_data.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/data/projectile_data.gd" id="3"]
+
+[sub_resource type="Resource" id="P_bruteu_0"]
+script = ExtResource("3")
+offset = Vector2(20, -16)
+velocity = Vector2(380, 0)
+lifetime_frames = 80
+size = Vector2(70, 46)
+pierce = true
+color = Color(1.0, 0.55, 0.2, 1)
+style = &"blast"
+rim = Color(1.0, 0.9, 0.5, 1)
+
+[resource]
+script = ExtResource("2")
+display_name = "Nozarashi: Final Cleave"
+direction = &"forward"
+damage = 27.0
+base_knockback = 340
+knockback_growth = 225
+angle_degrees = 35
+startup_frames = 70
+active_frames = 3
+recovery_frames = 30
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+cinematic_frames = 60
+title = "Nozarashi: Final Cleave"
+projectiles = Array[ExtResource("3")]([SubResource("P_bruteu_0")])

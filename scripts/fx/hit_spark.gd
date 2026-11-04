@@ -12,7 +12,7 @@ var direction: Vector2 = Vector2.RIGHT
 var power: float = 0.3
 ## Overall size multiplier: the effects level times the character profile's spark scale.
 var amount: float = 1.0
-## How the burst is drawn (an FxProfile impact style): slash, shards, petals, lash, frost or ink.
+## How the burst is drawn (an FxProfile impact style): slash, shards, petals, lash, frost, quake or ink.
 var style: StringName = &"slash"
 var accent: Color = Color(1.0, 1.0, 1.0)
 var _age: float = 0.0
@@ -103,6 +103,14 @@ func _draw_style(t: float, size: float) -> void:
 					var p := float(step) * TAU / 8.0
 					petal.append(center + Vector2(cos(p) * 4.0, sin(p) * 1.8).rotated(a + t * 4.0))
 				draw_colored_polygon(petal, Color(color.r, color.g, color.b, fade))
+		&"quake":
+			# A shock ring and cracks splitting out along the ground line, heavier with the tier.
+			draw_arc(Vector2.ZERO, size * (0.5 + 1.1 * ease_out), 0.0, TAU, 24, Color(accent.r, accent.g, accent.b, fade), 3.0 * fade + 0.5)
+			for i in 5 + tier * 2:
+				var a := base + (float(i) / float(4 + tier * 2) - 0.5) * 3.2
+				var mid := Vector2.from_angle(a) * size * 0.7 * ease_out
+				var end := mid + Vector2.from_angle(a + sin(float(i) * 2.3) * 0.7) * size * 0.6 * ease_out
+				draw_polyline(PackedVector2Array([Vector2.from_angle(a) * size * 0.2, mid, end]), Color(color.r, color.g, color.b, fade), 1.8 * fade + 0.4)
 		&"frost":
 			# A snowflake: six spokes with small side branches, growing out of the hit.
 			var spoke := size * (0.8 + 0.3 * float(tier)) * ease_out

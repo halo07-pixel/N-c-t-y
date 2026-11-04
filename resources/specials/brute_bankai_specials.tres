@@ -1,0 +1,90 @@
+[gd_resource type="Resource" script_class="SpecialSet" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/special_set.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/data/special_data.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/data/projectile_data.gd" id="3"]
+
+[sub_resource type="Resource" id="P_brute_wave_b"]
+script = ExtResource("3")
+offset = Vector2(20, -10)
+velocity = Vector2(240, 0)
+lifetime_frames = 40
+size = Vector2(56, 18)
+pierce = true
+color = Color(0.95, 0.5, 0.25, 1)
+style = &"crescent"
+
+[sub_resource type="Resource" id="S_bruteb_neutral"]
+script = ExtResource("2")
+display_name = "Reiatsu Slash +"
+role = &"zone"
+direction = &"neutral"
+damage = 11.200000000000001
+base_knockback = 190
+knockback_growth = 100
+angle_degrees = 28
+startup_frames = 14
+active_frames = 2
+recovery_frames = 22
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+projectiles = Array[ExtResource("3")]([SubResource("P_brute_wave_b")])
+cooldown_frames = 55
+
+[sub_resource type="Resource" id="S_bruteb_forward"]
+script = ExtResource("2")
+display_name = "Charging Cleave +"
+role = &"rush"
+direction = &"forward"
+damage = 13.440000000000001
+base_knockback = 220
+knockback_growth = 130
+angle_degrees = 38
+startup_frames = 8
+active_frames = 6
+recovery_frames = 22
+hitbox_size = Vector2(46, 24)
+hitbox_offset = Vector2(26, -16)
+self_velocity = Vector2(260, 0)
+ignore_gravity = true
+cooldown_frames = 90
+
+[sub_resource type="Resource" id="S_bruteb_up"]
+script = ExtResource("2")
+display_name = "Wild Leap +"
+role = &"recover"
+direction = &"up"
+damage = 10.080000000000002
+base_knockback = 205
+knockback_growth = 110
+angle_degrees = 85
+startup_frames = 6
+active_frames = 4
+recovery_frames = 24
+hitbox_size = Vector2(30, 38)
+hitbox_offset = Vector2(4, -40)
+self_velocity = Vector2(60, -350)
+cooldown_frames = 240
+
+[sub_resource type="Resource" id="S_bruteb_down"]
+script = ExtResource("2")
+display_name = "Ground Smash +"
+role = &"heavy"
+direction = &"down"
+damage = 15.680000000000001
+base_knockback = 235
+knockback_growth = 150
+angle_degrees = 65
+startup_frames = 16
+active_frames = 4
+recovery_frames = 30
+hitbox_size = Vector2(74, 34)
+hitbox_offset = Vector2(0, -16)
+cooldown_frames = 170
+
+[resource]
+script = ExtResource("1")
+neutral = SubResource("S_bruteb_neutral")
+forward = SubResource("S_bruteb_forward")
+up = SubResource("S_bruteb_up")
+down = SubResource("S_bruteb_down")

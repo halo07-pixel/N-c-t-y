@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="FxProfile" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fx_profile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+primary = Color(1.0, 0.55, 0.2, 1)
+accent = Color(1.0, 0.9, 0.55, 1)
+shadow = Color(0.15, 0.05, 0.02, 1)
+impact_style = &"quake"
+spark_scale = 1.3
+motif = &"pressure"
+form_primary = Color(1.0, 0.6, 0.15, 1)
+form_accent = Color(1.0, 0.95, 0.6, 1)

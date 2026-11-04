@@ -106,6 +106,8 @@ func _on_draw() -> void:
 			_draw_chain(motif, amount)
 		&"snow":
 			_draw_snow(motif, amount)
+		&"pressure":
+			_draw_pressure(motif, amount)
 	var flash: float = beat["flash"]
 	if flash > 0.0:
 		_canvas.draw_rect(Rect2(Vector2.ZERO, SCREEN), Color(_accent.r, _accent.g, _accent.b, 0.22 * flash * amount))
@@ -156,6 +158,19 @@ func _draw_petal_ring(motif: float, amount: float) -> void:
 			var p := float(step) * TAU / 8.0
 			petal.append(center + Vector2(cos(p) * 5.0, sin(p) * 2.2).rotated(a + 1.2))
 		_canvas.draw_colored_polygon(petal, Color(_color.r, _color.g, _color.b, 0.85 * motif))
+
+
+## Kenpachi: raw spiritual pressure, heavy rings pulsing outward and flame spikes rising around the fighter.
+func _draw_pressure(motif: float, amount: float) -> void:
+	for ring in 3:
+		var phase := fposmod(_age * 0.012 + float(ring) / 3.0, 1.0)
+		_canvas.draw_arc(CENTER, (20.0 + 70.0 * phase) * motif, 0.0, TAU, 40, Color(_color.r, _color.g, _color.b, (1.0 - phase) * 0.85 * amount), 3.0 * (1.0 - phase) + 0.6)
+	for i in int(round(16.0 * amount)):
+		var a := float(i) * TAU / 16.0
+		var base := CENTER + Vector2.from_angle(a) * 22.0 * motif
+		var flick := 0.7 + 0.3 * sin(_age * 0.2 + float(i) * 1.7)
+		var tip := base + Vector2.from_angle(a) * (26.0 + 22.0 * float(i % 3)) * motif * flick
+		_canvas.draw_line(base, tip, Color(_accent.r, _accent.g, _accent.b, 0.8 * motif), 2.0)
 
 
 ## Rukia: hexagonal frost rings widening around the fighter, with snow drifting down.

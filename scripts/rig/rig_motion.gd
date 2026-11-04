@@ -56,6 +56,17 @@ const PROFILES := {
 			&"guard": {"torso": -3.0},
 		},
 	},
+	# Kenpachi: heavy-footed and loose, every swing from the shoulder.
+	&"brute": {
+		"idle_speed": 0.8, "idle_amp": 1.2, "cycles": 2.0, "stride": 0.9, "arm_swing": 0.9,
+		"lean": 6.0, "rate": 0.85,
+		"offsets": {
+			&"idle": {"torso": 4.0, "thigh_f": 8.0, "knee_f": 10.0, "thigh_b": -8.0, "knee_b": 8.0, "hip_y": 0.6},
+			&"attack_forward:active": {"torso": 8.0, "hip_x": 2.0},
+			&"attack_neutral:active": {"torso": 6.0},
+			&"guard": {"knee_f": 8.0, "knee_b": 8.0},
+		},
+	},
 	# Yhwach: stately, slow breathing, heavy blows.
 	&"emperor": {
 		"idle_speed": 0.7, "idle_amp": 0.6, "cycles": 2.0, "stride": 0.9, "arm_swing": 0.5,

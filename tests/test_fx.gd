@@ -225,7 +225,7 @@ func test_hit_tiers_and_impact_styles() -> void:
 
 
 func test_every_impact_style_draws() -> void:
-	for style: StringName in [&"slash", &"shards", &"petals", &"lash", &"frost", &"ink"]:
+	for style: StringName in [&"slash", &"shards", &"petals", &"lash", &"frost", &"quake", &"ink"]:
 		for power in [0.2, 0.9]:
 			var spark := HitSpark.new()
 			spark.style = style
@@ -322,9 +322,9 @@ func test_presentation_sequence_builds_holds_and_releases() -> void:
 
 func test_every_character_has_its_own_motif() -> void:
 	var motifs: Array[StringName] = []
-	for path in ["swordsman", "archer", "noble", "emperor", "lieutenant", "ice"]:
+	for path in ["swordsman", "archer", "noble", "emperor", "lieutenant", "ice", "brute"]:
 		motifs.append((load("res://resources/characters/%s.tres" % path) as CharacterData).fx_profile.motif)
-	check_eq(motifs, [&"frame", &"glyph", &"petal_ring", &"shadow", &"chain", &"snow"], "six different motifs")
+	check_eq(motifs, [&"frame", &"glyph", &"petal_ring", &"shadow", &"chain", &"snow", &"pressure"], "seven different motifs")
 
 
 func test_the_presentation_plays_on_a_transform_and_ends() -> void:

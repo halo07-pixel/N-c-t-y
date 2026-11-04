@@ -2,10 +2,10 @@ class_name FormFx
 extends Node2D
 ## The look of a transformed fighter, drawn by code over/behind the rig: a hollow mask and long
 ## hair (mask), light wings and a halo (wings), floating blades (blades) or big dark wings with
-## a halo (dark_wings). Two instances exist per body: one behind and one in front of the rig.
+## a halo (dark_wings) or tongues of spiritual pressure with a glowing eye (flames). Two instances exist per body: one behind and one in front of the rig.
 ## Everything is positioned from two anchors the body keeps updating (head and back).
 
-const STYLES: Array[StringName] = [&"mask", &"wings", &"blades", &"dark_wings"]
+const STYLES: Array[StringName] = [&"mask", &"wings", &"blades", &"dark_wings", &"flames"]
 const GROW_SECONDS := 0.45
 const BLADE_COUNT := 8
 
@@ -37,6 +37,10 @@ func _ready() -> void:
 		additive.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 		if style == &"wings":
 			material = additive
+	if style == &"flames":
+		var glow := CanvasItemMaterial.new()
+		glow.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+		material = glow
 
 
 ## 0..1 unfolding progress after `seconds` of being active.
@@ -90,6 +94,8 @@ func _draw() -> void:
 			_draw_halo(t, Color(0.9, 0.15, 0.3))
 		&"blades":
 			_draw_blades(t)
+		&"flames":
+			_draw_flames(t)
 
 
 func _draw_mask(t: float) -> void:
@@ -152,3 +158,22 @@ func _draw_blades(t: float) -> void:
 		])
 		var alpha := 0.55 if depth > 0.0 else 0.95
 		draw_colored_polygon(blade, Color(1.0, 0.7, 0.88, alpha))
+
+
+## Tongues of spiritual pressure flickering up behind the body, and a glowing eye on the face.
+func _draw_flames(t: float) -> void:
+	if t <= 0.0:
+		return
+	if layer == &"back":
+		for i in 9:
+			var f := float(i) / 8.0
+			var flick := 0.75 + 0.25 * sin(_time * 9.0 + float(i) * 1.9)
+			var root := back_anchor + Vector2(-6.0 + 12.0 * f, 8.0 - absf(f - 0.5) * 6.0)
+			var angle := -PI * 0.5 + (f - 0.5) * 0.9 + sin(_time * 5.0 + float(i)) * 0.08
+			var length := (14.0 + 12.0 * sin(f * PI)) * flick * t
+			draw_colored_polygon(feather(root, angle, length, 2.6), Color(color.r, color.g, color.b, 0.5))
+			draw_colored_polygon(feather(root, angle, length * 0.6, 1.3), Color(1.0, 0.95, 0.6, 0.7))
+		return
+	var eye := head_anchor + Vector2(head_radius * 0.55, -head_radius * 0.12)
+	draw_circle(eye, 1.7 * t, Color(1.0, 0.9, 0.4, 0.5))
+	draw_line(eye + Vector2(-1.4, 0.0), eye + Vector2(1.4, 0.0), Color(1.0, 1.0, 0.8), 0.9)

@@ -52,7 +52,7 @@ func _hit(damage: float = 5.0) -> HitInfo:
 
 
 func test_every_character_has_a_mechanic() -> void:
-	for name in ["swordsman", "archer", "noble", "emperor", "lieutenant", "ice"]:
+	for name in ["swordsman", "archer", "noble", "emperor", "lieutenant", "ice", "brute"]:
 		var data := load("res://resources/characters/%s.tres" % name) as CharacterData
 		check(data.mechanic != &"", "%s has a signature mechanic" % name)
 

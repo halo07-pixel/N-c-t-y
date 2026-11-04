@@ -7,6 +7,7 @@ const CHARACTERS: Array[CharacterData] = [
 	preload("res://resources/characters/noble.tres"),
 	preload("res://resources/characters/lieutenant.tres"),
 	preload("res://resources/characters/ice.tres"),
+	preload("res://resources/characters/brute.tres"),
 	preload("res://resources/characters/emperor.tres"),
 ]
 

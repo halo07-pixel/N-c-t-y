@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="CharacterData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_data.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/movesets/brute_moveset.tres" id="r0"]
+[ext_resource type="Resource" path="res://resources/specials/brute_specials.tres" id="r1"]
+[ext_resource type="Resource" path="res://resources/specials/brute_bankai_specials.tres" id="r2"]
+[ext_resource type="Resource" path="res://resources/specials/brute_ultimate.tres" id="r3"]
+[ext_resource type="Resource" path="res://resources/rigs/brute_rig.tres" id="r4"]
+[ext_resource type="Resource" path="res://resources/fx/brute_fx.tres" id="r5"]
+
+[resource]
+script = ExtResource("1")
+mechanic = &"zeal"
+display_name = "Kenpachi"
+transform_title = "UNLEASHED: ZARAKI KENPACHI"
+weight = 110.0
+run_speed = 118.0
+gravity = 1040.0
+body_color = Color(0.12, 0.12, 0.15, 1)
+accent_color = Color(0.95, 0.75, 0.25, 1)
+weapon_style = &"sword"
+weapon_color = Color(0.62, 0.64, 0.7, 1)
+sprite_dir = "res://assets/original/brute/"
+sprite_id = "brute"
+moveset = ExtResource("r0")
+specials = ExtResource("r1")
+bankai_specials = ExtResource("r2")
+ultimate = ExtResource("r3")
+rig = ExtResource("r4")
+fx_profile = ExtResource("r5")

@@ -13,6 +13,7 @@ const STYLES := {
 	&"wide": {"life": 0.26, "base": 0.05, "fill": 0.5, "glow": 4.5, "core": 1.6, "ribbons": false},
 	&"whip": {"life": 0.3, "base": 0.0, "fill": 0.35, "glow": 2.5, "core": 1.0, "ribbons": false},
 	&"ice": {"life": 0.22, "base": 0.2, "fill": 0.3, "glow": 2.2, "core": 1.1, "ribbons": true},
+	&"crush": {"life": 0.18, "base": 0.1, "fill": 0.55, "glow": 5.0, "core": 1.8, "ribbons": false},
 	&"thin": {"life": 0.2, "base": 0.65, "fill": 0.4, "glow": 2.0, "core": 0.9, "ribbons": false},
 }
 

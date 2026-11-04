@@ -28,7 +28,7 @@ extends Resource
 @export var max_air_jumps: int = 1
 
 @export_group("Combat")
-## The signature mechanic: &"hollow" (Ichigo), &"heartless" (Uryu), &"petals" (Byakuya), &"reach" (Renji), &"frost" (Rukia), &"steal" (Yhwach).
+## The signature mechanic: &"hollow" (Ichigo), &"heartless" (Uryu), &"petals" (Byakuya), &"reach" (Renji), &"frost" (Rukia), &"zeal" (Kenpachi), &"steal" (Yhwach).
 @export var mechanic: StringName = &""
 @export var moveset: MoveSet
 @export var specials: SpecialSet

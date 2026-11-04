@@ -20,6 +20,10 @@ const HEARTLESS_BOUNCE := 1.4
 const TIP_FRACTION := 0.7
 const TIP_DAMAGE := 1.2
 const TIP_KNOCKBACK := 1.15
+## Kenpachi's zeal: his melee hits gain up to this much damage as his own percent climbs to ZEAL_FULL_PERCENT.
+const ZEAL_MAX := 0.35
+const ZEAL_FULL_PERCENT := 100.0
+const ZEAL_FLASH_SCALE := 1.15
 ## Rukia's frost: this many of her hits within the window freeze the target in place for a moment.
 const CHILL_HITS := 3
 const CHILL_WINDOW := 300
@@ -275,6 +279,11 @@ func _on_hit_landed(info: HitInfo) -> void:
 		info.damage *= TIP_DAMAGE
 		info.base_knockback *= TIP_KNOCKBACK
 		Events.mechanic_triggered.emit(player_id, &"reach", global_position + Vector2(float(facing) * 34.0, -16.0))
+	if data.mechanic == &"zeal" and not info.is_throw:
+		var scale := zeal_scale()
+		info.damage *= scale
+		if scale >= ZEAL_FLASH_SCALE:
+			Events.mechanic_triggered.emit(player_id, &"zeal", global_position + Vector2(float(facing) * 24.0, -16.0))
 	hit_connected = true
 	hit_confirm_left = CombatGauge.CANCEL_WINDOW_FRAMES
 	hitlag_left = Knockback.hitlag_frames(info.damage)
@@ -284,6 +293,11 @@ func _on_hit_landed(info: HitInfo) -> void:
 		empowered = true
 		empower_frames_left = HOLLOW_FRAMES
 		Events.mechanic_triggered.emit(player_id, &"hollow", global_position + Vector2(0.0, -16.0))
+
+
+## Kenpachi: the more punishment he has taken, the harder he hits (1.0 at 0%, up to 1.35 at 100%).
+func zeal_scale() -> float:
+	return 1.0 + ZEAL_MAX * clampf(percent / ZEAL_FULL_PERCENT, 0.0, 1.0)
 
 
 ## A melee hit that landed on the far part of the blade (not a throw, not a projectile).

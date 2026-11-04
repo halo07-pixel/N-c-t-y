@@ -30,6 +30,8 @@ static func palette(mechanic: StringName) -> Array[Color]:
 			return [Color(1.0, 0.4, 0.3), Color(1.0, 0.95, 0.8)]
 		&"frost", &"chill":
 			return [Color(0.65, 0.92, 1.0), Color(1.0, 1.0, 1.0)]
+		&"zeal":
+			return [Color(1.0, 0.6, 0.15), Color(1.0, 0.95, 0.6)]
 	return [Color(1.0, 0.15, 0.2), Color(0.1, 0.0, 0.05)]
 
 
