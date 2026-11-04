@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="FxProfile" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fx_profile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+primary = Color(0.55, 0.85, 1.0, 1)
+accent = Color(1.0, 1.0, 1.0, 1)
+shadow = Color(0.04, 0.1, 0.2, 1)
+impact_style = &"frost"
+spark_scale = 0.95
+motif = &"snow"
+form_primary = Color(0.6, 0.9, 1.0, 1)
+form_accent = Color(1.0, 1.0, 1.0, 1)

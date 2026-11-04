@@ -104,6 +104,8 @@ func _on_draw() -> void:
 			_draw_shadow(motif, amount)
 		&"chain":
 			_draw_chain(motif, amount)
+		&"snow":
+			_draw_snow(motif, amount)
 	var flash: float = beat["flash"]
 	if flash > 0.0:
 		_canvas.draw_rect(Rect2(Vector2.ZERO, SCREEN), Color(_accent.r, _accent.g, _accent.b, 0.22 * flash * amount))
@@ -154,6 +156,21 @@ func _draw_petal_ring(motif: float, amount: float) -> void:
 			var p := float(step) * TAU / 8.0
 			petal.append(center + Vector2(cos(p) * 5.0, sin(p) * 2.2).rotated(a + 1.2))
 		_canvas.draw_colored_polygon(petal, Color(_color.r, _color.g, _color.b, 0.85 * motif))
+
+
+## Rukia: hexagonal frost rings widening around the fighter, with snow drifting down.
+func _draw_snow(motif: float, amount: float) -> void:
+	for ring in 3:
+		var radius := (26.0 + 24.0 * float(ring)) * motif
+		var points := PackedVector2Array()
+		for step in 7:
+			points.append(CENTER + Vector2.from_angle(float(step) * TAU / 6.0 + _age * 0.01 * (1.0 - 0.5 * float(ring))) * radius)
+		_canvas.draw_polyline(points, Color(_color.r, _color.g, _color.b, (0.9 - 0.2 * float(ring)) * amount), 1.4)
+	for i in int(round(14.0 * amount)):
+		var seed := float(i) * 2.9
+		var fall := fposmod(_age * 0.01 + seed, 1.0)
+		var x := CENTER.x + sin(seed * 1.7) * 110.0 * motif
+		_canvas.draw_circle(Vector2(x + sin(fall * 6.0 + seed) * 4.0, CENTER.y - 90.0 + fall * 150.0), 1.5, Color(_accent.r, _accent.g, _accent.b, 0.85 * motif * (1.0 - fall * 0.5)))
 
 
 ## Renji: a ring of jointed bone segments snapping outward around the fighter, like Zabimaru's blade.

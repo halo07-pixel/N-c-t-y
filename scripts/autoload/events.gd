@@ -25,7 +25,7 @@ signal fighter_launched(victim_id: int, speed: float, direction: Vector2)
 @warning_ignore("unused_signal")
 signal hit_impact(position: Vector2, direction: Vector2, damage: float, launch_speed: float, attacker_id: int)
 ## Dust kicked up by a landing or a jump; strength 0..1.
-## A character mechanic fired: &"hollow" (empowered), &"heartless" (bounce), &"reach" (a hit on the blade tip), &"steal" (Reiatsu taken).
+## A character mechanic fired: &"hollow" (empowered), &"heartless" (bounce), &"reach" (a hit on the blade tip), &"frost" and &"chill" (ice stacks, a freeze), &"steal" (Reiatsu taken).
 @warning_ignore("unused_signal")
 signal mechanic_triggered(player_id: int, kind: StringName, spot: Vector2)
 ## One entry per skill slot (neutral, forward, up, down): {fraction, seconds, cost}.

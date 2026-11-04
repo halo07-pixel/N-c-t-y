@@ -12,7 +12,7 @@ var direction: Vector2 = Vector2.RIGHT
 var power: float = 0.3
 ## Overall size multiplier: the effects level times the character profile's spark scale.
 var amount: float = 1.0
-## How the burst is drawn (an FxProfile impact style): slash, shards, petals, lash or ink.
+## How the burst is drawn (an FxProfile impact style): slash, shards, petals, lash, frost or ink.
 var style: StringName = &"slash"
 var accent: Color = Color(1.0, 1.0, 1.0)
 var _age: float = 0.0
@@ -103,6 +103,18 @@ func _draw_style(t: float, size: float) -> void:
 					var p := float(step) * TAU / 8.0
 					petal.append(center + Vector2(cos(p) * 4.0, sin(p) * 1.8).rotated(a + t * 4.0))
 				draw_colored_polygon(petal, Color(color.r, color.g, color.b, fade))
+		&"frost":
+			# A snowflake: six spokes with small side branches, growing out of the hit.
+			var spoke := size * (0.8 + 0.3 * float(tier)) * ease_out
+			for i in 6:
+				var a := base + float(i) * PI / 3.0 + t * 0.4
+				var dir := Vector2.from_angle(a)
+				draw_line(dir * spoke * 0.15, dir * spoke, Color(accent.r, accent.g, accent.b, fade), 1.8 * fade + 0.4)
+				var branch := dir * spoke * 0.6
+				var side := Vector2.from_angle(a + 0.9) * spoke * 0.28
+				var other := Vector2.from_angle(a - 0.9) * spoke * 0.28
+				draw_line(branch, branch + side, Color(color.r, color.g, color.b, fade), 1.2 * fade + 0.3)
+				draw_line(branch, branch + other, Color(color.r, color.g, color.b, fade), 1.2 * fade + 0.3)
 		&"lash":
 			# Curved whip cracks sweeping through the point of impact, one more per tier.
 			for i in 2 + tier:

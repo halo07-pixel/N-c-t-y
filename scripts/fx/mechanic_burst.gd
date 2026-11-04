@@ -28,6 +28,8 @@ static func palette(mechanic: StringName) -> Array[Color]:
 			return [Color(1.0, 0.85, 0.4), Color(0.55, 0.25, 0.75)]
 		&"reach":
 			return [Color(1.0, 0.4, 0.3), Color(1.0, 0.95, 0.8)]
+		&"frost", &"chill":
+			return [Color(0.65, 0.92, 1.0), Color(1.0, 1.0, 1.0)]
 	return [Color(1.0, 0.15, 0.2), Color(0.1, 0.0, 0.05)]
 
 
@@ -50,6 +52,8 @@ func _draw() -> void:
 			_draw_beam(t, fade, colors)
 		&"reach":
 			_draw_tip_cut(t, fade, colors)
+		&"frost", &"chill":
+			_draw_snowflake(t, fade, colors)
 		_:
 			_draw_flare(t, fade, colors)
 
@@ -61,6 +65,20 @@ func _draw_tip_cut(t: float, fade: float, colors: Array[Color]) -> void:
 		var cut := Vector2.from_angle(angle)
 		draw_line(-cut * reach, cut * reach, Color(colors[0].r, colors[0].g, colors[0].b, 0.9 * fade), 2.2 * fade + 0.5)
 	draw_arc(Vector2.ZERO, reach * 0.6, 0.0, TAU, 18, Color(colors[1].r, colors[1].g, colors[1].b, 0.7 * fade), 1.0)
+
+
+## Frost: a snowflake that blooms (a freeze) or a small one (a chill stack) over the victim.
+func _draw_snowflake(t: float, fade: float, colors: Array[Color]) -> void:
+	var scale := 0.55 if kind == &"chill" else 1.0
+	var reach := (6.0 + 22.0 * (1.0 - pow(1.0 - t, 3.0))) * scale * amount
+	for i in 6:
+		var dir := Vector2.from_angle(float(i) * PI / 3.0 + t * 0.5)
+		draw_line(dir * reach * 0.2, dir * reach, Color(colors[1].r, colors[1].g, colors[1].b, 0.9 * fade), 1.6 * fade + 0.4)
+		var mid := dir * reach * 0.62
+		draw_line(mid, mid + dir.rotated(0.9) * reach * 0.3, Color(colors[0].r, colors[0].g, colors[0].b, 0.8 * fade), 1.0)
+		draw_line(mid, mid + dir.rotated(-0.9) * reach * 0.3, Color(colors[0].r, colors[0].g, colors[0].b, 0.8 * fade), 1.0)
+	if kind == &"frost":
+		draw_arc(Vector2.ZERO, reach * 1.15, 0.0, TAU, 24, Color(colors[0].r, colors[0].g, colors[0].b, 0.5 * fade), 1.2)
 
 
 ## Hollow: a ring that grows and flame spikes that rise from it.

@@ -7,6 +7,7 @@ const ROSTER_PATHS: PackedStringArray = [
 	"res://resources/characters/archer.tres",
 	"res://resources/characters/noble.tres",
 	"res://resources/characters/lieutenant.tres",
+	"res://resources/characters/ice.tres",
 ]
 const CPU_OFF := 0
 const CPU_MAX_LEVEL := 3

@@ -46,6 +46,16 @@ const PROFILES := {
 			&"guard": {"knee_f": 6.0, "knee_b": 6.0},
 		},
 	},
+	# Rukia: light and upright, every step a dance.
+	&"dancer": {
+		"idle_speed": 0.9, "idle_amp": 0.9, "cycles": 2.9, "stride": 1.0, "arm_swing": 0.8,
+		"lean": 3.0, "rate": 1.1,
+		"offsets": {
+			&"idle": {"torso": -2.0, "thigh_f": 4.0, "knee_f": 2.0, "thigh_b": -4.0, "arm_f": 6.0},
+			&"attack_forward:active": {"torso": 4.0, "hip_x": 1.0},
+			&"guard": {"torso": -3.0},
+		},
+	},
 	# Yhwach: stately, slow breathing, heavy blows.
 	&"emperor": {
 		"idle_speed": 0.7, "idle_amp": 0.6, "cycles": 2.0, "stride": 0.9, "arm_swing": 0.5,

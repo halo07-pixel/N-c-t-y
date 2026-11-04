@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="CharacterData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/character_data.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/movesets/ice_moveset.tres" id="r0"]
+[ext_resource type="Resource" path="res://resources/specials/ice_specials.tres" id="r1"]
+[ext_resource type="Resource" path="res://resources/specials/ice_bankai_specials.tres" id="r2"]
+[ext_resource type="Resource" path="res://resources/specials/ice_ultimate.tres" id="r3"]
+[ext_resource type="Resource" path="res://resources/rigs/ice_rig.tres" id="r4"]
+[ext_resource type="Resource" path="res://resources/fx/ice_fx.tres" id="r5"]
+
+[resource]
+script = ExtResource("1")
+mechanic = &"frost"
+display_name = "Rukia"
+transform_title = "BANKAI: HAKKA NO TOGAME"
+weight = 85.0
+run_speed = 150.0
+gravity = 950.0
+body_color = Color(0.15, 0.15, 0.22, 1)
+accent_color = Color(0.55, 0.8, 1.0, 1)
+weapon_style = &"sword"
+weapon_color = Color(0.95, 0.98, 1.0, 1)
+sprite_dir = "res://assets/original/ice/"
+sprite_id = "ice"
+moveset = ExtResource("r0")
+specials = ExtResource("r1")
+bankai_specials = ExtResource("r2")
+ultimate = ExtResource("r3")
+rig = ExtResource("r4")
+fx_profile = ExtResource("r5")

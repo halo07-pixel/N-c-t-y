@@ -1,0 +1,90 @@
+[gd_resource type="Resource" script_class="SpecialSet" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/special_set.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/data/special_data.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/data/projectile_data.gd" id="3"]
+
+[sub_resource type="Resource" id="P_ice_stream"]
+script = ExtResource("3")
+offset = Vector2(18, -17)
+velocity = Vector2(330, 0)
+lifetime_frames = 45
+size = Vector2(34, 12)
+pierce = false
+color = Color(0.7, 0.92, 1.0, 1)
+style = &"orb"
+
+[sub_resource type="Resource" id="S_ice_neutral"]
+script = ExtResource("2")
+display_name = "Tsugi no Mai: Hakuren"
+role = &"zone"
+direction = &"neutral"
+damage = 7.5
+base_knockback = 150
+knockback_growth = 70
+angle_degrees = 30
+startup_frames = 11
+active_frames = 2
+recovery_frames = 18
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+projectiles = Array[ExtResource("3")]([SubResource("P_ice_stream")])
+cooldown_frames = 45
+
+[sub_resource type="Resource" id="S_ice_forward"]
+script = ExtResource("2")
+display_name = "Snow Step"
+role = &"rush"
+direction = &"forward"
+damage = 8.5
+base_knockback = 190
+knockback_growth = 108
+angle_degrees = 40
+startup_frames = 6
+active_frames = 5
+recovery_frames = 18
+hitbox_size = Vector2(36, 16)
+hitbox_offset = Vector2(22, -16)
+self_velocity = Vector2(290, 0)
+ignore_gravity = true
+cooldown_frames = 75
+
+[sub_resource type="Resource" id="S_ice_up"]
+script = ExtResource("2")
+display_name = "Frost Rise"
+role = &"recover"
+direction = &"up"
+damage = 6.5
+base_knockback = 190
+knockback_growth = 100
+angle_degrees = 85
+startup_frames = 5
+active_frames = 4
+recovery_frames = 22
+hitbox_size = Vector2(26, 34)
+hitbox_offset = Vector2(4, -40)
+self_velocity = Vector2(40, -365)
+cooldown_frames = 240
+
+[sub_resource type="Resource" id="S_ice_down"]
+script = ExtResource("2")
+display_name = "Some no Mai: Tsukishiro"
+role = &"area"
+direction = &"down"
+damage = 7.0
+base_knockback = 175
+knockback_growth = 95
+angle_degrees = 70
+startup_frames = 9
+active_frames = 8
+recovery_frames = 22
+hitbox_size = Vector2(68, 36)
+hitbox_offset = Vector2(0, -16)
+cooldown_frames = 130
+
+[resource]
+script = ExtResource("1")
+neutral = SubResource("S_ice_neutral")
+forward = SubResource("S_ice_forward")
+up = SubResource("S_ice_up")
+down = SubResource("S_ice_down")

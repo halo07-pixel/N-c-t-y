@@ -20,6 +20,10 @@ const HEARTLESS_BOUNCE := 1.4
 const TIP_FRACTION := 0.7
 const TIP_DAMAGE := 1.2
 const TIP_KNOCKBACK := 1.15
+## Rukia's frost: this many of her hits within the window freeze the target in place for a moment.
+const CHILL_HITS := 3
+const CHILL_WINDOW := 300
+const FREEZE_FRAMES := 40
 const PETAL_ZONE_RADIUS := 80.0
 const PETAL_RUN_SCALE := 1.25
 const FIGHTER_GROUP := &"fighters"
@@ -54,6 +58,9 @@ var is_fast_falling: bool = false
 var percent: float = 0.0
 var hitstun_frames_left: int = 0
 var hitlag_left: int = 0
+## Frost stacks on this fighter from Rukia's hits, and the frames left before they melt.
+var chill_stacks: int = 0
+var chill_frames_left: int = 0
 var invincible_left: int = 0
 var reiatsu: float = 0.0
 var bankai_frames_left: int = 0
@@ -250,6 +257,7 @@ func _on_hit_received(info: HitInfo) -> void:
 	velocity = info.direction * launch_speed
 	hitstun_frames_left = Knockback.hitstun_frames(launch_speed)
 	hitlag_left = Knockback.hitlag_frames(info.damage)
+	_chill(info.attacker_id)
 	is_fast_falling = false
 	_body.flash_hit()
 	if absf(info.direction.x) > 0.1:
@@ -351,6 +359,10 @@ func begin_dash() -> void:
 
 
 func _tick_mechanics() -> void:
+	if chill_frames_left > 0:
+		chill_frames_left -= 1
+		if chill_frames_left == 0:
+			chill_stacks = 0
 	if empower_frames_left > 0:
 		empower_frames_left -= 1
 		empowered = empower_frames_left > 0
@@ -420,6 +432,31 @@ func _counter_hit(info: HitInfo) -> void:
 	queue_move(counter_move)
 	set_counter(null)
 	_state_machine.transition_to(&"Attack")
+
+
+## Rukia's frost: each of her hits adds a chill; the third freezes the target where it stands
+## (a long hitlag) before the launch plays out.
+func _chill(attacker_id: int) -> void:
+	var attacker := _fighter_with_id(attacker_id)
+	if attacker == null or attacker.data.mechanic != &"frost":
+		return
+	chill_stacks += 1
+	chill_frames_left = CHILL_WINDOW
+	var spot := global_position + Vector2(0.0, -16.0)
+	if chill_stacks >= CHILL_HITS:
+		chill_stacks = 0
+		hitlag_left = maxi(hitlag_left, FREEZE_FRAMES)
+		Events.mechanic_triggered.emit(attacker_id, &"frost", spot)
+	else:
+		Events.mechanic_triggered.emit(attacker_id, &"chill", spot)
+
+
+func _fighter_with_id(id: int) -> Fighter:
+	for node in get_tree().get_nodes_in_group(FIGHTER_GROUP):
+		var other := node as Fighter
+		if other != null and other.player_id == id:
+			return other
+	return null
 
 
 ## The Almighty steals one Reiatsu block from whoever struck, if they have one.
