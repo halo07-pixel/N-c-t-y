@@ -35,4 +35,5 @@ weapon_width = 1.6
 weapon_color = Color(0.95, 0.98, 1.0, 1)
 grip_color = Color(0.2, 0.35, 0.6, 1)
 cape_length = 0.0
+forelock = true
 form_look = ExtResource("2")

@@ -25,3 +25,4 @@ weapon_width = 1.6
 weapon_color = Color(1.0, 1.0, 1.0, 1)
 grip_color = Color(0.75, 0.9, 1.0, 1)
 cape_length = 0.0
+forelock = true

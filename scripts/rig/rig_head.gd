@@ -71,6 +71,7 @@ func _draw() -> void:
 	_draw_mouth(face)
 	if rig.eyepatch:
 		_draw_eyepatch(face)
+	_draw_face_marks(face)
 	if rig.glasses:
 		_draw_glasses(face)
 
@@ -183,8 +184,17 @@ func _draw_hair(face: Rect2) -> void:
 
 ## Crown: three points standing on top of the hair.
 func _draw_headwear(face: Rect2) -> void:
-	if rig.headwear != &"crown":
-		return
+	match rig.headwear:
+		&"headband":
+			_draw_headband(face)
+			return
+		&"kenseikan":
+			_draw_kenseikan(face)
+			return
+		&"crown":
+			pass
+		_:
+			return
 	var top := face.position.y - 1.2
 	var base_y := top + 1.6
 	for index in 3:
@@ -193,3 +203,38 @@ func _draw_headwear(face: Rect2) -> void:
 			Vector2(x - 1.6, base_y), Vector2(x, base_y - 3.4 - (1.2 if index == 1 else 0.0)), Vector2(x + 1.6, base_y),
 		]), rig.accent)
 	draw_rect(Rect2(face.position.x + face.size.x * 0.12, base_y - 0.2, face.size.x * 0.76, 1.3), rig.accent.darkened(0.25))
+
+
+## Renji's headband: a band across the forehead with its knot's tails trailing behind the head.
+func _draw_headband(face: Rect2) -> void:
+	var y := face.position.y + face.size.y * 0.3
+	draw_rect(Rect2(face.position.x - 0.4, y, face.size.x + 0.8, 1.9), rig.outline)
+	draw_rect(Rect2(face.position.x - 0.2, y + 0.3, face.size.x + 0.4, 1.3), rig.headwear_color)
+	var knot := Vector2(face.position.x - 0.4, y + 1.0)
+	draw_line(knot, knot + Vector2(-3.4, 1.2), rig.headwear_color, 1.3)
+	draw_line(knot, knot + Vector2(-3.0, -0.8), rig.headwear_color, 1.3)
+
+
+## Byakuya's kenseikan: a white band over the hair with the flat white ornaments standing on top.
+func _draw_kenseikan(face: Rect2) -> void:
+	var top := face.position.y
+	var width := face.size.x
+	draw_rect(Rect2(face.position.x + width * 0.08, top + 0.2, width * 0.84, 1.5), rig.headwear_color)
+	for index in 3:
+		var x := face.position.x + width * (0.2 + 0.28 * index)
+		draw_rect(Rect2(x, top - 2.4, 1.8, 2.8), rig.outline)
+		draw_rect(Rect2(x + 0.3, top - 2.1, 1.2, 2.4), rig.headwear_color)
+
+
+## Small signatures of the face that are not worn: tattoos, a lock of hair, a permanent scowl.
+func _draw_face_marks(face: Rect2) -> void:
+	var eye := Vector2(face.position.x + face.size.x * 0.68, face.position.y + face.size.y * 0.62)
+	if rig.brow_marks:
+		for index in 3: # three short ticks over the front eyebrow
+			var x := eye.x - 2.2 + float(index) * 1.8
+			draw_line(Vector2(x, eye.y - 3.9), Vector2(x + 0.8, eye.y - 3.3), rig.outline, 0.8)
+	if rig.forelock:
+		var root := Vector2(face.position.x + face.size.x * 0.5, face.position.y + face.size.y * 0.2)
+		draw_polyline(PackedVector2Array([root, root + Vector2(0.4, 2.6), root + Vector2(-0.2, 5.2), eye + Vector2(-1.6, -0.4)]), rig.hair, 1.1)
+	if rig.scowl and look != &"fierce" and look != &"hurt" and look != &"ko" and look != &"happy":
+		draw_line(eye + Vector2(-3.4, -2.0), eye + Vector2(1.2, -1.2), rig.outline, 0.9)

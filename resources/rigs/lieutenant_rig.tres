@@ -30,3 +30,6 @@ weapon_width = 2.2
 weapon_color = Color(0.82, 0.84, 0.9, 1)
 grip_color = Color(0.3, 0.06, 0.08, 1)
 cape_length = 0.0
+headwear = &"headband"
+headwear_color = Color(0.95, 0.95, 0.98, 1)
+brow_marks = true

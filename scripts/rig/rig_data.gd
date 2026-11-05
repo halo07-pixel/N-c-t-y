@@ -81,6 +81,12 @@ func height() -> float:
 ## An eyepatch over the front eye (Kenpachi's, which holds back his power) and bells in the hair.
 @export var eyepatch: bool = false
 @export var hair_bells: bool = false
+## Renji's eyebrow tattoos, Rukia's lock of hair between the eyes, Ichigo's permanent scowl.
+@export var brow_marks: bool = false
+@export var forelock: bool = false
+@export var scowl: bool = false
+## Colour of a headband or kenseikan (see `headwear`).
+@export var headwear_color: Color = Color(0.95, 0.95, 0.98)
 
 @export_group("Form")
 ## Look of the transformed fighter: mask, wings, blades or dark_wings (empty = aura only).
