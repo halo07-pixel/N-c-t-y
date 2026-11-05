@@ -12,7 +12,7 @@
 script = ExtResource("1")
 mechanic = &"reach"
 display_name = "Renji"
-transform_title = "BANKAI: SOO ZABIMARU"
+transform_title = "BANKAI: HIHIO ZABIMARU"
 weight = 100.0
 run_speed = 138.0
 gravity = 960.0

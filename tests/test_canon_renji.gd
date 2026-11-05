@@ -6,9 +6,9 @@ const RENJI: CharacterData = preload("res://resources/characters/lieutenant.tres
 
 func test_canon_names() -> void:
 	check_eq(RENJI.display_name, "Renji", "the fighter")
-	check_eq(RENJI.specials.neutral.display_name, "Hihio Zabimaru", "the shikai's roar")
+	check_eq(RENJI.specials.neutral.display_name, "Hoero Zabimaru", "the shikai's extending blade")
 	check_eq(RENJI.bankai_specials.neutral.display_name, "Hikotsu Taiho", "the bankai's cannon")
-	check_eq(RENJI.transform_title, "BANKAI: SOO ZABIMARU", "the bankai")
+	check_eq(RENJI.transform_title, "BANKAI: HIHIO ZABIMARU", "the bankai")
 
 
 func test_his_blade_reaches_further_than_everyone_elses() -> void:
@@ -33,6 +33,23 @@ func test_the_roar_is_a_fast_long_blade_and_the_cannon_pierces() -> void:
 	check(roar.velocity.x >= 450.0 and roar.lifetime_frames <= 20, "a fast, short-lived extension of the blade")
 	check(RENJI.bankai_specials.neutral.projectiles[0].pierce, "the bankai's version pierces")
 	check(RENJI.ultimate.projectiles[0].pierce and RENJI.ultimate.cinematic_frames > 0, "the ultimate is a cinematic piercing blast")
+
+
+func test_his_skills_are_interactive_like_the_first_three() -> void:
+	for set: SpecialSet in [RENJI.specials, RENJI.bankai_specials]:
+		check(set.neutral.is_chargeable(), "hold the skill key to stretch the blade or charge the cannon")
+		check(set.neutral.follow_up != null, "the blade can be recalled with a second press")
+		check(set.forward.follow_up != null, "the dash has a second strike")
+		check(set.down.projectiles[0].trap and set.down.limit_active > 1, "the coil snare is a trap he can lay more than one of")
+	check(RENJI.bankai_specials.neutral.charge_pierce, "a full charge pierces")
+
+
+func test_his_form_is_the_bone_snake_not_another_fighters_look() -> void:
+	check_eq(RENJI.rig.form_style, &"bone_snake", "Hihio Zabimaru is a bone snake")
+	for path in ["swordsman", "archer", "noble"]:
+		var other := load("res://resources/characters/%s.tres" % path) as CharacterData
+		check(other.rig.form_style != RENJI.rig.form_style, "not %s's form" % other.display_name)
+	check(ProjectileArt.STYLES.has(&"chain") and ProjectileArt.STYLES.has(&"baboon") and ProjectileArt.STYLES.has(&"coil"), "his projectile looks exist")
 
 
 func test_his_signature_is_the_tip_strike() -> void:

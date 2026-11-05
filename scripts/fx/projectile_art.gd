@@ -5,7 +5,7 @@ extends RefCounted
 ## Everything is facing +x; `angle` turns it along the flight direction.
 
 const TRAIL_POINTS := 9
-const STYLES: Array[StringName] = [&"crescent", &"arrow", &"petal", &"orb", &"blast", &"beam", &"bolt", &"blade", &"swirl"]
+const STYLES: Array[StringName] = [&"crescent", &"arrow", &"petal", &"orb", &"blast", &"beam", &"bolt", &"blade", &"swirl", &"chain", &"baboon", &"coil"]
 
 
 ## Outline of a crescent `width` long and `height` tall, convex side toward +x.
@@ -56,6 +56,12 @@ static func draw(
 			_blade(item, size, color)
 		&"swirl":
 			_swirl(item, size, color, age)
+		&"chain":
+			_chain(item, size, color, age)
+		&"baboon":
+			_baboon(item, size, color, age)
+		&"coil":
+			_coil(item, size, color, age)
 		&"arrow":
 			_arrow(item, size, color)
 		&"petal":
@@ -220,3 +226,64 @@ static func _wall(item: CanvasItem, size: Vector2, color: Color, age: float) -> 
 			var a := float(step) * TAU / 6.0
 			petal.append(Vector2(x, y) + Vector2(cos(a) * 3.0, sin(a) * 1.3).rotated(age * 4.0 + float(i)))
 		item.draw_colored_polygon(petal, _alpha(color, 0.85))
+
+
+## Zabimaru's extended blade: a row of bone segments joined by a glowing cord, ending in a spike.
+## The segments pull slightly apart toward the tip, as if the blade were being stretched.
+static func _chain(item: CanvasItem, size: Vector2, color: Color, age: float) -> void:
+	var half := size.x * 0.5
+	var count := clampi(int(size.x / 9.0), 3, 14)
+	item.draw_line(Vector2(-half, 0.0), Vector2(half, 0.0), _alpha(color, 0.3), size.y * 0.9)
+	item.draw_line(Vector2(-half, 0.0), Vector2(half, 0.0), color, 1.2)
+	for i in count:
+		var f := float(i) / float(count)
+		var centre := Vector2(lerpf(-half, half - 8.0, f) + 4.0, sin(age * 30.0 + float(i) * 1.7) * 0.6)
+		var reach := 4.0 + 3.0 * f
+		var seg := PackedVector2Array([
+			centre + Vector2(-reach, 0.0), centre + Vector2(0.0, -size.y * 0.45),
+			centre + Vector2(reach, 0.0), centre + Vector2(0.0, size.y * 0.45),
+		])
+		item.draw_colored_polygon(seg, Color(0.95, 0.92, 0.85, 0.95))
+		item.draw_polyline(PackedVector2Array([seg[0], seg[1], seg[2], seg[3], seg[0]]), color, 1.0)
+	var tip := PackedVector2Array([Vector2(half - 7.0, -size.y * 0.5), Vector2(half + 4.0, 0.0), Vector2(half - 7.0, size.y * 0.5)])
+	item.draw_colored_polygon(tip, Color(1.0, 1.0, 1.0, 0.95))
+	item.draw_polyline(PackedVector2Array([tip[0], tip[1], tip[2]]), color, 1.2)
+
+
+## The Hikotsu Taiho: a red blast with the baboon's skull at its head, jaws open.
+static func _baboon(item: CanvasItem, size: Vector2, color: Color, age: float) -> void:
+	var w := size.x * 0.5
+	var h := size.y * 0.5
+	var shape := PackedVector2Array([
+		Vector2(-w, 0.0), Vector2(-w * 0.5, -h * 1.1), Vector2(w * 0.55, -h * 0.9), Vector2(w * 0.55, h * 0.9), Vector2(-w * 0.5, h * 1.1),
+	])
+	item.draw_colored_polygon(_scaled(shape, 1.25), _alpha(color, 0.22))
+	item.draw_colored_polygon(shape, _alpha(color, 0.8))
+	item.draw_colored_polygon(_scaled(shape, 0.45), Color(1.0, 0.95, 0.85, 0.95))
+	var head := Vector2(w * 0.55, 0.0)
+	var jaw := 0.5 + 0.5 * sin(age * 18.0)
+	var r := h * 1.0
+	item.draw_circle(head, r, Color(0.93, 0.9, 0.82))
+	item.draw_circle(head, r, _alpha(color, 0.0))
+	item.draw_arc(head, r, 0.0, TAU, 18, color, 1.2)
+	var snout := PackedVector2Array([head + Vector2(r * 0.3, -r * 0.35), head + Vector2(r * 1.5, -r * (0.1 + 0.35 * jaw)), head + Vector2(r * 1.5, r * (0.1 + 0.35 * jaw)), head + Vector2(r * 0.3, r * 0.35)])
+	item.draw_colored_polygon(snout, Color(0.93, 0.9, 0.82))
+	for fang in 3:
+		var fx := head.x + r * (0.7 + 0.3 * float(fang))
+		item.draw_colored_polygon(PackedVector2Array([Vector2(fx, head.y - r * 0.15 * (1.0 + jaw)), Vector2(fx + 1.2, head.y - r * (0.15 + 0.2 * jaw)), Vector2(fx + 2.4, head.y - r * 0.15 * (1.0 + jaw))]), color)
+	item.draw_circle(head + Vector2(r * 0.15, -r * 0.3), maxf(r * 0.16, 1.0), Color(0.6, 0.05, 0.05))
+
+
+## A trap of coiled bone segments lying on the ground: a spiral that slowly turns until touched.
+static func _coil(item: CanvasItem, size: Vector2, color: Color, age: float) -> void:
+	item.draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.45))
+	var radius := maxf(size.x, size.y) * 0.5
+	var pulse := 0.5 + 0.5 * sin(age * 6.0)
+	item.draw_circle(Vector2.ZERO, radius * (1.0 + 0.2 * pulse), _alpha(color, 0.1 + 0.1 * pulse))
+	for i in 16:
+		var f := float(i) / 15.0
+		var a := age * 1.4 + f * TAU * 1.7
+		var at := Vector2(cos(a), sin(a)) * radius * (1.0 - 0.7 * f)
+		item.draw_colored_polygon(PackedVector2Array([at + Vector2(-2.6, 0.0), at + Vector2(0.0, -2.4), at + Vector2(2.6, 0.0), at + Vector2(0.0, 2.4)]), Color(0.95, 0.92, 0.85, 0.95))
+		item.draw_circle(at, 0.9, _alpha(color, 0.95))
+	item.draw_arc(Vector2.ZERO, radius, 0.0, TAU, 28, _alpha(color, 0.8), 1.2)

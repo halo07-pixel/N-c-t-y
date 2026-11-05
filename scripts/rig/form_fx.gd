@@ -2,10 +2,10 @@ class_name FormFx
 extends Node2D
 ## The look of a transformed fighter, drawn by code over/behind the rig: a hollow mask and long
 ## hair (mask), light wings and a halo (wings), floating blades (blades) or big dark wings with
-## a halo (dark_wings) or tongues of spiritual pressure with a glowing eye (flames). Two instances exist per body: one behind and one in front of the rig.
+## a halo (dark_wings) tongues of spiritual pressure with a glowing eye (flames) or a giant segmented bone snake with a baboon's head coiling around the body (bone_snake). Two instances exist per body: one behind and one in front of the rig.
 ## Everything is positioned from two anchors the body keeps updating (head and back).
 
-const STYLES: Array[StringName] = [&"mask", &"wings", &"blades", &"dark_wings", &"flames"]
+const STYLES: Array[StringName] = [&"mask", &"wings", &"blades", &"dark_wings", &"flames", &"bone_snake"]
 const GROW_SECONDS := 0.45
 const BLADE_COUNT := 8
 
@@ -96,6 +96,8 @@ func _draw() -> void:
 			_draw_blades(t)
 		&"flames":
 			_draw_flames(t)
+		&"bone_snake":
+			_draw_bone_snake(t)
 
 
 func _draw_mask(t: float) -> void:
@@ -177,3 +179,72 @@ func _draw_flames(t: float) -> void:
 	var eye := head_anchor + Vector2(head_radius * 0.55, -head_radius * 0.12)
 	draw_circle(eye, 1.7 * t, Color(1.0, 0.9, 0.4, 0.5))
 	draw_line(eye + Vector2(-1.4, 0.0), eye + Vector2(1.4, 0.0), Color(1.0, 1.0, 0.8), 0.9)
+
+
+## Hihio Zabimaru: a long snake of bone segments rising from the back, arching high over the
+## fighter and ending in the baboon's skull in front of the head. The lower part of the arc is
+## drawn behind the body, the upper part and the skull in front.
+func _draw_bone_snake(t: float) -> void:
+	if t <= 0.0:
+		return
+	var points := bone_snake_path(_time, back_anchor, head_anchor, t)
+	var count := points.size()
+	for i in count - 1:
+		var behind := float(i) / float(count) < BONE_SNAKE_BEHIND
+		if behind != (layer == &"back"):
+			continue
+		var f := float(i) / float(count)
+		var along := points[i + 1] - points[i]
+		var normal := along.normalized().orthogonal()
+		var width := lerpf(4.4, 3.0, f)
+		var shade := 0.6 if layer == &"back" else 1.0
+		var seg := PackedVector2Array([
+			points[i] + along * 0.08, points[i] + along * 0.5 + normal * width, points[i + 1] - along * 0.08, points[i] + along * 0.5 - normal * width,
+		])
+		draw_colored_polygon(seg, Color(0.95 * shade, 0.92 * shade, 0.84 * shade, 0.97))
+		draw_polyline(PackedVector2Array([seg[0], seg[1], seg[2], seg[3], seg[0]]), Color(color.r, color.g, color.b, 0.95), 1.0)
+		draw_line(points[i] + along * 0.5 + normal * width * 0.9, points[i] + along * 0.5 + normal * (width + 2.2), Color(color.r, color.g, color.b, 0.8 * shade), 1.0)
+	if layer == &"front":
+		_draw_baboon_head(points[count - 1], points[count - 1] - points[count - 3], t)
+
+
+const BONE_SNAKE_BEHIND := 0.5
+
+
+## The snake's spine in the body's space: a cubic curve from the back, up and over the head to a
+## point in front of it, with a slow wave running along it.
+static func bone_snake_path(time: float, root: Vector2, head: Vector2, grow_t: float) -> PackedVector2Array:
+	var path := PackedVector2Array()
+	var steps := 16
+	var p1 := root + Vector2(-34.0, -6.0)
+	var p2 := head + Vector2(-26.0, -46.0)
+	var p3 := head + Vector2(17.0, -20.0)
+	for i in steps + 1:
+		var f := float(i) / float(steps) * grow_t
+		var u := 1.0 - f
+		var on_curve := u * u * u * root + 3.0 * u * u * f * p1 + 3.0 * u * f * f * p2 + f * f * f * p3
+		var tangent := (3.0 * u * u * (p1 - root) + 6.0 * u * f * (p2 - p1) + 3.0 * f * f * (p3 - p2)).normalized()
+		path.append(on_curve + tangent.orthogonal() * sin(f * TAU * 2.0 + time * 3.0) * 2.6 * sin(f * PI))
+	return path
+
+
+func _draw_baboon_head(at: Vector2, direction: Vector2, t: float) -> void:
+	var facing := direction.normalized() if direction.length() > 0.01 else Vector2.RIGHT
+	var side := facing.orthogonal()
+	var jaw := 0.5 + 0.5 * sin(_time * 5.0)
+	var skull := Color(0.97, 0.94, 0.86)
+	var r := 6.5 * t
+	draw_circle(at, r + 1.0, Color(color.r, color.g, color.b, 0.9))
+	draw_circle(at, r, skull)
+	var snout_tip := at + facing * r * 2.0
+	var open := (1.0 + 2.6 * jaw) * t
+	draw_colored_polygon(PackedVector2Array([at + side * r * 0.7, snout_tip + side * (1.4 + open), snout_tip - side * (1.4 + open), at - side * r * 0.7]), skull)
+	draw_colored_polygon(PackedVector2Array([at + facing * r * 0.9, snout_tip - side * (1.4 + open) * 0.2, at + facing * r * 0.9 + side * open]), Color(0.45, 0.04, 0.06))
+	draw_circle(at + side * r * 0.35 + facing * r * 0.1, r * 0.22, Color(0.8, 0.05, 0.05))
+	for fang in 3:
+		var base := snout_tip - facing * (1.2 + float(fang) * 2.4)
+		draw_line(base + side * (1.4 + open), base + side * (1.4 + open) - side * 2.8, Color.WHITE, 1.1)
+		draw_line(base - side * (1.4 + open), base - side * (1.4 + open) + side * 2.8, Color.WHITE, 1.1)
+	for horn in 2:
+		var root := at - facing * r * 0.2 + side * r * (0.6 if horn == 0 else -0.6)
+		draw_line(root, root - facing * r * 0.8 + side * r * (0.5 if horn == 0 else -0.5), Color(color.r, color.g, color.b, 0.95), 1.6)

@@ -11,8 +11,48 @@ velocity = Vector2(520, 0)
 lifetime_frames = 15
 size = Vector2(64, 12)
 pierce = true
-color = Color(1.0, 0.55, 0.45, 1)
-style = &"blade"
+color = Color(1.0, 0.45, 0.4, 1)
+style = &"baboon"
+
+[sub_resource type="Resource" id="P_lieutenant_snare_b"]
+script = ExtResource("3")
+offset = Vector2(42, -5)
+velocity = Vector2(0, 0)
+lifetime_frames = 420
+size = Vector2(38, 38)
+pierce = false
+color = Color(1.0, 0.4, 0.35, 1)
+style = &"coil"
+trap = true
+
+[sub_resource type="Resource" id="S_lieutenantb_recall"]
+script = ExtResource("2")
+display_name = "Zabimaru Recall +"
+direction = &"forward"
+damage = 8.625
+base_knockback = 190
+knockback_growth = 95
+angle_degrees = 40
+startup_frames = 4
+active_frames = 3
+recovery_frames = 16
+hitbox_size = Vector2(64, 18)
+hitbox_offset = Vector2(36, -16)
+
+[sub_resource type="Resource" id="S_lieutenantb_fang"]
+script = ExtResource("2")
+display_name = "Fang Slash +"
+direction = &"forward"
+damage = 9.2
+base_knockback = 200
+knockback_growth = 105
+angle_degrees = 30
+startup_frames = 4
+active_frames = 4
+recovery_frames = 17
+hitbox_size = Vector2(38, 22)
+hitbox_offset = Vector2(28, -14)
+self_velocity = Vector2(170, 0)
 
 [sub_resource type="Resource" id="S_lieutenantb_neutral"]
 script = ExtResource("2")
@@ -29,7 +69,16 @@ recovery_frames = 18
 hitbox_size = Vector2(0, 0)
 hitbox_offset = Vector2(0, 0)
 projectiles = Array[ExtResource("3")]([SubResource("P_lieutenant_roar_b")])
-cooldown_frames = 40
+cooldown_frames = 44
+charge_max_frames = 45
+charge_cost = 70.0
+charge_damage_scale = 1.7
+charge_size_scale = 1.9
+charge_speed_scale = 1.3
+charge_pierce = true
+follow_up = SubResource("S_lieutenantb_recall")
+follow_up_cost = 30.0
+follow_up_window = 34
 
 [sub_resource type="Resource" id="S_lieutenantb_forward"]
 script = ExtResource("2")
@@ -48,6 +97,9 @@ hitbox_offset = Vector2(24, -16)
 self_velocity = Vector2(300, 0)
 ignore_gravity = true
 cooldown_frames = 80
+follow_up = SubResource("S_lieutenantb_fang")
+follow_up_cost = 40.0
+follow_up_window = 26
 
 [sub_resource type="Resource" id="S_lieutenantb_up"]
 script = ExtResource("2")
@@ -68,19 +120,22 @@ cooldown_frames = 240
 
 [sub_resource type="Resource" id="S_lieutenantb_down"]
 script = ExtResource("2")
-display_name = "Coil Spin +"
-role = &"area"
+display_name = "Coil Snare +"
+role = &"defend"
 direction = &"down"
 damage = 8.625
-base_knockback = 190
-knockback_growth = 105
-angle_degrees = 60
-startup_frames = 8
-active_frames = 8
-recovery_frames = 22
-hitbox_size = Vector2(68, 30)
-hitbox_offset = Vector2(0, -14)
-cooldown_frames = 130
+base_knockback = 170
+knockback_growth = 90
+angle_degrees = 70
+startup_frames = 10
+active_frames = 2
+recovery_frames = 18
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+projectiles = Array[ExtResource("3")]([SubResource("P_lieutenant_snare_b")])
+cooldown_frames = 120
+limit_active = 3
+repeat_cost = 25.0
 
 [resource]
 script = ExtResource("1")
