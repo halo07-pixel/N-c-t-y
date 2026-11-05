@@ -25,6 +25,22 @@ color = Color(0.7, 0.92, 1.0, 1)
 style = &"rune"
 trap = true
 
+[sub_resource type="Resource" id="S_ice_icestep"]
+script = ExtResource("2")
+display_name = "Ice Step"
+direction = &"up"
+damage = 6.0
+base_knockback = 180
+knockback_growth = 95
+angle_degrees = 55
+startup_frames = 3
+active_frames = 5
+recovery_frames = 18
+hitbox_size = Vector2(30, 24)
+hitbox_offset = Vector2(20, -22)
+self_velocity = Vector2(250, -30)
+ignore_gravity = true
+
 [sub_resource type="Resource" id="S_ice_back"]
 script = ExtResource("2")
 display_name = "Mai Return"
@@ -100,6 +116,9 @@ hitbox_size = Vector2(26, 34)
 hitbox_offset = Vector2(4, -40)
 self_velocity = Vector2(40, -365)
 cooldown_frames = 240
+follow_up = SubResource("S_ice_icestep")
+follow_up_cost = 30.0
+follow_up_window = 28
 
 [sub_resource type="Resource" id="S_ice_down"]
 script = ExtResource("2")

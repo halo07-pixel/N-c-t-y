@@ -25,6 +25,21 @@ color = Color(1.0, 0.4, 0.35, 1)
 style = &"coil"
 trap = true
 
+[sub_resource type="Resource" id="S_lieutenantb_hook2"]
+script = ExtResource("2")
+display_name = "Second Hook +"
+direction = &"up"
+damage = 7.475
+base_knockback = 190
+knockback_growth = 100
+angle_degrees = 80
+startup_frames = 4
+active_frames = 4
+recovery_frames = 20
+hitbox_size = Vector2(28, 34)
+hitbox_offset = Vector2(6, -38)
+self_velocity = Vector2(60, -290)
+
 [sub_resource type="Resource" id="S_lieutenantb_recall"]
 script = ExtResource("2")
 display_name = "Zabimaru Recall +"
@@ -117,6 +132,9 @@ hitbox_size = Vector2(26, 34)
 hitbox_offset = Vector2(4, -40)
 self_velocity = Vector2(50, -370)
 cooldown_frames = 240
+follow_up = SubResource("S_lieutenantb_hook2")
+follow_up_cost = 30.0
+follow_up_window = 28
 
 [sub_resource type="Resource" id="S_lieutenantb_down"]
 script = ExtResource("2")

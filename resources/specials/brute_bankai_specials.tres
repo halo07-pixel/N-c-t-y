@@ -24,6 +24,21 @@ pierce = true
 color = Color(1.0, 0.6, 0.25, 1)
 style = &"crescent"
 
+[sub_resource type="Resource" id="S_bruteb_drop"]
+script = ExtResource("2")
+display_name = "Meteor Drop +"
+direction = &"down"
+damage = 13.440000000000001
+base_knockback = 215
+knockback_growth = 130
+angle_degrees = -70
+startup_frames = 4
+active_frames = 6
+recovery_frames = 26
+hitbox_size = Vector2(34, 38)
+hitbox_offset = Vector2(8, -14)
+self_velocity = Vector2(0, 430)
+
 [sub_resource type="Resource" id="S_bruteb_chop"]
 script = ExtResource("2")
 display_name = "Overhead Chop +"
@@ -113,6 +128,9 @@ hitbox_size = Vector2(30, 38)
 hitbox_offset = Vector2(4, -40)
 self_velocity = Vector2(60, -350)
 cooldown_frames = 240
+follow_up = SubResource("S_bruteb_drop")
+follow_up_cost = 30.0
+follow_up_window = 30
 
 [sub_resource type="Resource" id="S_bruteb_down"]
 script = ExtResource("2")

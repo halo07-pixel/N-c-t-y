@@ -71,3 +71,25 @@ func test_every_fighter_changes_clothes_when_transformed() -> void:
 		body.set_bankai(false)
 		check(body._look == data.rig and body._head.rig == data.rig, "%s is back to normal afterwards" % data.display_name)
 		body.free()
+
+
+func _interactive(skill: SpecialData) -> bool:
+	return skill.is_chargeable() or skill.follow_up != null or skill.limit_active > 0 or skill.command_speed > 0.0 or skill.counter_move != null
+
+
+func test_every_skill_of_the_redone_fighters_can_be_played_with() -> void:
+	for key in ["lieutenant", "ice", "brute"]:
+		var data := load("res://resources/characters/%s.tres" % key) as CharacterData
+		for set: SpecialSet in [data.specials, data.bankai_specials]:
+			for skill: SpecialData in [set.neutral, set.forward, set.up, set.down]:
+				check(_interactive(skill), "%s: %s has a second press, a charge or a trap" % [data.display_name, skill.display_name])
+
+
+func test_every_fighter_has_at_least_three_interactive_skills() -> void:
+	for key in KEYS:
+		var data := load("res://resources/characters/%s.tres" % key) as CharacterData
+		var count := 0
+		for skill: SpecialData in [data.specials.neutral, data.specials.forward, data.specials.up, data.specials.down]:
+			if _interactive(skill):
+				count += 1
+		check(count >= 3, "%s has %d interactive skills" % [data.display_name, count])
