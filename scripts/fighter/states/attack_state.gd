@@ -179,6 +179,8 @@ func _advance_move() -> void:
 		_begin_active()
 	elif _frame == active_end:
 		fighter.hitbox.deactivate()
+	if _special != null and _frame > active_start:
+		_spawn_delayed()
 	if _special != null and _frame >= active_start and _frame < active_end:
 		_hold_special_motion()
 	if _frame > active_start and _frame <= active_end and _moves_while_hitting():
@@ -212,7 +214,15 @@ func _begin_active() -> void:
 	if _special.limit_active > 0:
 		fighter.prepare_trap(_special)
 	for projectile_data in _special.projectiles:
-		fighter.spawn_projectile(projectile_data, _special, _released_charge)
+		if projectile_data.delay_frames <= 0:
+			fighter.spawn_projectile(projectile_data, _special, _released_charge)
+
+
+## The projectiles of a move that fires in beats appear `delay_frames` after the active frames began.
+func _spawn_delayed() -> void:
+	for projectile_data in _special.projectiles:
+		if projectile_data.delay_frames > 0 and _frame == _move.startup_frames + projectile_data.delay_frames:
+			fighter.spawn_projectile(projectile_data, _special, _released_charge)
 
 
 ## True for moves that carry the fighter while the hitbox is out (a lunge or a dash).

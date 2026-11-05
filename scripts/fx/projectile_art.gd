@@ -5,7 +5,7 @@ extends RefCounted
 ## Everything is facing +x; `angle` turns it along the flight direction.
 
 const TRAIL_POINTS := 9
-const STYLES: Array[StringName] = [&"crescent", &"arrow", &"petal", &"orb", &"blast", &"beam", &"bolt", &"blade", &"swirl", &"chain", &"baboon", &"coil", &"rune"]
+const STYLES: Array[StringName] = [&"crescent", &"arrow", &"petal", &"orb", &"blast", &"beam", &"bolt", &"blade", &"swirl", &"chain", &"baboon", &"coil", &"rune", &"pillar"]
 
 
 ## Outline of a crescent `width` long and `height` tall, convex side toward +x.
@@ -42,7 +42,7 @@ static func draw(
 	trail: PackedVector2Array = PackedVector2Array(), rim: Color = Color(0.0, 0.0, 0.0, 0.0)
 ) -> void:
 	_draw_trail(item, trail, color, size)
-	item.draw_set_transform(Vector2.ZERO, angle, Vector2.ONE)
+	item.draw_set_transform(Vector2.ZERO, 0.0 if style == &"pillar" else angle, Vector2.ONE)
 	match style:
 		&"crescent":
 			_crescent(item, size, color, 1.0, rim)
@@ -64,6 +64,8 @@ static func draw(
 			_coil(item, size, color, age)
 		&"rune":
 			_rune(item, size, color, age)
+		&"pillar":
+			_pillar(item, size, color, age)
 		&"arrow":
 			_arrow(item, size, color)
 		&"petal":
@@ -306,3 +308,21 @@ static func _rune(item: CanvasItem, size: Vector2, color: Color, age: float) -> 
 		item.draw_line(v * radius * 0.1, v * radius * 0.7, _alpha(Color.WHITE, 0.9), 1.2)
 		item.draw_line(v * radius * 0.45, v * radius * 0.45 + Vector2.from_angle(a + 0.8) * radius * 0.2, _alpha(color, 0.9), 1.0)
 		item.draw_line(v * radius * 0.45, v * radius * 0.45 + Vector2.from_angle(a - 0.8) * radius * 0.2, _alpha(color, 0.9), 1.0)
+
+
+## A column of ice thrusting up out of the ground, jagged at the top, growing for its first tenth of a second.
+static func _pillar(item: CanvasItem, size: Vector2, color: Color, age: float) -> void:
+	var grow := 1.0 - pow(1.0 - clampf(age / 0.1, 0.0, 1.0), 3.0)
+	var w := size.x * 0.5
+	var bottom := size.y * 0.5
+	var h := size.y * grow
+	var top := bottom - h
+	var body := PackedVector2Array([
+		Vector2(-w, bottom), Vector2(-w * 0.85, top + h * 0.2), Vector2(-w * 0.4, top + h * 0.06), Vector2(0.0, top),
+		Vector2(w * 0.35, top + h * 0.08), Vector2(w * 0.85, top + h * 0.22), Vector2(w, bottom),
+	])
+	item.draw_colored_polygon(_scaled(body, 1.25), _alpha(color, 0.16))
+	item.draw_colored_polygon(body, _alpha(color, 0.85))
+	item.draw_polyline(PackedVector2Array([body[0], body[1], body[2], body[3], body[4], body[5], body[6]]), Color(1.0, 1.0, 1.0, 0.9), 1.2)
+	item.draw_line(Vector2(-w * 0.35, bottom), Vector2(-w * 0.2, top + h * 0.25), Color(1.0, 1.0, 1.0, 0.8), 1.4)
+	item.draw_line(Vector2(w * 0.25, bottom), Vector2(w * 0.1, top + h * 0.4), Color(1.0, 1.0, 1.0, 0.45), 1.0)

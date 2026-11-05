@@ -3,16 +3,47 @@
 [ext_resource type="Script" path="res://scripts/data/special_data.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/data/projectile_data.gd" id="3"]
 
-[sub_resource type="Resource" id="P_bruteu_0"]
+[sub_resource type="Resource" id="P_br_w1"]
 script = ExtResource("3")
-offset = Vector2(20, -16)
-velocity = Vector2(380, 0)
-lifetime_frames = 80
-size = Vector2(70, 46)
+offset = Vector2(26, -22)
+velocity = Vector2(420, 0)
+lifetime_frames = 26
+size = Vector2(52, 44)
+pierce = true
+color = Color(1.0, 0.6, 0.25, 1)
+style = &"crescent"
+rim = Color(1.0, 0.9, 0.5, 1)
+damage_scale = 0.25
+knockback_scale = 0.12
+shake = 2.0
+
+[sub_resource type="Resource" id="P_br_w2"]
+script = ExtResource("3")
+offset = Vector2(30, -20)
+velocity = Vector2(400, 0)
+lifetime_frames = 28
+size = Vector2(76, 62)
 pierce = true
 color = Color(1.0, 0.55, 0.2, 1)
+style = &"crescent"
+rim = Color(1.0, 0.9, 0.5, 1)
+delay_frames = 6
+damage_scale = 0.25
+knockback_scale = 0.12
+shake = 3.0
+
+[sub_resource type="Resource" id="P_br_w3"]
+script = ExtResource("3")
+offset = Vector2(36, -18)
+velocity = Vector2(380, 0)
+lifetime_frames = 36
+size = Vector2(110, 90)
+pierce = true
+color = Color(1.0, 0.5, 0.15, 1)
 style = &"blast"
 rim = Color(1.0, 0.9, 0.5, 1)
+delay_frames = 12
+shake = 8.0
 
 [resource]
 script = ExtResource("2")
@@ -23,10 +54,11 @@ base_knockback = 340
 knockback_growth = 225
 angle_degrees = 35
 startup_frames = 70
-active_frames = 3
+active_frames = 14
 recovery_frames = 30
 hitbox_size = Vector2(0, 0)
 hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(210, 0)
 cinematic_frames = 60
 title = "Nozarashi: Final Cleave"
-projectiles = Array[ExtResource("3")]([SubResource("P_bruteu_0")])
+projectiles = Array[ExtResource("3")]([SubResource("P_br_w1"), SubResource("P_br_w2"), SubResource("P_br_w3")])

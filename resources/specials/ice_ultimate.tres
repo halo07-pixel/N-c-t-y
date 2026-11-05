@@ -3,16 +3,77 @@
 [ext_resource type="Script" path="res://scripts/data/special_data.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/data/projectile_data.gd" id="3"]
 
-[sub_resource type="Resource" id="P_iceu_0"]
+[sub_resource type="Resource" id="P_ic_p0"]
 script = ExtResource("3")
-offset = Vector2(20, -18)
-velocity = Vector2(400, 0)
-lifetime_frames = 90
-size = Vector2(64, 44)
+offset = Vector2(40, -38)
+velocity = Vector2(0, 0)
+lifetime_frames = 16
+size = Vector2(40, 76)
 pierce = true
-color = Color(0.85, 0.96, 1.0, 1)
-style = &"blast"
-rim = Color(0.5, 0.8, 1.0, 1)
+color = Color(0.62, 0.86, 1.0, 1)
+style = &"pillar"
+rim = Color(0.45, 0.75, 1.0, 1)
+damage_scale = 0.85
+knockback_scale = 0.7
+shake = 1.5
+
+[sub_resource type="Resource" id="P_ic_p1"]
+script = ExtResource("3")
+offset = Vector2(76, -38)
+velocity = Vector2(0, 0)
+lifetime_frames = 16
+size = Vector2(40, 76)
+pierce = true
+color = Color(0.62, 0.86, 1.0, 1)
+style = &"pillar"
+rim = Color(0.45, 0.75, 1.0, 1)
+delay_frames = 5
+damage_scale = 0.85
+knockback_scale = 0.7
+shake = 1.5
+
+[sub_resource type="Resource" id="P_ic_p2"]
+script = ExtResource("3")
+offset = Vector2(112, -38)
+velocity = Vector2(0, 0)
+lifetime_frames = 16
+size = Vector2(40, 76)
+pierce = true
+color = Color(0.62, 0.86, 1.0, 1)
+style = &"pillar"
+rim = Color(0.45, 0.75, 1.0, 1)
+delay_frames = 10
+damage_scale = 0.85
+knockback_scale = 0.7
+shake = 1.5
+
+[sub_resource type="Resource" id="P_ic_p3"]
+script = ExtResource("3")
+offset = Vector2(148, -38)
+velocity = Vector2(0, 0)
+lifetime_frames = 16
+size = Vector2(40, 76)
+pierce = true
+color = Color(0.62, 0.86, 1.0, 1)
+style = &"pillar"
+rim = Color(0.45, 0.75, 1.0, 1)
+delay_frames = 15
+damage_scale = 0.85
+knockback_scale = 0.7
+shake = 1.5
+
+[sub_resource type="Resource" id="P_ic_p4"]
+script = ExtResource("3")
+offset = Vector2(196, -56)
+velocity = Vector2(0, 0)
+lifetime_frames = 22
+size = Vector2(60, 112)
+pierce = true
+color = Color(0.62, 0.86, 1.0, 1)
+style = &"pillar"
+rim = Color(0.45, 0.75, 1.0, 1)
+delay_frames = 20
+shake = 6.0
 
 [resource]
 script = ExtResource("2")
@@ -21,12 +82,12 @@ direction = &"forward"
 damage = 24.0
 base_knockback = 310
 knockback_growth = 205
-angle_degrees = 40
+angle_degrees = 55
 startup_frames = 70
 active_frames = 3
-recovery_frames = 28
+recovery_frames = 38
 hitbox_size = Vector2(0, 0)
 hitbox_offset = Vector2(0, 0)
 cinematic_frames = 60
 title = "San no Mai: Shirafune"
-projectiles = Array[ExtResource("3")]([SubResource("P_iceu_0")])
+projectiles = Array[ExtResource("3")]([SubResource("P_ic_p0"), SubResource("P_ic_p1"), SubResource("P_ic_p2"), SubResource("P_ic_p3"), SubResource("P_ic_p4")])

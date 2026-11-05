@@ -910,6 +910,8 @@ func spawn_projectile(projectile_data: ProjectileData, move: MoveData, charge: f
 		projectile.set_art(_body.effect_texture(projectile_data.art))
 	projectile.hit_landed.connect(_on_projectile_hit)
 	projectile_spawned.emit(projectile)
+	if projectile_data.shake > 0.0:
+		Events.screen_shake.emit(projectile_data.shake)
 
 
 # --- Knock-out and respawn -----------------------------------------------------

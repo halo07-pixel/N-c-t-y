@@ -3,16 +3,57 @@
 [ext_resource type="Script" path="res://scripts/data/special_data.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/data/projectile_data.gd" id="3"]
 
-[sub_resource type="Resource" id="P_lieutenantu_0"]
+[sub_resource type="Resource" id="P_lt_bite"]
 script = ExtResource("3")
-offset = Vector2(20, -18)
-velocity = Vector2(440, 0)
-lifetime_frames = 90
-size = Vector2(60, 38)
+offset = Vector2(46, -20)
+velocity = Vector2(70, 0)
+lifetime_frames = 30
+size = Vector2(70, 58)
 pierce = true
 color = Color(1.0, 0.45, 0.35, 1)
-style = &"blast"
+style = &"baboon"
 rim = Color(1.0, 0.85, 0.5, 1)
+damage_scale = 0.2
+knockback_scale = 0.12
+shake = 2.0
+
+[sub_resource type="Resource" id="P_lt_lash1"]
+script = ExtResource("3")
+offset = Vector2(30, -8)
+velocity = Vector2(620, 0)
+lifetime_frames = 14
+size = Vector2(120, 12)
+pierce = true
+color = Color(1.0, 0.55, 0.4, 1)
+style = &"chain"
+delay_frames = 8
+damage_scale = 0.2
+knockback_scale = 0.12
+
+[sub_resource type="Resource" id="P_lt_lash2"]
+script = ExtResource("3")
+offset = Vector2(30, -32)
+velocity = Vector2(640, 0)
+lifetime_frames = 14
+size = Vector2(120, 12)
+pierce = true
+color = Color(1.0, 0.55, 0.4, 1)
+style = &"chain"
+delay_frames = 16
+damage_scale = 0.2
+knockback_scale = 0.12
+
+[sub_resource type="Resource" id="P_lt_cannon"]
+script = ExtResource("3")
+offset = Vector2(80, -20)
+velocity = Vector2(580, 0)
+lifetime_frames = 38
+size = Vector2(170, 46)
+pierce = true
+color = Color(1.0, 0.4, 0.3, 1)
+style = &"beam"
+delay_frames = 26
+shake = 6.0
 
 [resource]
 script = ExtResource("2")
@@ -24,9 +65,9 @@ knockback_growth = 210
 angle_degrees = 35
 startup_frames = 70
 active_frames = 3
-recovery_frames = 28
+recovery_frames = 36
 hitbox_size = Vector2(0, 0)
 hitbox_offset = Vector2(0, 0)
 cinematic_frames = 60
 title = "Hikotsu Taiho: Final Roar"
-projectiles = Array[ExtResource("3")]([SubResource("P_lieutenantu_0")])
+projectiles = Array[ExtResource("3")]([SubResource("P_lt_bite"), SubResource("P_lt_lash1"), SubResource("P_lt_lash2"), SubResource("P_lt_cannon")])

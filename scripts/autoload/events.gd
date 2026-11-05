@@ -20,6 +20,8 @@ signal fighter_hit(attacker_id: int, victim_id: int, damage: float)
 signal fighter_left_blast_zone(player_id: int)
 ## A fighter was sent flying: launch speed in pixels per second and the unit direction.
 @warning_ignore("unused_signal")
+## Something big happened on screen (an ultimate's final beat): the camera shakes by `amount` world units.
+signal screen_shake(amount: float)
 signal fighter_launched(victim_id: int, speed: float, direction: Vector2)
 ## A hit connected: where, which way the victim flies, how hard (for sparks and speed lines).
 @warning_ignore("unused_signal")

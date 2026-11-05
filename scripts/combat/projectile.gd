@@ -44,7 +44,7 @@ func launch(
 	_move = move
 	owner_id = id
 	_facing = facing
-	_damage_scale = damage_scale
+	_damage_scale = damage_scale * data.damage_scale
 	_size = data.size * size_scale
 	_pierce = data.pierce or force_pierce
 	_velocity = Vector2(data.velocity.x * float(facing), data.velocity.y) * speed_scale
@@ -217,8 +217,8 @@ func _on_area_entered(area: Area2D) -> void:
 	var info := HitInfo.new()
 	info.attacker_id = owner_id
 	info.damage = _move.damage * _damage_scale
-	info.base_knockback = _move.base_knockback
-	info.knockback_growth = _move.knockback_growth
+	info.base_knockback = _move.base_knockback * _data.knockback_scale
+	info.knockback_growth = _move.knockback_growth * _data.knockback_scale
 	info.direction = Knockback.direction(_move.angle_degrees, _facing)
 	info.projectile = self
 	if not hurtbox.evades(info):

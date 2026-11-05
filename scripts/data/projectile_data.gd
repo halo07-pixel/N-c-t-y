@@ -26,3 +26,12 @@ extends Resource
 @export var commandable: bool = false
 ## An absorbing projectile (a petal wall, a void sphere) destroys enemy projectiles that touch it.
 @export var absorbs: bool = false
+
+@export_group("Sequence")
+## Frames after the active frames begin before this projectile appears, so an ultimate can fire in beats.
+@export var delay_frames: int = 0
+## Scales the move's damage and knockback for this projectile only (a setup hit flinches, a finisher launches).
+@export var damage_scale: float = 1.0
+@export var knockback_scale: float = 1.0
+## Screen shake when it appears (world units); 0 for none.
+@export var shake: float = 0.0

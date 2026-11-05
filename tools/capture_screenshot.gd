@@ -360,6 +360,12 @@ func _play_scenario(scenario: String) -> void:
 			await _frames(30)
 			_bot_input.tap_charge()
 			await _frames(28)
+		"ultimate_late": # a few frames into the beats, after the wind-up
+			_fighters[0].start_bankai()
+			_fighters[0].set_reiatsu(300.0)
+			await _frames(30)
+			_bot_input.tap_charge()
+			await _frames(70 + 18)
 		_:
 			await _frames(45)
 
