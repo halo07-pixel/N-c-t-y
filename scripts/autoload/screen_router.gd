@@ -13,6 +13,7 @@ const SCREENS := {
 	&"versus_match": "res://scenes/match/versus_match.tscn",
 	&"trial_select": "res://scenes/ui/trial_select.tscn",
 	&"trial_match": "res://scenes/match/trial_match.tscn",
+	&"training_match": "res://scenes/match/training_match.tscn",
 }
 
 ## Tests switch this off so emitting a request does not replace the test scene.

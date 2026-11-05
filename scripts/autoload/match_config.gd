@@ -21,6 +21,8 @@ var p2_index: int = 1
 var cpu_level: int = CPU_OFF
 ## True during an Arcade run (see ArcadeRun).
 var arcade: bool = false
+## Training mode: the select screen leads to the training room, not to a match.
+var training: bool = false
 ## Replaces player 2's roster pick, e.g. the Arcade boss, who is not in the roster.
 var opponent_override: CharacterData
 ## The combo trial being practised: roster index of the character and index of the exercise.

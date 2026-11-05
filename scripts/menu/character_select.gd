@@ -66,6 +66,11 @@ func is_arcade() -> bool:
 	return MatchConfig.arcade
 
 
+## Where the fight goes: the training room, or a versus match.
+func _match_screen() -> StringName:
+	return &"training_match" if MatchConfig.training else &"versus_match"
+
+
 func is_cpu_mode() -> bool:
 	return MatchConfig.cpu_level > MatchConfig.CPU_OFF
 
@@ -110,7 +115,7 @@ func advance(frames: int) -> void:
 	if countdown == 0:
 		_started = true
 		fight_started.emit()
-		go_to(&"versus_match")
+		go_to(_match_screen())
 
 
 ## One menu action from one player's keys.
@@ -165,7 +170,7 @@ func _handle_cpu_mode(player_id: int, action: StringName) -> void:
 				ArcadeRun.start(MatchConfig.p1_index)
 				go_to(ArcadeRun.SCREEN_STORY)
 			elif picking_opponent:
-				go_to(&"versus_match")
+				go_to(_match_screen())
 			else:
 				picking_opponent = true
 		&"back":
@@ -233,6 +238,8 @@ func _show_character(player_id: int, holder: Node2D) -> void:
 
 func _draw_content() -> void:
 	var title := "ARCADE - CHOOSE YOUR FIGHTER" if is_arcade() else "CHOOSE YOUR FIGHTER"
+	if MatchConfig.training:
+		title = "TRAINING - YOU, THEN THE DUMMY"
 	draw_centered(title, Vector2(SCREEN.x * 0.5, 30.0), 16, WHITE)
 	_draw_grid()
 	for player_id in [1, 2]:
@@ -355,6 +362,6 @@ func _hint() -> String:
 		return "Arrows: move    Attack: start Arcade (4 fights)    Guard: back"
 	if is_cpu_mode():
 		if picking_opponent:
-			return "Arrows: opponent    Skill: CPU level    Attack: fight    Guard: back"
+			return "Arrows: dummy    Attack: start training    Guard: back" if MatchConfig.training else "Arrows: opponent    Skill: CPU level    Attack: fight    Guard: back"
 		return "Arrows: move    Attack: confirm    Guard: back"
 	return "Arrows: move    Attack: ready    Guard: cancel / back"
