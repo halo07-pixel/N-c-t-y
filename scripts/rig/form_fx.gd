@@ -5,7 +5,7 @@ extends Node2D
 ## a halo (dark_wings) tongues of spiritual pressure with a glowing eye (flames) or a giant segmented bone snake with a baboon's head coiling around the body (bone_snake). Two instances exist per body: one behind and one in front of the rig.
 ## Everything is positioned from two anchors the body keeps updating (head and back).
 
-const STYLES: Array[StringName] = [&"mask", &"wings", &"blades", &"dark_wings", &"flames", &"bone_snake", &"white_frost"]
+const STYLES: Array[StringName] = [&"mask", &"wings", &"blades", &"dark_wings", &"flames", &"bone_snake", &"white_frost", &"unleashed"]
 const GROW_SECONDS := 0.45
 const BLADE_COUNT := 8
 
@@ -37,7 +37,7 @@ func _ready() -> void:
 		additive.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 		if style == &"wings":
 			material = additive
-	if style == &"flames":
+	if style == &"flames" or style == &"unleashed":
 		var glow := CanvasItemMaterial.new()
 		glow.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 		material = glow
@@ -100,6 +100,8 @@ func _draw() -> void:
 			_draw_bone_snake(t)
 		&"white_frost":
 			_draw_white_frost(t)
+		&"unleashed":
+			_draw_unleashed(t)
 
 
 func _draw_mask(t: float) -> void:
@@ -165,7 +167,7 @@ func _draw_blades(t: float) -> void:
 
 
 ## Tongues of spiritual pressure flickering up behind the body, and a glowing eye on the face.
-func _draw_flames(t: float) -> void:
+func _draw_flames(t: float, boost: float = 1.0) -> void:
 	if t <= 0.0:
 		return
 	if layer == &"back":
@@ -174,7 +176,7 @@ func _draw_flames(t: float) -> void:
 			var flick := 0.75 + 0.25 * sin(_time * 9.0 + float(i) * 1.9)
 			var root := back_anchor + Vector2(-6.0 + 12.0 * f, 8.0 - absf(f - 0.5) * 6.0)
 			var angle := -PI * 0.5 + (f - 0.5) * 0.9 + sin(_time * 5.0 + float(i)) * 0.08
-			var length := (14.0 + 12.0 * sin(f * PI)) * flick * t
+			var length := (14.0 + 12.0 * sin(f * PI)) * flick * t * boost
 			draw_colored_polygon(feather(root, angle, length, 2.6), Color(color.r, color.g, color.b, 0.5))
 			draw_colored_polygon(feather(root, angle, length * 0.6, 1.3), Color(1.0, 0.95, 0.6, 0.7))
 		return
@@ -283,3 +285,32 @@ func _draw_snowflake(at: Vector2, radius: float, spin: float, tint: Color) -> vo
 		var branch := Vector2.from_angle(a + 0.9) * radius * 0.35
 		draw_line(at + v * 0.6, at + v * 0.6 + branch, tint, 0.7)
 		draw_line(at - v * 0.6, at - v * 0.6 - branch, tint, 0.7)
+
+
+## Kenpachi with the eyepatch off: huge tongues of spiritual pressure, glowing cracks spreading
+## from his feet, both eyes alight, and the torn-off eyepatch spinning away as he is released.
+func _draw_unleashed(t: float) -> void:
+	if t <= 0.0:
+		return
+	if layer == &"back":
+		_draw_flames(t, 1.9)
+		var feet := Vector2(back_anchor.x, 0.0)
+		for i in 7:
+			var side := -1.0 if i % 2 == 0 else 1.0
+			var length := (12.0 + float(i / 2) * 7.0) * t
+			var wobble := sin(_time * 4.0 + float(i)) * 0.5
+			var mid := feet + Vector2(side * length * 0.5, 0.8 + wobble)
+			var end := feet + Vector2(side * length, -0.6 * float(i % 3) + wobble)
+			var glow := Color(color.r, color.g, color.b, 0.55 + 0.35 * sin(_time * 7.0 + float(i)))
+			draw_polyline(PackedVector2Array([feet, mid, end]), glow, 1.6)
+		return
+	_draw_flames(t, 1.9)
+	for side in [-1.0, 1.0]:
+		var eye := head_anchor + Vector2(head_radius * (0.55 if side > 0.0 else -0.1), -head_radius * 0.12)
+		draw_circle(eye, 1.4 * t, Color(1.0, 0.9, 0.4, 0.55))
+	if _time < 0.9:
+		var f := _time / 0.9
+		var at := head_anchor + Vector2(head_radius * 0.55 + 34.0 * f, -head_radius * 0.1 - 26.0 * f + 70.0 * f * f)
+		var half := Vector2.from_angle(_time * 18.0) * 2.2
+		draw_line(at - half, at + half, Color(0.05, 0.03, 0.06, 1.0 - f), 3.0)
+		draw_line(at - half.orthogonal() * 0.5, at + half.orthogonal() * 0.5, Color(0.5, 0.45, 0.5, 1.0 - f), 1.0)

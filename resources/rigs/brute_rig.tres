@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/rig/rig_data.gd" id="1"]
 
+[ext_resource type="Resource" path="res://resources/rigs/brute_form_rig.tres" id="2"]
+
 [resource]
 script = ExtResource("1")
 head_size = Vector2(10.4, 10.2)
@@ -12,7 +14,7 @@ emblem = &"trim"
 trail_style = &"crush"
 trail_color = Color(1.0, 0.6, 0.25, 1)
 motion = &"brute"
-form_style = &"flames"
+form_style = &"unleashed"
 form_color = Color(1.0, 0.6, 0.15, 1)
 line = Color(0.86, 0.72, 0.56, 1)
 line_width = 2.2
@@ -33,3 +35,6 @@ weapon_color = Color(0.62, 0.64, 0.7, 1)
 grip_color = Color(0.2, 0.15, 0.1, 1)
 cape_length = 9.0
 cape_color = Color(0.93, 0.93, 0.96, 1)
+eyepatch = true
+hair_bells = true
+form_look = ExtResource("2")

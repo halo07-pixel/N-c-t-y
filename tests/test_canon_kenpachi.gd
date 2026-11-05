@@ -5,6 +5,26 @@ const KENPACHI: CharacterData = preload("res://resources/characters/brute.tres")
 const FIGHTER_SCENE: PackedScene = preload("res://scenes/fighter/fighter.tscn")
 
 
+func test_his_skills_are_interactive_like_the_first_three() -> void:
+	for set: SpecialSet in [KENPACHI.specials, KENPACHI.bankai_specials]:
+		check(set.neutral.is_chargeable() and set.neutral.charge_pierce, "hold the skill key to charge the slash; a full charge pierces")
+		check(set.forward.follow_up != null, "the cleave has a second press (an overhead chop)")
+		check(set.down.follow_up != null and not set.down.follow_up.projectiles.is_empty(), "the smash has a second press that sends a shockwave")
+
+
+func test_the_eyepatch_comes_off_when_unleashed() -> void:
+	check(KENPACHI.rig.eyepatch and KENPACHI.rig.hair_bells, "he wears the eyepatch and the bells")
+	check_eq(KENPACHI.rig.form_style, &"unleashed", "the form is the unleashed release")
+	check(KENPACHI.rig.form_look != null and not KENPACHI.rig.form_look.eyepatch, "the patch is gone in the form")
+	var body := BodyFactory.create(KENPACHI, 1)
+	tree.root.add_child(body)
+	body.set_bankai(true)
+	check(not body._head.rig.eyepatch, "the body's head draws no patch while unleashed")
+	body.set_bankai(false)
+	check(body._head.rig.eyepatch, "and the patch is back afterwards")
+	body.free()
+
+
 func test_canon_names() -> void:
 	check_eq(KENPACHI.display_name, "Kenpachi", "the fighter")
 	check_eq(KENPACHI.ultimate.display_name, "Nozarashi: Final Cleave", "his sword")

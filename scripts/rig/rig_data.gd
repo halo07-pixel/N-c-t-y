@@ -77,6 +77,11 @@ extends Resource
 func height() -> float:
 	return leg_length.x + leg_length.y + torso_size.y + head_size.y
 
+@export_group("Face")
+## An eyepatch over the front eye (Kenpachi's, which holds back his power) and bells in the hair.
+@export var eyepatch: bool = false
+@export var hair_bells: bool = false
+
 @export_group("Form")
 ## Look of the transformed fighter: mask, wings, blades or dark_wings (empty = aura only).
 @export var form_style: StringName = &""

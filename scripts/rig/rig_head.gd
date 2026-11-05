@@ -69,6 +69,8 @@ func _draw() -> void:
 	_draw_headwear(face)
 	_draw_eyes(face)
 	_draw_mouth(face)
+	if rig.eyepatch:
+		_draw_eyepatch(face)
 	if rig.glasses:
 		_draw_glasses(face)
 
@@ -104,6 +106,14 @@ func _draw_eyes(face: Rect2) -> void:
 			elif look == &"sad": # brows slanting up towards the middle
 				draw_line(back + Vector2(-1.2, -1.6), back + Vector2(0.9, -2.6), ink, 0.7)
 				draw_line(front + Vector2(-0.9, -2.6), front + Vector2(1.2, -1.6), ink, 0.7)
+
+
+## A dark patch over the front eye with its strap running back over the head.
+func _draw_eyepatch(face: Rect2) -> void:
+	var eye := Vector2(face.position.x + face.size.x * 0.68, face.position.y + face.size.y * 0.62)
+	draw_line(eye + Vector2(-1.0, -0.6), Vector2(face.position.x + face.size.x * 0.1, face.position.y + face.size.y * 0.18), rig.outline, 0.8)
+	draw_rect(Rect2(eye + Vector2(-2.0, -2.0), Vector2(4.0, 4.0)), rig.outline)
+	draw_rect(Rect2(eye + Vector2(-1.2, -1.2), Vector2(2.4, 2.4)), Color(0.2, 0.18, 0.22))
 
 
 ## A small mouth: open when hurt, a smile when happy, a flat line when out cold or sad.
@@ -147,6 +157,9 @@ func _draw_hair(face: Rect2) -> void:
 				Vector2(left + 3.0, top + face.size.y * 0.32),
 			])
 			draw_colored_polygon(cap, color)
+			if rig.hair_bells: # small gold bells hanging from the spikes
+				for bell: Vector2 in [Vector2(left - 2.0, top - 0.2), Vector2(left + 1.0, top - 3.0), Vector2(left + 4.4, top - 3.4)]:
+					draw_circle(bell + Vector2(0.0, 1.2), 0.95, Color(1.0, 0.82, 0.3))
 		&"long":
 			var cap := PackedVector2Array([
 				Vector2(left - 1.0, top + face.size.y * 0.7), Vector2(left - 0.6, top - 0.8),

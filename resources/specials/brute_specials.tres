@@ -14,6 +14,45 @@ pierce = false
 color = Color(0.95, 0.5, 0.25, 1)
 style = &"crescent"
 
+[sub_resource type="Resource" id="P_brute_shock"]
+script = ExtResource("3")
+offset = Vector2(30, -5)
+velocity = Vector2(300, 0)
+lifetime_frames = 34
+size = Vector2(46, 10)
+pierce = true
+color = Color(1.0, 0.6, 0.25, 1)
+style = &"crescent"
+
+[sub_resource type="Resource" id="S_brute_chop"]
+script = ExtResource("2")
+display_name = "Overhead Chop"
+direction = &"down"
+damage = 13.0
+base_knockback = 230
+knockback_growth = 140
+angle_degrees = 55
+startup_frames = 8
+active_frames = 4
+recovery_frames = 26
+hitbox_size = Vector2(40, 40)
+hitbox_offset = Vector2(24, -22)
+
+[sub_resource type="Resource" id="S_brute_after"]
+script = ExtResource("2")
+display_name = "Aftershock"
+direction = &"down"
+damage = 8.0
+base_knockback = 200
+knockback_growth = 100
+angle_degrees = 60
+startup_frames = 6
+active_frames = 3
+recovery_frames = 20
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+projectiles = Array[ExtResource("3")]([SubResource("P_brute_shock")])
+
 [sub_resource type="Resource" id="S_brute_neutral"]
 script = ExtResource("2")
 display_name = "Reiatsu Slash"
@@ -30,6 +69,12 @@ hitbox_size = Vector2(0, 0)
 hitbox_offset = Vector2(0, 0)
 projectiles = Array[ExtResource("3")]([SubResource("P_brute_wave")])
 cooldown_frames = 55
+charge_max_frames = 55
+charge_cost = 60.0
+charge_damage_scale = 1.8
+charge_size_scale = 1.8
+charge_speed_scale = 1.2
+charge_pierce = true
 
 [sub_resource type="Resource" id="S_brute_forward"]
 script = ExtResource("2")
@@ -48,6 +93,9 @@ hitbox_offset = Vector2(26, -16)
 self_velocity = Vector2(260, 0)
 ignore_gravity = true
 cooldown_frames = 90
+follow_up = SubResource("S_brute_chop")
+follow_up_cost = 40.0
+follow_up_window = 28
 
 [sub_resource type="Resource" id="S_brute_up"]
 script = ExtResource("2")
@@ -81,6 +129,9 @@ recovery_frames = 30
 hitbox_size = Vector2(74, 34)
 hitbox_offset = Vector2(0, -16)
 cooldown_frames = 170
+follow_up = SubResource("S_brute_after")
+follow_up_cost = 30.0
+follow_up_window = 30
 
 [resource]
 script = ExtResource("1")
