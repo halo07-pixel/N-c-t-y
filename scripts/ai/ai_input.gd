@@ -19,6 +19,7 @@ const EDGE_MARGIN := 15.0
 const EDGE_GRAB := 12.0
 const UNDER_STAGE_DEPTH := 28.0
 const MELEE_RANGE := 38.0
+const FOLLOW_UP_CHANCE := 0.6
 var _follow_up_in: int = 0
 const TRAP_MIN := 110.0
 const TRAP_CHANCE := 0.35
@@ -227,7 +228,19 @@ func _try_skill(frame: InputFrame, toward: float, distance: float, rise: float, 
 		return false
 	frame.special_just_pressed = true
 	frame.move = pick
+	var specials := fighter.current_specials()
+	var delay := follow_up_delay(specials.select(pick) if specials != null else null, _rng) if level >= 2 else -1
+	if delay >= 0 and _rng.randf() < FOLLOW_UP_CHANCE:
+		_follow_up_in = delay # the second press: dance back, chop, shockwave...
 	return true
+
+
+## Frames to wait before pressing special again for `skill`'s follow-up (inside its window, once the
+## wind-up is over), or -1 when the skill has none.
+static func follow_up_delay(skill: SpecialData, rng: RandomNumberGenerator) -> int:
+	if skill == null or skill.follow_up == null:
+		return -1
+	return skill.startup_frames + rng.randi_range(2, maxi(3, skill.follow_up_window - 4))
 
 
 ## Trap users lay one at mid range now and then, never stacking more than their limit.

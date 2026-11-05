@@ -122,3 +122,18 @@ func test_cpu_dashes_in_from_far_away() -> void:
 
 func test_level_one_never_dashes() -> void:
 	check_eq(AIInput.LEVELS[1]["dash"], 0.0, "the easiest CPU has no dash")
+
+
+func test_cpu_presses_special_again_for_any_skill_with_a_follow_up() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	for path in ["swordsman", "noble", "lieutenant", "ice", "brute"]:
+		var data := load("res://resources/characters/%s.tres" % path) as CharacterData
+		for skill: SpecialData in [data.specials.neutral, data.specials.forward, data.specials.up, data.specials.down]:
+			var delay := AIInput.follow_up_delay(skill, rng)
+			if skill.follow_up == null:
+				check_eq(delay, -1, "%s: no follow-up, no second press" % skill.display_name)
+			else:
+				check(delay >= skill.startup_frames + 2, "%s: waits out the wind-up" % skill.display_name)
+				check(delay <= skill.startup_frames + skill.follow_up_window, "%s: presses inside the window" % skill.display_name)
+	check_eq(AIInput.follow_up_delay(null, rng), -1, "no skill, no press")
