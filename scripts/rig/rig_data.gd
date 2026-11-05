@@ -82,3 +82,6 @@ func height() -> float:
 @export var form_style: StringName = &""
 ## Aura color while transformed (empty alpha 0 keeps the character's accent).
 @export var form_color: Color = Color(0, 0, 0, 0)
+## A whole other set of colours worn while transformed (Rukia's bankai turns everything white).
+## Only the colours are used; leave empty to keep the normal look.
+@export var form_look: CharacterRigData

@@ -9,10 +9,36 @@ script = ExtResource("3")
 offset = Vector2(18, -17)
 velocity = Vector2(330, 0)
 lifetime_frames = 45
-size = Vector2(34, 12)
+size = Vector2(36, 13)
 pierce = false
 color = Color(0.7, 0.92, 1.0, 1)
 style = &"orb"
+
+[sub_resource type="Resource" id="P_ice_rune"]
+script = ExtResource("3")
+offset = Vector2(50, -3)
+velocity = Vector2(0, 0)
+lifetime_frames = 420
+size = Vector2(40, 40)
+pierce = false
+color = Color(0.7, 0.92, 1.0, 1)
+style = &"rune"
+trap = true
+
+[sub_resource type="Resource" id="S_ice_back"]
+script = ExtResource("2")
+display_name = "Mai Return"
+direction = &"forward"
+damage = 8.0
+base_knockback = 190
+knockback_growth = 105
+angle_degrees = 40
+startup_frames = 4
+active_frames = 4
+recovery_frames = 18
+hitbox_size = Vector2(40, 16)
+hitbox_offset = Vector2(24, -16)
+flip_facing = true
 
 [sub_resource type="Resource" id="S_ice_neutral"]
 script = ExtResource("2")
@@ -30,6 +56,12 @@ hitbox_size = Vector2(0, 0)
 hitbox_offset = Vector2(0, 0)
 projectiles = Array[ExtResource("3")]([SubResource("P_ice_stream")])
 cooldown_frames = 45
+charge_max_frames = 50
+charge_cost = 60.0
+charge_damage_scale = 1.7
+charge_size_scale = 1.8
+charge_speed_scale = 1.25
+charge_pierce = true
 
 [sub_resource type="Resource" id="S_ice_forward"]
 script = ExtResource("2")
@@ -48,6 +80,9 @@ hitbox_offset = Vector2(22, -16)
 self_velocity = Vector2(290, 0)
 ignore_gravity = true
 cooldown_frames = 75
+follow_up = SubResource("S_ice_back")
+follow_up_cost = 40.0
+follow_up_window = 28
 
 [sub_resource type="Resource" id="S_ice_up"]
 script = ExtResource("2")
@@ -71,16 +106,19 @@ script = ExtResource("2")
 display_name = "Some no Mai: Tsukishiro"
 role = &"area"
 direction = &"down"
-damage = 7.0
+damage = 8.0
 base_knockback = 175
 knockback_growth = 95
-angle_degrees = 70
-startup_frames = 9
-active_frames = 8
-recovery_frames = 22
-hitbox_size = Vector2(68, 36)
-hitbox_offset = Vector2(0, -16)
+angle_degrees = 85
+startup_frames = 10
+active_frames = 2
+recovery_frames = 20
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+projectiles = Array[ExtResource("3")]([SubResource("P_ice_rune")])
 cooldown_frames = 130
+limit_active = 2
+repeat_cost = 25.0
 
 [resource]
 script = ExtResource("1")

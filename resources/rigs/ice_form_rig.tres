@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="CharacterRigData" format=3]
+
+[ext_resource type="Script" path="res://scripts/rig/rig_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+head_size = Vector2(9.0, 9.0)
+style = &"stick"
+outfit = &"robe"
+outfit_length = 6.5
+emblem = &"trim"
+line = Color(0.94, 0.98, 1.0, 1)
+line_width = 1.8
+torso_size = Vector2(8.2, 8.6)
+arm_width = 2.5
+cloth = Color(0.97, 0.98, 1.0, 1)
+cloth_dark = Color(0.88, 0.93, 1.0, 1)
+accent = Color(0.62, 0.86, 1.0, 1)
+hair = Color(0.98, 0.99, 1.0, 1)
+hair_style = &"short"
+hair_tail = 4.0
+weapon = &"katana"
+weapon_length = 21.0
+weapon_width = 1.6
+weapon_color = Color(1.0, 1.0, 1.0, 1)
+grip_color = Color(0.75, 0.9, 1.0, 1)
+cape_length = 0.0

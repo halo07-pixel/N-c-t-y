@@ -5,7 +5,7 @@ extends RefCounted
 ## Everything is facing +x; `angle` turns it along the flight direction.
 
 const TRAIL_POINTS := 9
-const STYLES: Array[StringName] = [&"crescent", &"arrow", &"petal", &"orb", &"blast", &"beam", &"bolt", &"blade", &"swirl", &"chain", &"baboon", &"coil"]
+const STYLES: Array[StringName] = [&"crescent", &"arrow", &"petal", &"orb", &"blast", &"beam", &"bolt", &"blade", &"swirl", &"chain", &"baboon", &"coil", &"rune"]
 
 
 ## Outline of a crescent `width` long and `height` tall, convex side toward +x.
@@ -62,6 +62,8 @@ static func draw(
 			_baboon(item, size, color, age)
 		&"coil":
 			_coil(item, size, color, age)
+		&"rune":
+			_rune(item, size, color, age)
 		&"arrow":
 			_arrow(item, size, color)
 		&"petal":
@@ -287,3 +289,20 @@ static func _coil(item: CanvasItem, size: Vector2, color: Color, age: float) -> 
 		item.draw_colored_polygon(PackedVector2Array([at + Vector2(-2.6, 0.0), at + Vector2(0.0, -2.4), at + Vector2(2.6, 0.0), at + Vector2(0.0, 2.4)]), Color(0.95, 0.92, 0.85, 0.95))
 		item.draw_circle(at, 0.9, _alpha(color, 0.95))
 	item.draw_arc(Vector2.ZERO, radius, 0.0, TAU, 28, _alpha(color, 0.8), 1.2)
+
+
+## Tsukishiro: a flat circle of white-blue light on the ground with a turning six-armed snowflake,
+## pulsing faster the longer it waits, until an enemy steps in and a pillar of ice rises.
+static func _rune(item: CanvasItem, size: Vector2, color: Color, age: float) -> void:
+	item.draw_set_transform(Vector2.ZERO, 0.0, Vector2(1.0, 0.4))
+	var radius := maxf(size.x, size.y) * 0.5
+	var pulse := 0.5 + 0.5 * sin(age * 5.0)
+	item.draw_circle(Vector2.ZERO, radius * (1.0 + 0.15 * pulse), _alpha(color, 0.12 + 0.1 * pulse))
+	item.draw_arc(Vector2.ZERO, radius, 0.0, TAU, 32, _alpha(color, 0.9), 1.4)
+	item.draw_arc(Vector2.ZERO, radius * 0.72, 0.0, TAU, 24, _alpha(Color.WHITE, 0.6), 1.0)
+	for arm in 6:
+		var a := age * 0.9 + float(arm) * TAU / 6.0
+		var v := Vector2.from_angle(a)
+		item.draw_line(v * radius * 0.1, v * radius * 0.7, _alpha(Color.WHITE, 0.9), 1.2)
+		item.draw_line(v * radius * 0.45, v * radius * 0.45 + Vector2.from_angle(a + 0.8) * radius * 0.2, _alpha(color, 0.9), 1.0)
+		item.draw_line(v * radius * 0.45, v * radius * 0.45 + Vector2.from_angle(a - 0.8) * radius * 0.2, _alpha(color, 0.9), 1.0)

@@ -5,7 +5,7 @@ extends Node2D
 ## a halo (dark_wings) tongues of spiritual pressure with a glowing eye (flames) or a giant segmented bone snake with a baboon's head coiling around the body (bone_snake). Two instances exist per body: one behind and one in front of the rig.
 ## Everything is positioned from two anchors the body keeps updating (head and back).
 
-const STYLES: Array[StringName] = [&"mask", &"wings", &"blades", &"dark_wings", &"flames", &"bone_snake"]
+const STYLES: Array[StringName] = [&"mask", &"wings", &"blades", &"dark_wings", &"flames", &"bone_snake", &"white_frost"]
 const GROW_SECONDS := 0.45
 const BLADE_COUNT := 8
 
@@ -98,6 +98,8 @@ func _draw() -> void:
 			_draw_flames(t)
 		&"bone_snake":
 			_draw_bone_snake(t)
+		&"white_frost":
+			_draw_white_frost(t)
 
 
 func _draw_mask(t: float) -> void:
@@ -248,3 +250,36 @@ func _draw_baboon_head(at: Vector2, direction: Vector2, t: float) -> void:
 	for horn in 2:
 		var root := at - facing * r * 0.2 + side * r * (0.6 if horn == 0 else -0.6)
 		draw_line(root, root - facing * r * 0.8 + side * r * (0.5 if horn == 0 else -0.5), Color(color.r, color.g, color.b, 0.95), 1.6)
+
+
+## Hakka no Togame: a long white ribbon streaming from the back, a cold white glow around the
+## fighter, and snowflakes of ice drifting down around the body (some behind it, some in front).
+func _draw_white_frost(t: float) -> void:
+	if t <= 0.0:
+		return
+	if layer == &"back":
+		for strand in 3:
+			var points := PackedVector2Array()
+			for i in 12:
+				var f := float(i) / 11.0
+				var wave := sin(_time * 3.0 - f * 5.0 + float(strand) * 1.3) * (2.0 + 5.0 * f)
+				points.append(back_anchor + Vector2(-f * 30.0 * t, wave + float(strand - 1) * 2.4 * f - f * f * 4.0))
+			draw_polyline(points, Color(1.0, 1.0, 1.0, 0.22), 4.0 * t)
+			draw_polyline(points, Color(0.9, 0.97, 1.0, 0.85), 1.6)
+	for i in 7:
+		var behind := i % 2 == 0
+		if behind != (layer == &"back"):
+			continue
+		var fall := fposmod(_time * 0.35 + float(i) * 0.143, 1.0)
+		var at := head_anchor + Vector2(sin(float(i) * 2.3 + _time * 1.4) * 15.0, -10.0 + fall * 46.0)
+		_draw_snowflake(at, (2.0 + float(i % 3)) * t, _time * 1.5 + float(i), Color(0.92, 0.98, 1.0, (1.0 - fall * 0.6) * t))
+
+
+func _draw_snowflake(at: Vector2, radius: float, spin: float, tint: Color) -> void:
+	for arm in 3:
+		var a := spin + float(arm) * PI / 3.0
+		var v := Vector2.from_angle(a) * radius
+		draw_line(at - v, at + v, tint, 0.9)
+		var branch := Vector2.from_angle(a + 0.9) * radius * 0.35
+		draw_line(at + v * 0.6, at + v * 0.6 + branch, tint, 0.7)
+		draw_line(at - v * 0.6, at - v * 0.6 - branch, tint, 0.7)

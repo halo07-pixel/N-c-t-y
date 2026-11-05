@@ -84,6 +84,8 @@ var _spin_direction: float = 1.0
 var _lag: float = 0.0
 var _lag_2: float = 0.0
 var _bankai: bool = false
+## The colours currently worn (the rig itself, or its form look).
+var _look: CharacterRigData
 var _bow_draw: float = 0.0
 var _result: StringName = &"" # "win" or "lose" once the match is over
 var _form_back: FormFx
@@ -133,6 +135,7 @@ func _build() -> void:
 	_ghosts.color = rig.line if rig.style == &"stick" else rig.accent
 	add_child(_ghosts)
 	_stick_parts.clear()
+	_look = rig
 	_trail = RigTrail.new()
 	_trail.color = rig.trail_color if rig.trail_color.a > 0.0 else rig.weapon_color.lerp(Color.WHITE, 0.3)
 	_trail.set_style(rig.trail_style)
@@ -313,7 +316,27 @@ static func look_for(pose: StringName, result: StringName = &"") -> StringName:
 
 func set_bankai(active: bool) -> void:
 	_bankai = active
+	_apply_look(rig.form_look if active and rig.form_look != null else rig)
 	_update_aura()
+
+
+## Dresses the body in `look`'s colours (the form look while transformed, the normal rig otherwise).
+func _apply_look(look: CharacterRigData) -> void:
+	if _head == null or _look == look:
+		return
+	_look = look
+	_head.rig = look
+	_weapon.rig = look
+	for outfit in find_children("*", "RigOutfit", true, false):
+		outfit.rig = look
+		outfit.queue_redraw()
+	if rig.style == &"stick":
+		for part in _stick_parts:
+			part.color = look.line
+	for part in _hair_tail:
+		part.color = look.hair
+	_head.queue_redraw()
+	_weapon.queue_redraw()
 
 
 func effect_texture(effect_name: StringName) -> Texture2D:
