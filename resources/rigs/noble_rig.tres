@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="CharacterRigData" format=3]
 
 [ext_resource type="Script" path="res://scripts/rig/rig_data.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/rigs/noble_form_rig.tres" id="9"]
 
 [resource]
 script = ExtResource("1")
@@ -29,3 +30,4 @@ cape_length = 12.0
 cape_color = Color(0.93, 0.9, 0.96, 1)
 headwear = &"kenseikan"
 headwear_color = Color(0.96, 0.96, 0.98, 1)
+form_look = ExtResource("9")

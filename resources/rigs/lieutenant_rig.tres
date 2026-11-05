@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="CharacterRigData" format=3]
 
 [ext_resource type="Script" path="res://scripts/rig/rig_data.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/rigs/lieutenant_form_rig.tres" id="9"]
 
 [resource]
 script = ExtResource("1")
@@ -33,3 +34,4 @@ cape_length = 0.0
 headwear = &"headband"
 headwear_color = Color(0.95, 0.95, 0.98, 1)
 brow_marks = true
+form_look = ExtResource("9")

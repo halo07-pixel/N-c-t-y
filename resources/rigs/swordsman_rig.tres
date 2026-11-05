@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="CharacterRigData" format=3]
 
 [ext_resource type="Script" path="res://scripts/rig/rig_data.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/rigs/swordsman_form_rig.tres" id="9"]
 
 [resource]
 script = ExtResource("1")
@@ -29,3 +30,4 @@ weapon_width = 3.6
 weapon_color = Color(0.88, 0.9, 0.96, 1)
 grip_color = Color(0.12, 0.1, 0.14, 1)
 scowl = true
+form_look = ExtResource("9")

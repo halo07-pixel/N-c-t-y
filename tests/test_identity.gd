@@ -52,3 +52,22 @@ func test_every_head_draws_without_errors_in_each_expression() -> void:
 		await wait_frames(2)
 		check(body._head.is_inside_tree(), "%s's head is alive" % data.display_name)
 		body.free()
+
+
+func test_every_fighter_changes_clothes_when_transformed() -> void:
+	for key in KEYS:
+		var data := load("res://resources/characters/%s.tres" % key) as CharacterData
+		var look := data.rig.form_look
+		check(look != null, "%s has a transformed look" % data.display_name)
+		if look == null:
+			continue
+		check(look.form_look == null, "%s's form look does not nest another one" % data.display_name)
+		var changed := look.cloth != data.rig.cloth or look.accent != data.rig.accent or look.weapon_color != data.rig.weapon_color
+		check(changed, "%s's colours really change in the form" % data.display_name)
+		var body := BodyFactory.create(data, 1)
+		tree.root.add_child(body)
+		body.set_bankai(true)
+		check(body._look == look and body._head.rig == look and body._weapon.rig == look, "%s wears it from head to weapon" % data.display_name)
+		body.set_bankai(false)
+		check(body._look == data.rig and body._head.rig == data.rig, "%s is back to normal afterwards" % data.display_name)
+		body.free()
