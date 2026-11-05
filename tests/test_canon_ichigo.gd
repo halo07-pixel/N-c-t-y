@@ -19,7 +19,7 @@ func test_bankai_getsuga_is_black_with_a_red_rim() -> void:
 	for projectile in bankai.neutral.projectiles:
 		check(projectile.rim.a > 0.0 and projectile.rim.r > 0.7, "the rim is red")
 		check(projectile.color.r < 0.2 and projectile.color.g < 0.2, "the body is black")
-	check(ICHIGO.ultimate.projectiles[0].rim.a > 0.0, "so does the Final Getsuga Tenshō")
+	check(ICHIGO.ultimate.projectiles[1].rim.a > 0.0, "so does the Final Getsuga Tenshō")
 	check(ICHIGO.specials.neutral.projectiles[0].rim.a == 0.0, "the Shikai Getsuga is the pale blue one")
 
 

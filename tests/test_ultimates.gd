@@ -6,6 +6,9 @@ const FIGHTER_SCENE: PackedScene = preload("res://scenes/fighter/fighter.tscn")
 const RENJI: CharacterData = preload("res://resources/characters/lieutenant.tres")
 const RUKIA: CharacterData = preload("res://resources/characters/ice.tres")
 const KENPACHI: CharacterData = preload("res://resources/characters/brute.tres")
+const ICHIGO: CharacterData = preload("res://resources/characters/swordsman.tres")
+const URYU: CharacterData = preload("res://resources/characters/archer.tres")
+const BYAKUYA: CharacterData = preload("res://resources/characters/noble.tres")
 
 var _stage: Stage
 var _a: Fighter
@@ -72,7 +75,7 @@ func _damage_dealt(character: CharacterData, gap: float) -> float:
 
 
 func test_the_three_ultimates_fire_in_beats() -> void:
-	for character: CharacterData in [RENJI, RUKIA, KENPACHI]:
+	for character: CharacterData in [RENJI, RUKIA, KENPACHI, ICHIGO, URYU, BYAKUYA]:
 		var move := character.ultimate
 		check(move.projectiles.size() >= 3, "%s: at least three beats" % character.display_name)
 		var last_delay := 0
@@ -92,7 +95,7 @@ func test_the_three_ultimates_fire_in_beats() -> void:
 
 func test_each_ultimate_has_its_own_look() -> void:
 	var styles := {}
-	for character: CharacterData in [RENJI, RUKIA, KENPACHI]:
+	for character: CharacterData in [RENJI, RUKIA, KENPACHI, ICHIGO, URYU, BYAKUYA]:
 		var set_of_styles := {}
 		for projectile: ProjectileData in character.ultimate.projectiles:
 			set_of_styles[projectile.style] = true
@@ -103,6 +106,9 @@ func test_each_ultimate_has_its_own_look() -> void:
 	check(styles["Kenpachi"].has(&"crescent") and not styles["Kenpachi"].has(&"pillar"), "Kenpachi: swings")
 	check(RUKIA.ultimate.projectiles[0].velocity == Vector2.ZERO, "the pillars stand where they rise")
 	check(KENPACHI.ultimate.self_velocity.x > 0.0, "Kenpachi charges in as he swings")
+	check(styles["Ichigo"].has(&"orb") and styles["Ichigo"].has(&"blast"), "Ichigo: a dark orb gathers, then the Getsuga")
+	check(styles["Uryu"].has(&"arrow") and URYU.ultimate.projectiles[0].velocity.y > 0.0, "Uryu: arrows rain down")
+	check(styles["Byakuya"].has(&"swirl") and styles["Byakuya"].has(&"blade"), "Byakuya: a cage of petals, then the sword")
 
 
 func test_a_delayed_beat_appears_late_and_shakes_the_screen() -> void:
@@ -121,7 +127,7 @@ func test_a_delayed_beat_appears_late_and_shakes_the_screen() -> void:
 
 
 func test_an_ultimate_on_a_standing_target_hurts_without_being_a_free_kill() -> void:
-	for character: CharacterData in [RENJI, RUKIA, KENPACHI]:
+	for character: CharacterData in [RENJI, RUKIA, KENPACHI, ICHIGO, URYU, BYAKUYA]:
 		var base := character.ultimate.damage * CombatGauge.DAMAGE_SCALE
 		var dealt := await _damage_dealt(character, 110.0)
 		print("  ultimate %s dealt %.1f (one full hit is %.1f)" % [character.display_name, dealt, base])
@@ -130,7 +136,7 @@ func test_an_ultimate_on_a_standing_target_hurts_without_being_a_free_kill() -> 
 
 
 func test_a_close_target_is_not_hit_for_more_than_a_far_one_by_much() -> void:
-	for character: CharacterData in [RENJI, RUKIA, KENPACHI]:
+	for character: CharacterData in [RENJI, RUKIA, KENPACHI, ICHIGO, URYU, BYAKUYA]:
 		var close := await _damage_dealt(character, 50.0)
 		var far := await _damage_dealt(character, 170.0)
 		print("  %s close %.1f far %.1f" % [character.display_name, close, far])

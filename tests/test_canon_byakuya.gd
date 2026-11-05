@@ -26,8 +26,8 @@ func test_the_bankai_is_made_of_blades_that_strike_together() -> void:
 
 func test_hakuteiken_is_one_big_piercing_white_blade() -> void:
 	var ultimate := BYAKUYA.ultimate
-	check_eq(ultimate.projectiles.size(), 1, "a single sword")
-	var sword := ultimate.projectiles[0]
+	check_eq(ultimate.projectiles.size(), 3, "two swirling cages, then one sword")
+	var sword := ultimate.projectiles[ultimate.projectiles.size() - 1]
 	check_eq(sword.style, &"blade", "a blade")
 	check(sword.pierce and sword.size.x >= 80.0, "large and piercing")
 	check(sword.color.r > 0.9 and sword.color.g > 0.85, "white")

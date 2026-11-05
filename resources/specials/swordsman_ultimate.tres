@@ -3,34 +3,63 @@
 [ext_resource type="Script" path="res://scripts/data/special_data.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/data/projectile_data.gd" id="3"]
 
-[sub_resource type="Resource" id="P_swordsmanu_0"]
+[sub_resource type="Resource" id="P_sw_orb"]
 script = ExtResource("3")
-offset = Vector2(20, -18)
-velocity = Vector2(420, 0)
-lifetime_frames = 90
-size = Vector2(56, 36)
+offset = Vector2(40, -20)
+velocity = Vector2(30, 0)
+lifetime_frames = 22
+size = Vector2(46, 46)
 pierce = true
-color = Color(0.05, 0.0, 0.07, 1)
-rim = Color(0.95, 0.1, 0.15, 1)
+color = Color(0.04, 0.02, 0.06, 1)
+art = &"wave_b"
+style = &"orb"
+rim = Color(1.0, 0.1, 0.1, 1)
+damage_scale = 0.25
+knockback_scale = 0.1
+shake = 2.0
+
+[sub_resource type="Resource" id="P_sw_main"]
+script = ExtResource("3")
+offset = Vector2(30, -20)
+velocity = Vector2(520, 0)
+lifetime_frames = 40
+size = Vector2(120, 80)
+pierce = true
+color = Color(0.04, 0.02, 0.06, 1)
 art = &"wave_b"
 style = &"blast"
+rim = Color(1.0, 0.1, 0.1, 1)
+delay_frames = 24
+shake = 8.0
+
+[sub_resource type="Resource" id="P_sw_back"]
+script = ExtResource("3")
+offset = Vector2(40, -34)
+velocity = Vector2(460, -90)
+lifetime_frames = 26
+size = Vector2(64, 40)
+pierce = true
+color = Color(0.04, 0.02, 0.06, 1)
+art = &"wave_b"
+style = &"crescent"
+rim = Color(1.0, 0.1, 0.1, 1)
+delay_frames = 10
+damage_scale = 0.3
+knockback_scale = 0.3
 
 [resource]
 script = ExtResource("2")
 display_name = "Final Getsuga Tenshō"
 direction = &"forward"
 damage = 26.0
-base_knockback = 330.0
-knockback_growth = 220.0
-angle_degrees = 35.0
+base_knockback = 330
+knockback_growth = 215
+angle_degrees = 35
 startup_frames = 70
 active_frames = 3
-recovery_frames = 28
+recovery_frames = 34
 hitbox_size = Vector2(0, 0)
 hitbox_offset = Vector2(0, 0)
-self_velocity = Vector2(0, 0)
-teleport = Vector2(0, 0)
-ignore_gravity = false
 cinematic_frames = 60
 title = "Final Getsuga Tenshō"
-projectiles = Array[ExtResource("3")]([SubResource("P_swordsmanu_0")])
+projectiles = Array[ExtResource("3")]([SubResource("P_sw_orb"), SubResource("P_sw_main"), SubResource("P_sw_back")])

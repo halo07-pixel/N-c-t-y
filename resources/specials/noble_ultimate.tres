@@ -3,33 +3,61 @@
 [ext_resource type="Script" path="res://scripts/data/special_data.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/data/projectile_data.gd" id="3"]
 
-[sub_resource type="Resource" id="P_nobleu_2"]
+[sub_resource type="Resource" id="P_nb_cage1"]
 script = ExtResource("3")
-offset = Vector2(20, -18)
-velocity = Vector2(470, 0)
-lifetime_frames = 70
-size = Vector2(96, 28)
+offset = Vector2(70, -20)
+velocity = Vector2(0, 0)
+lifetime_frames = 30
+size = Vector2(80, 80)
 pierce = true
-color = Color(1.0, 0.92, 1.0, 1)
+color = Color(1.0, 0.6, 0.8, 1)
+art = &"petal2"
+style = &"swirl"
+damage_scale = 0.2
+knockback_scale = 0.1
+shake = 1.5
+
+[sub_resource type="Resource" id="P_nb_cage2"]
+script = ExtResource("3")
+offset = Vector2(150, -20)
+velocity = Vector2(0, 0)
+lifetime_frames = 26
+size = Vector2(80, 80)
+pierce = true
+color = Color(1.0, 0.6, 0.8, 1)
+art = &"petal2"
+style = &"swirl"
+delay_frames = 8
+damage_scale = 0.2
+knockback_scale = 0.1
+shake = 1.5
+
+[sub_resource type="Resource" id="P_nb_sword"]
+script = ExtResource("3")
+offset = Vector2(30, -22)
+velocity = Vector2(560, 0)
+lifetime_frames = 34
+size = Vector2(150, 34)
+pierce = true
+color = Color(0.96, 0.95, 1.0, 1)
 art = &"petal2"
 style = &"blade"
+delay_frames = 28
+shake = 7.0
 
 [resource]
 script = ExtResource("2")
 display_name = "Shukei: Hakuteiken"
 direction = &"forward"
 damage = 24.0
-base_knockback = 280.0
-knockback_growth = 190.0
-angle_degrees = 40.0
+base_knockback = 330
+knockback_growth = 215
+angle_degrees = 35
 startup_frames = 70
 active_frames = 3
-recovery_frames = 28
+recovery_frames = 36
 hitbox_size = Vector2(0, 0)
 hitbox_offset = Vector2(0, 0)
-self_velocity = Vector2(0, 0)
-teleport = Vector2(0, 0)
-ignore_gravity = false
 cinematic_frames = 60
 title = "Shukei: Hakuteiken"
-projectiles = Array[ExtResource("3")]([SubResource("P_nobleu_2")])
+projectiles = Array[ExtResource("3")]([SubResource("P_nb_cage1"), SubResource("P_nb_cage2"), SubResource("P_nb_sword")])
