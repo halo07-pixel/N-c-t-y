@@ -37,6 +37,11 @@ extends Resource
 ## Recoil (Uryu): speed (px/s) back and up that a hit gives the attacker.
 @export var recoil_speed: float = 0.0
 @export var recoil_lift: float = 0.0
+## Flurry (Rukia): the hitbox strikes `repeat_hits` times, every `repeat_gap_frames`, inside the active frames.
+@export var repeat_hits: int = 1
+@export var repeat_gap_frames: int = 3
+## Armor (Kenpachi): from the first frame through the active frames, a light hit hurts but does not stop the swing.
+@export var armor: bool = false
 
 
 @export_group("Throw")

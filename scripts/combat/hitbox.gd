@@ -21,6 +21,8 @@ var _already_hit: Array[Hurtbox] = []
 ## Physics frame of the last deactivate(). A fighter hit in the same tick as it
 ## swings still lands its own hit, so simultaneous hits trade instead of one being lost.
 var _deactivated_frame: int = -1
+## Set by a flurry's next strike: an area that is already inside the box raises no new overlap event.
+var _rehit_pending: bool = false
 
 @onready var _shape: CollisionShape2D = $CollisionShape2D
 
@@ -31,6 +33,22 @@ func _ready() -> void:
 
 func setup(id: int) -> void:
 	fighter_id = id
+
+
+## Strikes again with the same box (a flurry): whoever is already inside it is hit once more.
+func strike_again(move: MoveData, facing: int, damage_scale: float = 1.0) -> void:
+	activate(move, facing, damage_scale)
+	_rehit_pending = true
+
+
+func _physics_process(_delta: float) -> void:
+	if not _rehit_pending:
+		return
+	_rehit_pending = false
+	if not is_active:
+		return
+	for area in get_overlapping_areas():
+		_on_area_entered(area)
 
 
 func activate(move: MoveData, facing: int, damage_scale: float = 1.0) -> void:

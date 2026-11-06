@@ -46,6 +46,7 @@ func enter(_previous: StringName) -> void:
 
 func exit() -> void:
 	fighter.gathering = false
+	fighter.armored = false
 	fighter.empower_scale = 1.0
 	fighter.special_charge = 0.0
 	fighter.set_counter(null)
@@ -196,6 +197,8 @@ func _advance_move() -> void:
 		_begin_active()
 	elif _frame == active_end:
 		fighter.hitbox.deactivate()
+	elif NormalRiders.is_flurry_frame(_move, _frame):
+		fighter.hitbox.strike_again(_move, fighter.facing, fighter.damage_multiplier * fighter.empower_scale)
 	if _special != null and _frame > active_start:
 		_spawn_delayed()
 	if _special != null and _frame >= active_start and _frame < active_end:
@@ -204,6 +207,7 @@ func _advance_move() -> void:
 		fighter.hitbox.cover_path(_path_from, fighter.global_position)
 	_path_from = fighter.global_position
 	fighter.gathering = _special != null and _special.gather and _frame < active_start
+	fighter.armored = _move.armor and _frame < active_end
 	fighter.set_attack_visual(_move.direction, _phase(active_start, active_end), _aerial, _special != null)
 	_frame += 1
 

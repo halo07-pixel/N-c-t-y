@@ -6,6 +6,7 @@
 [sub_resource type="Resource" id="M_chain_fin"]
 script = ExtResource("2")
 display_name = "Reckless Chop"
+armor = true
 direction = &"forward"
 damage = 9.0
 base_knockback = 240
@@ -81,6 +82,7 @@ next_in_chain = SubResource("M_chain_2")
 [sub_resource type="Resource" id="M_ground_forward"]
 script = ExtResource("2")
 display_name = "Cleaving Blow"
+armor = true
 direction = &"forward"
 damage = 13.0
 base_knockback = 225
@@ -95,6 +97,7 @@ hitbox_offset = Vector2(20.36, -16)
 [sub_resource type="Resource" id="M_ground_up"]
 script = ExtResource("2")
 display_name = "Upward Heave"
+armor = true
 direction = &"up"
 damage = 10.0
 base_knockback = 195

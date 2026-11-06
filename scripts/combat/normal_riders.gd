@@ -5,6 +5,9 @@ extends RefCounted
 ##   rhythm (Ichigo)  - pressing attack in the beat right after a hit ends (not mashing) links the next hit "perfectly": it hits harder.
 ##   cut (Byakuya)    - a hit on the far part of the blade leaves cut marks that burst a moment later.
 ##   recoil (Uryu)    - a hit that lands throws the attacker back (and up), twice as far on a second hit.
+##   flurry (Rukia)   - a thrust strikes several times in a row (each hit small, so a guard or a hit cuts it short).
+##   armor (Kenpachi) - a heavy swing is not interrupted by a light hit; he takes the damage and pays Reiatsu back.
+## (Renji's normals have no rider in code: their first links launch the target back toward him, see his moveset.)
 
 ## Perfect link: the press lands in the beat right after the hit ends (not while it is still swinging).
 const PERFECT_EARLY := 0
@@ -42,3 +45,22 @@ static func burst_damage(marks: int) -> float:
 static func recoil_velocity(move: MoveData, facing: int, stacked: bool) -> Vector2:
 	var scale := RECOIL_STACK if stacked else 1.0
 	return Vector2(-float(facing) * move.recoil_speed * scale, -move.recoil_lift * scale)
+
+
+## Armor: hits up to this much damage cannot stop a swing that has armor; heavier ones still do.
+const ARMOR_LIMIT := 14.0
+## Reiatsu gained per point of damage absorbed by armor.
+const ARMOR_REIATSU := 1.2
+
+
+## The frame (counted from the start of the move) of each flurry strike after the first.
+static func is_flurry_frame(move: MoveData, frame: int) -> bool:
+	if move.repeat_hits <= 1:
+		return false
+	var since := frame - move.startup_frames
+	var gap := maxi(1, move.repeat_gap_frames)
+	return since > 0 and since < move.active_frames and since % gap == 0 and since / gap < move.repeat_hits
+
+
+static func armor_holds(damage: float) -> bool:
+	return damage <= ARMOR_LIMIT

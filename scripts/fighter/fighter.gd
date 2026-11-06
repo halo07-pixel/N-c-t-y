@@ -101,6 +101,8 @@ var empower_frames_left: int = 0
 var empower_scale: float = 1.0
 ## Rhythm (Ichigo): the damage scale the next linked normal attack takes (1.0 = no perfect link).
 var rhythm_scale: float = 1.0
+## Kenpachi: the swing in progress has armor (see NormalRiders.ARMOR_LIMIT).
+var armored: bool = false
 ## Cut (Byakuya): marks on this fighter and the frames until they burst; recoil (Uryu): frames a second hit still stacks.
 var cut_marks: int = 0
 var _cut_frames_left: int = 0
@@ -256,6 +258,9 @@ func _on_hit_received(info: HitInfo) -> void:
 		return
 	if is_guarding() and not info.is_throw:
 		_block_hit(info)
+		return
+	if armored and not info.is_throw and NormalRiders.armor_holds(info.damage):
+		_take_armored_hit(info)
 		return
 	set_percent(percent + info.damage)
 	_take_cut_marks(info)
@@ -591,6 +596,20 @@ func _apply_recoil(info: HitInfo) -> void:
 	_recoil_frames = NormalRiders.RECOIL_WINDOW
 
 
+## A swing with armor shrugs a light hit off: the damage lands, the swing goes on, and the pain pays Reiatsu.
+func _take_armored_hit(info: HitInfo) -> void:
+	set_percent(percent + info.damage)
+	_take_cut_marks(info)
+	last_attacker_id = info.attacker_id
+	add_gauge(info.damage * CombatGauge.GAIN_TAKEN)
+	add_reiatsu(info.damage * NormalRiders.ARMOR_REIATSU)
+	hitlag_left = Knockback.hitlag_frames(info.damage)
+	_body.flash_hit()
+	Events.fighter_hit.emit(info.attacker_id, player_id, info.damage)
+	Events.hit_impact.emit(global_position + Vector2(0.0, -14.0), info.direction, info.damage, 0.0, info.attacker_id)
+	Events.mechanic_triggered.emit(player_id, &"armor", global_position + Vector2(float(facing) * 14.0, -18.0))
+
+
 ## Byakuya: marks left by a far-blade hit (they burst after CUT_FRAMES); the hit's attacker owns them.
 func _take_cut_marks(info: HitInfo) -> void:
 	if info.cut_marks <= 0:
@@ -616,6 +635,7 @@ func clear_riders() -> void:
 	cut_marks = 0
 	_cut_frames_left = 0
 	rhythm_scale = 1.0
+	armored = false
 	_recoil_frames = 0
 
 
