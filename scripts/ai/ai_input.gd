@@ -244,7 +244,11 @@ func _try_skill(frame: InputFrame, toward: float, distance: float, rise: float, 
 
 ## How long to hold special after pressing it for `skill`'s follow-up, when that is a stream (else 0).
 static func stream_hold_frames(skill: SpecialData) -> int:
-	if skill == null or skill.follow_up == null or not skill.follow_up.is_stream():
+	if skill == null or skill.follow_up == null:
+		return 0
+	if skill.follow_up.is_spin():
+		return skill.follow_up.spin_frames
+	if not skill.follow_up.is_stream():
 		return 0
 	return skill.follow_up.stream_interval * maxi(1, skill.follow_up.stream_max_shots - 1)
 

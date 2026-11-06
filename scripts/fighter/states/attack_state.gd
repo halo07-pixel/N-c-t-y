@@ -14,6 +14,9 @@ var _chain_buffered: bool = false
 ## A stream (hold special to keep firing): shots fired so far and frames to wait for the next.
 var _stream_shots: int = 1
 var _stream_wait: int = 0
+## A spin (hold special to keep the hitbox turning): frames spent and frames to wait for the next strike.
+var _spin_spent: int = 0
+var _spin_wait: int = 0
 ## The frame of this move on which the attack key was pressed to continue the string.
 var _press_frame: int = 0
 ## Where the fighter was on the previous active frame (a dash covers the ground in between).
@@ -192,7 +195,7 @@ func _hold_charge() -> bool:
 func _advance_move() -> void:
 	var active_start := _move.startup_frames
 	var active_end := _move.startup_frames + _move.active_frames
-	if _hold_stream():
+	if _hold_stream() or _hold_spin():
 		return
 	if _special != null and _special.is_chargeable() and _frame == active_start and _released_charge == 0.0:
 		if _hold_charge():
@@ -259,6 +262,23 @@ func _hold_stream() -> bool:
 		_stream_shots += 1
 		_stream_wait = _special.stream_interval
 		fighter.spawn_projectile(shot, _special, 0.0)
+		return true
+	return false
+
+
+## Renji's ring: while special stays held at the end of the active frames the hitbox strikes again
+## every `spin_gap` frames, until the time runs out, the Reiatsu does, or the button is let go.
+func _hold_spin() -> bool:
+	if _special == null or not _special.is_spin() or _frame != _move.startup_frames + _move.active_frames:
+		return false
+	if _spin_wait > 0:
+		_spin_wait -= 1
+		_spin_spent += 1
+		return true
+	if _special_held() and _spin_spent < _special.spin_frames and fighter.try_spend_reiatsu(_special.spin_cost):
+		_spin_wait = _special.spin_gap
+		fighter.hitbox.strike_again(_move, fighter.facing, fighter.damage_multiplier * fighter.empower_scale)
+		Events.mechanic_triggered.emit(fighter.player_id, &"spin", fighter.global_position + Vector2(0.0, -16.0))
 		return true
 	return false
 

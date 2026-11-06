@@ -34,6 +34,10 @@ static func palette(mechanic: StringName) -> Array[Color]:
 			return [Color(1.0, 0.6, 0.15), Color(1.0, 0.95, 0.6)]
 		&"rhythm":
 			return [Color(1.0, 0.8, 0.25), Color(1.0, 1.0, 0.85)]
+		&"bind":
+			return [Color(1.0, 0.7, 0.9), Color(1.0, 1.0, 1.0)]
+		&"spin":
+			return [Color(1.0, 0.4, 0.3), Color(1.0, 0.95, 0.8)]
 		&"cut", &"mark":
 			return [Color(1.0, 0.55, 0.78), Color(1.0, 0.92, 0.96)]
 		&"armor":
@@ -62,7 +66,7 @@ func _draw() -> void:
 			_draw_beam(t, fade, colors)
 		&"reach", &"cut", &"mark":
 			_draw_tip_cut(t, fade, colors)
-		&"rhythm", &"recoil", &"armor":
+		&"rhythm", &"recoil", &"armor", &"bind", &"spin":
 			_draw_cross(t, fade, colors)
 		&"frost", &"chill":
 			_draw_snowflake(t, fade, colors)

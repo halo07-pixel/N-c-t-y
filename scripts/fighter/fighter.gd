@@ -103,6 +103,8 @@ var empower_scale: float = 1.0
 var rhythm_scale: float = 1.0
 ## Kenpachi: the swing in progress has armor (see NormalRiders.ARMOR_LIMIT).
 var armored: bool = false
+## Byakuya's binding: frames left in which this fighter cannot walk, jump or attack (guarding still works).
+var bound_frames: int = 0
 ## Cut (Byakuya): marks on this fighter and the frames until they burst; recoil (Uryu): frames a second hit still stacks.
 var cut_marks: int = 0
 var _cut_frames_left: int = 0
@@ -196,6 +198,7 @@ func _physics_process(delta: float) -> void:
 	if _input_source != null:
 		input = _input_source.get_frame()
 		_apply_buffered_input()
+		_apply_bind()
 	_tick_drop_through()
 	_state_machine.physics_update(delta)
 	move_and_slide()
@@ -259,9 +262,13 @@ func _on_hit_received(info: HitInfo) -> void:
 	if is_guarding() and not info.is_throw:
 		_block_hit(info)
 		return
+	if info.move != null and info.move.bind_frames > 0 and not info.is_throw:
+		_take_bind(info)
+		return
 	if armored and not info.is_throw and NormalRiders.armor_holds(info.damage):
 		_take_armored_hit(info)
 		return
+	bound_frames = 0 # a real hit breaks the binding
 	set_percent(percent + info.damage)
 	_take_cut_marks(info)
 	refill_jumps() # being hit gives the air jumps back
@@ -597,6 +604,32 @@ func _apply_recoil(info: HitInfo) -> void:
 
 
 ## A swing with armor shrugs a light hit off: the damage lands, the swing goes on, and the pain pays Reiatsu.
+## A binding hit: a little damage and no launch; the target is held in place for the move's frames.
+func _take_bind(info: HitInfo) -> void:
+	set_percent(percent + info.damage)
+	last_attacker_id = info.attacker_id
+	bound_frames = maxi(bound_frames, info.move.bind_frames)
+	velocity.x = 0.0
+	hitlag_left = Knockback.hitlag_frames(info.damage)
+	_body.flash_hit()
+	Events.fighter_hit.emit(info.attacker_id, player_id, info.damage)
+	Events.mechanic_triggered.emit(info.attacker_id, &"bind", global_position + Vector2(0.0, -16.0))
+	_state_machine.transition_to(&"Idle" if is_on_floor() else &"Fall")
+
+
+## While bound, everything but the guard is taken from the input.
+func _apply_bind() -> void:
+	if bound_frames <= 0:
+		return
+	bound_frames -= 1
+	var kept_guard_held := input.guard_held
+	var kept_guard_pressed := input.guard_just_pressed
+	input = InputFrame.new()
+	input.guard_held = kept_guard_held
+	input.guard_just_pressed = kept_guard_pressed
+	velocity.x = 0.0
+
+
 func _take_armored_hit(info: HitInfo) -> void:
 	set_percent(percent + info.damage)
 	_take_cut_marks(info)

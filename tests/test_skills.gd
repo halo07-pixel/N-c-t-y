@@ -274,7 +274,7 @@ func test_the_cpu_lays_traps_only_up_to_the_limit() -> void:
 func test_byakuyas_kit_and_the_form_makes_it_free() -> void:
 	for set: SpecialSet in [NOBLE.specials, NOBLE.bankai_specials]:
 		check(set.neutral.projectiles[0].commandable and set.neutral.follow_up.command_speed > 0.0, "petals can be commanded")
-		check(set.forward.follow_up != null and set.forward.follow_up.flip_facing, "Flash Step ends behind the enemy")
+		check(set.forward.follow_up != null and set.forward.follow_up.bind_frames > 0, "Flash Step ends with a binding")
 		check(set.up.follow_up != null, "Sky Flash has a Blade Drop")
 		check(set.down.projectiles[0].absorbs and set.down.limit_active == 1, "a single petal wall")
 	check(NOBLE.specials.neutral.follow_up_cost > 0.0, "commanding costs Reiatsu normally")

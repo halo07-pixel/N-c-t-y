@@ -42,6 +42,9 @@ extends Resource
 @export var repeat_gap_frames: int = 3
 ## Armor (Kenpachi): from the first frame through the active frames, a light hit hurts but does not stop the swing.
 @export var armor: bool = false
+## Bind (Byakuya's Rikujōkōrō): a hit does not launch but holds the target in place this many frames.
+## A bound fighter cannot walk, jump or attack, but can still guard.
+@export var bind_frames: int = 0
 
 
 @export_group("Throw")

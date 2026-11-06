@@ -221,6 +221,7 @@ func _on_area_entered(area: Area2D) -> void:
 	info.knockback_growth = _move.knockback_growth * _data.knockback_scale
 	info.direction = Knockback.direction(_move.angle_degrees, _facing)
 	info.projectile = self
+	info.move = _move
 	if not hurtbox.evades(info):
 		hit_landed.emit(info)
 	hurtbox.receive_hit(info)

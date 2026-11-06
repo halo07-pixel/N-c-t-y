@@ -40,34 +40,60 @@ hitbox_size = Vector2(28, 34)
 hitbox_offset = Vector2(6, -38)
 self_velocity = Vector2(60, -290)
 
+[sub_resource type="Resource" id="P_lieutenant_pull"]
+script = ExtResource("3")
+offset = Vector2(24, -17)
+velocity = Vector2(700, 0)
+lifetime_frames = 16
+size = Vector2(70, 10)
+pierce = false
+color = Color(1.0, 0.45, 0.4, 1)
+art = &""
+style = &"chain"
+
 [sub_resource type="Resource" id="S_lieutenant_recall"]
 script = ExtResource("2")
-display_name = "Zabimaru Recall"
+display_name = "Zabimaru Pull"
 direction = &"forward"
-damage = 7.5
-base_knockback = 190
-knockback_growth = 95
-angle_degrees = 40
-startup_frames = 4
-active_frames = 3
-recovery_frames = 16
-hitbox_size = Vector2(64, 18)
-hitbox_offset = Vector2(36, -16)
+damage = 6
+base_knockback = 150
+knockback_growth = 0
+angle_degrees = 172
+startup_frames = 5
+active_frames = 2
+recovery_frames = 18
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+projectiles = Array[ExtResource("3")]([SubResource("P_lieutenant_pull")])
+
 
 [sub_resource type="Resource" id="S_lieutenant_fang"]
 script = ExtResource("2")
-display_name = "Fang Slash"
+display_name = "Zabimaru Whirl"
 direction = &"forward"
-damage = 8.0
-base_knockback = 200
-knockback_growth = 105
-angle_degrees = 30
+damage = 4.5
+base_knockback = 170
+knockback_growth = 60
+angle_degrees = 60
 startup_frames = 4
-active_frames = 4
-recovery_frames = 17
-hitbox_size = Vector2(38, 22)
-hitbox_offset = Vector2(28, -14)
-self_velocity = Vector2(170, 0)
+active_frames = 2
+recovery_frames = 14
+hitbox_size = Vector2(84, 40)
+hitbox_offset = Vector2(0, -20)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+spin_frames = 60
+spin_gap = 8
+spin_cost = 4.0
+
 
 [sub_resource type="Resource" id="S_lieutenant_neutral"]
 script = ExtResource("2")

@@ -79,6 +79,14 @@ const HEAVY_MIN_DAMAGE := 11.0
 @export var stream_max_shots: int = 8
 @export var stream_cost: float = 6.0
 
+@export_group("Spin")
+## More than zero lets the player hold the special button while the active frames end to keep the
+## hitbox spinning: it strikes again every `spin_gap` frames, up to `spin_frames` frames in all,
+## each strike paid with `spin_cost`.
+@export var spin_frames: int = 0
+@export var spin_gap: int = 8
+@export var spin_cost: float = 3.0
+
 @export_group("Counter")
 ## A counter stance: a hit that lands during the active frames is negated and this move
 ## is played at once, facing the attacker. The stance itself deals no damage.
@@ -99,6 +107,10 @@ func slot_key() -> StringName:
 
 
 const FREE_CHARGE_SHARE := 0.6
+
+
+func is_spin() -> bool:
+	return spin_frames > 0
 
 
 func is_stream() -> bool:
