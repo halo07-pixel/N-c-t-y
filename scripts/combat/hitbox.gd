@@ -63,6 +63,8 @@ func activate(move: MoveData, facing: int, damage_scale: float = 1.0) -> void:
 	is_active = true
 	set_deferred("monitoring", true)
 	queue_redraw()
+	if move.hitbox_size.x > 0.0:
+		Events.attack_swing.emit(fighter_id, global_position + _shape.position, move.hitbox_size, facing)
 
 
 ## Stretches the hitbox so it covers everything between where the fighter was (`from`) and now

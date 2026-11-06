@@ -25,6 +25,8 @@ signal screen_shake(amount: float)
 signal fighter_launched(victim_id: int, speed: float, direction: Vector2)
 ## A hit connected: where, which way the victim flies, how hard (for sparks and speed lines).
 @warning_ignore("unused_signal")
+## A melee hitbox came out: `center` is the middle of the box, `size` its size, `facing` -1 or 1.
+signal attack_swing(attacker_id: int, center: Vector2, size: Vector2, facing: int)
 signal hit_impact(position: Vector2, direction: Vector2, damage: float, launch_speed: float, attacker_id: int)
 ## Dust kicked up by a landing or a jump; strength 0..1.
 ## A character mechanic fired: &"hollow" (empowered), &"heartless" (bounce), &"reach" (a hit on the blade tip), &"frost" and &"chill" (ice stacks, a freeze), &"zeal" (a hit empowered by damage taken), &"steal" (Reiatsu taken).

@@ -213,6 +213,11 @@ func _play_scenario(scenario: String) -> void:
 			load(HITBOX_PATH).show_debug = true
 			await _play_until(func() -> bool: return _fighters[1].get_state_name() == &"Hitstun")
 			await _frames(1)
+		"swing": # the streak of a forward swing, the frame after the hitbox comes out
+			_bot_input.held_move = Vector2(1.0, 0.0)
+			_bot_input.tap_attack()
+			await _play_until(func() -> bool: return not root.find_children("*", "SwingTrail", true, false).is_empty())
+			await _frames(3)
 		"ko":
 			_fighters[1].set_percent(180.0)
 			await _play_until(func() -> bool: return _fighters[1].is_ko())

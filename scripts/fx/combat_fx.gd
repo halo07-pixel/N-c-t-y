@@ -6,6 +6,7 @@ extends Node2D
 
 func _ready() -> void:
 	Events.hit_impact.connect(_on_hit_impact)
+	Events.attack_swing.connect(_on_attack_swing)
 	Events.dust_puff.connect(_on_dust_puff)
 	Events.fighter_guarded.connect(_on_guarded)
 	Events.fighter_dashed.connect(_on_dashed)
@@ -33,6 +34,32 @@ func _on_hit_impact(
 		spark.color = MatchHud.PLAYER_COLORS.get(attacker_id, Color.WHITE).lerp(Color.WHITE, 0.5)
 		spark.amount = GameSettings.effect_amount()
 	FxBudget.spawn(self, spark)
+	if profile != null:
+		var shake := hit_shake(damage, profile.spark_scale)
+		if shake > 0.0:
+			Events.screen_shake.emit(shake)
+
+
+## A heavy character's solid hits shake the screen a little (spark_scale above 1); light ones do not.
+static func hit_shake(damage: float, spark_scale: float) -> float:
+	return maxf(spark_scale - 1.0, 0.0) * damage * 0.35
+
+
+## The streak of a swing, in the colours of the character swinging.
+func _on_attack_swing(attacker_id: int, center: Vector2, size: Vector2, facing: int) -> void:
+	if not GameSettings.screen_effects:
+		return
+	var profile := _profile_for(attacker_id)
+	var trail := SwingTrail.new()
+	trail.position = center
+	trail.box = size
+	trail.facing = facing
+	trail.amount = GameSettings.effect_amount()
+	if profile != null:
+		trail.color = profile.primary
+		trail.accent = profile.accent
+		trail.style = profile.impact_style
+	FxBudget.spawn(self, trail)
 
 
 ## The effect profile of the character a player is using, or null.
