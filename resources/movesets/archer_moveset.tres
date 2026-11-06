@@ -21,6 +21,8 @@ is_throw = true
 [sub_resource type="Resource" id="M_chain_fin"]
 script = ExtResource("2")
 display_name = "Point-Blank Shot"
+recoil_lift = 60.0
+recoil_speed = 230.0
 direction = &"forward"
 damage = 8.5
 base_knockback = 210.0
@@ -63,6 +65,7 @@ hitbox_offset = Vector2(22, -6)
 [sub_resource type="Resource" id="M_chain_2"]
 script = ExtResource("2")
 display_name = "Pistol Whip"
+recoil_speed = 55.0
 direction = &"neutral"
 damage = 4.7
 base_knockback = 125.0
@@ -80,6 +83,7 @@ chain_down = SubResource("M_chain_dn")
 [sub_resource type="Resource" id="M_ground_neutral"]
 script = ExtResource("2")
 display_name = "Jab"
+recoil_speed = 40.0
 direction = &"neutral"
 damage = 3.7
 base_knockback = 120.0
@@ -95,6 +99,7 @@ next_in_chain = SubResource("M_chain_2")
 [sub_resource type="Resource" id="M_ground_forward"]
 script = ExtResource("2")
 display_name = "Forward Slash"
+recoil_speed = 140.0
 direction = &"forward"
 damage = 10.0
 base_knockback = 200.0
@@ -152,6 +157,8 @@ hitbox_offset = Vector2(17.2, -16)
 [sub_resource type="Resource" id="M_air_forward"]
 script = ExtResource("2")
 display_name = "Air Forward"
+recoil_lift = 130.0
+recoil_speed = 150.0
 direction = &"forward"
 damage = 11.0
 base_knockback = 220.0
@@ -180,6 +187,8 @@ hitbox_offset = Vector2(2, -37.9)
 [sub_resource type="Resource" id="M_air_down"]
 script = ExtResource("2")
 display_name = "Air Spike"
+recoil_lift = 230.0
+recoil_speed = 60.0
 direction = &"down"
 damage = 10.0
 base_knockback = 180.0

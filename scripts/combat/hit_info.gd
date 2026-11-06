@@ -14,3 +14,7 @@ var is_throw: bool = false
 var reach_fraction: float = 0.0
 ## The projectile that carries this hit, or null for a melee hit (a parry can send it back).
 var projectile: Node = null
+## The melee move that carries this hit (null for a projectile), so the attacker can read its riders.
+var move: MoveData = null
+## Cut marks this hit leaves on the victim (Byakuya).
+var cut_marks: int = 0

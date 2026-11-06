@@ -11,6 +11,8 @@ var _aerial: bool = false
 var _charge: int = 0
 var _released_charge: float = 0.0
 var _chain_buffered: bool = false
+## The frame of this move on which the attack key was pressed to continue the string.
+var _press_frame: int = 0
 ## Where the fighter was on the previous active frame (a dash covers the ground in between).
 var _path_from: Vector2 = Vector2.ZERO
 
@@ -32,6 +34,7 @@ func enter(_previous: StringName) -> void:
 	fighter.hit_confirm_left = 0
 	_charge = 0
 	_released_charge = 0.0
+	_take_perfect_link()
 	if chosen_by_button and _special != null:
 		fighter.try_spend_reiatsu(_special.cost)
 		fighter.begin_special_use(_special, _aerial)
@@ -138,6 +141,8 @@ func _check_chain() -> StringName:
 	if _special != null or not _move.has_chain():
 		return &""
 	if fighter.input.attack_just_pressed and _frame >= _move.startup_frames:
+		if not _chain_buffered:
+			_press_frame = _frame
 		_chain_buffered = true
 	if not _chain_buffered or _frame < _move.startup_frames + _move.active_frames:
 		return &""
@@ -147,7 +152,19 @@ func _check_chain() -> StringName:
 	if next == null:
 		return &""
 	fighter.queue_move(next)
+	var on_time := NormalRiders.is_perfect(_press_frame, _move.startup_frames + _move.active_frames)
+	fighter.rhythm_scale = 1.0 + _move.rhythm_bonus if _move.rhythm_bonus > 0.0 and on_time else 1.0
 	return &"Attack"
+
+
+## A move linked on time hits harder and pays back a little Reiatsu (Ichigo's rhythm).
+func _take_perfect_link() -> void:
+	if fighter.rhythm_scale <= 1.0:
+		return
+	fighter.empower_scale = maxf(fighter.empower_scale, fighter.rhythm_scale)
+	fighter.rhythm_scale = 1.0
+	fighter.add_reiatsu(NormalRiders.RHYTHM_REIATSU)
+	Events.mechanic_triggered.emit(fighter.player_id, &"rhythm", fighter.global_position + Vector2(float(fighter.facing) * 22.0, -16.0))
 
 
 ## At the end of the wind-up of a chargeable special: keep the move waiting while the special

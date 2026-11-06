@@ -21,8 +21,9 @@ is_throw = true
 [sub_resource type="Resource" id="M_chain_fin"]
 script = ExtResource("2")
 display_name = "Scattering Slash"
+cut_marks = 2
 direction = &"forward"
-damage = 7.0
+damage = 6.4
 base_knockback = 220.0
 knockback_growth = 120.0
 angle_degrees = 38.0
@@ -64,8 +65,9 @@ hitbox_offset = Vector2(22, -6)
 [sub_resource type="Resource" id="M_chain_2"]
 script = ExtResource("2")
 display_name = "Flowing Cut"
+cut_marks = 1
 direction = &"neutral"
-damage = 4.6
+damage = 4.2
 base_knockback = 130.0
 knockback_growth = 24.0
 angle_degrees = 38.0
@@ -81,8 +83,9 @@ chain_down = SubResource("M_chain_dn")
 [sub_resource type="Resource" id="M_ground_neutral"]
 script = ExtResource("2")
 display_name = "Jab"
+cut_marks = 1
 direction = &"neutral"
-damage = 3.9
+damage = 3.4
 base_knockback = 120.0
 knockback_growth = 20.0
 angle_degrees = 40.0
@@ -96,8 +99,9 @@ next_in_chain = SubResource("M_chain_2")
 [sub_resource type="Resource" id="M_ground_forward"]
 script = ExtResource("2")
 display_name = "Forward Slash"
+cut_marks = 1
 direction = &"forward"
-damage = 10.8
+damage = 9.8
 base_knockback = 200.0
 knockback_growth = 170.0
 angle_degrees = 38.0
@@ -153,8 +157,9 @@ hitbox_offset = Vector2(15, -16)
 [sub_resource type="Resource" id="M_air_forward"]
 script = ExtResource("2")
 display_name = "Air Forward"
+cut_marks = 1
 direction = &"forward"
-damage = 11.9
+damage = 11.0
 base_knockback = 220.0
 knockback_growth = 170.0
 angle_degrees = 35.0

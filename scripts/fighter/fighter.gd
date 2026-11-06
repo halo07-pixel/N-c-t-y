@@ -99,6 +99,13 @@ var damage_multiplier: float = 1.0
 var empowered: bool = false
 var empower_frames_left: int = 0
 var empower_scale: float = 1.0
+## Rhythm (Ichigo): the damage scale the next linked normal attack takes (1.0 = no perfect link).
+var rhythm_scale: float = 1.0
+## Cut (Byakuya): marks on this fighter and the frames until they burst; recoil (Uryu): frames a second hit still stacks.
+var cut_marks: int = 0
+var _cut_frames_left: int = 0
+var _cut_owner: int = 0
+var _recoil_frames: int = 0
 var _arrow_streak: int = 0
 var _arrow_streak_frames: int = 0
 var in_petal_zone: bool = false
@@ -180,6 +187,7 @@ func _physics_process(delta: float) -> void:
 		return
 	_tick_bankai()
 	_tick_gauge()
+	_tick_riders()
 	_tick_defense()
 	_tick_reiatsu()
 	_tick_cooldowns()
@@ -250,6 +258,7 @@ func _on_hit_received(info: HitInfo) -> void:
 		_block_hit(info)
 		return
 	set_percent(percent + info.damage)
+	_take_cut_marks(info)
 	refill_jumps() # being hit gives the air jumps back
 	last_attacker_id = info.attacker_id
 	combo_count = 0
@@ -284,6 +293,7 @@ func _on_hit_landed(info: HitInfo) -> void:
 		info.damage *= scale
 		if scale >= ZEAL_FLASH_SCALE:
 			Events.mechanic_triggered.emit(player_id, &"zeal", global_position + Vector2(float(facing) * 24.0, -16.0))
+	_apply_recoil(info)
 	hit_connected = true
 	hit_confirm_left = CombatGauge.CANCEL_WINDOW_FRAMES
 	hitlag_left = Knockback.hitlag_frames(info.damage)
@@ -569,6 +579,44 @@ func gauge_cancel() -> void:
 	set_gauge(gauge - CombatGauge.GAUGE_CANCEL_COST)
 	hit_confirm_left = 0
 	Events.fighter_gauge_cancelled.emit(player_id, global_position + Vector2(0.0, -14.0))
+
+
+## Uryu: a melee hit that lands throws him back (and up); a second one soon after throws him further.
+func _apply_recoil(info: HitInfo) -> void:
+	if info.move == null or info.projectile != null or info.move.recoil_speed <= 0.0:
+		return
+	velocity = NormalRiders.recoil_velocity(info.move, facing, _recoil_frames > 0)
+	if _recoil_frames > 0:
+		Events.mechanic_triggered.emit(player_id, &"recoil", global_position + Vector2(0.0, -16.0))
+	_recoil_frames = NormalRiders.RECOIL_WINDOW
+
+
+## Byakuya: marks left by a far-blade hit (they burst after CUT_FRAMES); the hit's attacker owns them.
+func _take_cut_marks(info: HitInfo) -> void:
+	if info.cut_marks <= 0:
+		return
+	cut_marks = mini(cut_marks + info.cut_marks, NormalRiders.CUT_MAX)
+	_cut_frames_left = NormalRiders.CUT_FRAMES
+	_cut_owner = info.attacker_id
+	Events.mechanic_triggered.emit(info.attacker_id, &"mark", global_position + Vector2(0.0, -16.0))
+
+
+func _tick_riders() -> void:
+	if _recoil_frames > 0:
+		_recoil_frames -= 1
+	if cut_marks > 0:
+		_cut_frames_left -= 1
+		if _cut_frames_left <= 0:
+			set_percent(percent + NormalRiders.burst_damage(cut_marks))
+			Events.mechanic_triggered.emit(_cut_owner, &"cut", global_position + Vector2(0.0, -16.0))
+			clear_riders()
+
+
+func clear_riders() -> void:
+	cut_marks = 0
+	_cut_frames_left = 0
+	rhythm_scale = 1.0
+	_recoil_frames = 0
 
 
 func _tick_gauge() -> void:
@@ -930,6 +978,7 @@ func enter_ko() -> void:
 	Events.fighter_defeated.emit(player_id, last_attacker_id)
 	last_attacker_id = 0
 	combo_count = 0
+	clear_riders()
 	end_bankai()
 	_body.modulate.a = 1.0
 	velocity = Vector2.ZERO
@@ -953,6 +1002,7 @@ func reset_for_practice(spot: Vector2, new_facing: int, start_gauge: float) -> v
 	hit_confirm_left = 0
 	hit_connected = false
 	combo_count = 0
+	clear_riders()
 	counter_move = null
 	dash_attack = false
 	guard_lock_left = 0

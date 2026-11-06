@@ -28,6 +28,17 @@ extends Resource
 @export var lunge_speed: float = 0.0
 
 
+@export_group("Rider")
+## Rhythm (Ichigo): a press of attack on time as this hit ends links the next hit with this much extra
+## damage (0.2 = +20%). 0 = no rhythm.
+@export var rhythm_bonus: float = 0.0
+## Cut (Byakuya): marks a hit on the far part of the blade leaves; they burst for damage soon after.
+@export var cut_marks: int = 0
+## Recoil (Uryu): speed (px/s) back and up that a hit gives the attacker.
+@export var recoil_speed: float = 0.0
+@export var recoil_lift: float = 0.0
+
+
 @export_group("Throw")
 ## A throw is not stopped by the guard; neither a guard nor a parry stops it.
 @export var is_throw: bool = false

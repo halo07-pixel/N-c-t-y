@@ -112,6 +112,8 @@ func _on_area_entered(area: Area2D) -> void:
 	info.direction = Knockback.direction(_move.angle_degrees, _facing)
 	info.is_throw = _move.is_throw
 	info.reach_fraction = reach_fraction_of(hurtbox.global_position)
+	info.move = _move
+	info.cut_marks = NormalRiders.marks_for(_move, info.reach_fraction)
 	if not hurtbox.evades(info):
 		hit_landed.emit(info)
 	hurtbox.receive_hit(info)
