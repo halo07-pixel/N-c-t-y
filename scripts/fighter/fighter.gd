@@ -936,11 +936,15 @@ func current_attack_name() -> String:
 
 
 ## Sends every commandable projectile this fighter has out flying forward.
-func command_projectiles(speed: float) -> void:
+## With `recall`, they fly back toward this fighter instead (a thrown blade called home).
+func command_projectiles(speed: float, recall: bool = false) -> void:
 	for node in get_tree().get_nodes_in_group(Projectile.COMMAND_GROUP):
 		var shot := node as Projectile
 		if shot != null and shot.owner_id == player_id and not shot.is_queued_for_deletion():
-			shot.command(facing, speed)
+			var way := facing
+			if recall:
+				way = 1 if global_position.x >= shot.global_position.x else -1
+			shot.command(way, speed)
 
 
 ## Live traps this fighter has placed, oldest first.

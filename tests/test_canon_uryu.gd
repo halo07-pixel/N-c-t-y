@@ -1,5 +1,5 @@
 extends TestCase
-## Uryu's kit follows the series: Heilig Pfeil, Path Control, Reishi Platform, Reishi Mine.
+## Uryu's kit follows the series: Heilig Pfeil, Seele Schneider, Reishi Platform, Reishi Mine.
 
 const STAGE_SCENE: PackedScene = preload("res://scenes/stages/test_stage.tscn")
 const FIGHTER_SCENE: PackedScene = preload("res://scenes/fighter/fighter.tscn")
@@ -9,7 +9,7 @@ const URYU: CharacterData = preload("res://resources/characters/archer.tres")
 func test_canon_names() -> void:
 	var kit := URYU.specials
 	check_eq(kit.neutral.display_name, "Heilig Pfeil", "the Quincy arrow")
-	check_eq(kit.forward.display_name, "Path Control", "curving volley of three")
+	check_eq(kit.forward.display_name, "Seele Schneider", "blades planted in the floor")
 	check_eq(kit.up.display_name, "Reishi Platform", "a platform of reishi")
 	check_eq(kit.down.display_name, "Reishi Mine", "a trap of reishi")
 

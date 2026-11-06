@@ -11,6 +11,9 @@ var _aerial: bool = false
 var _charge: int = 0
 var _released_charge: float = 0.0
 var _chain_buffered: bool = false
+## A stream (hold special to keep firing): shots fired so far and frames to wait for the next.
+var _stream_shots: int = 1
+var _stream_wait: int = 0
 ## The frame of this move on which the attack key was pressed to continue the string.
 var _press_frame: int = 0
 ## Where the fighter was on the previous active frame (a dash covers the ground in between).
@@ -189,6 +192,8 @@ func _hold_charge() -> bool:
 func _advance_move() -> void:
 	var active_start := _move.startup_frames
 	var active_end := _move.startup_frames + _move.active_frames
+	if _hold_stream():
+		return
 	if _special != null and _special.is_chargeable() and _frame == active_start and _released_charge == 0.0:
 		if _hold_charge():
 			fighter.set_attack_visual(_move.direction, &"startup", _aerial, true)
@@ -231,12 +236,31 @@ func _begin_active() -> void:
 		fighter.velocity.y = _special.self_velocity.y
 		_aerial = true # leaving the ground on purpose must not cancel the move
 	if _special.command_speed > 0.0:
-		fighter.command_projectiles(_special.command_speed)
+		fighter.command_projectiles(_special.command_speed, _special.command_recall)
 	if _special.limit_active > 0:
 		fighter.prepare_trap(_special)
 	for projectile_data in _special.projectiles:
+		if _special.is_stream() and projectile_data != _special.projectiles[0]:
+			continue # a stream fires its projectiles one at a time, in turn
 		if projectile_data.delay_frames <= 0:
 			fighter.spawn_projectile(projectile_data, _special, _released_charge)
+
+
+## Once the first shot is out, a held special button keeps a stream going: the move waits at the end
+## of its active frames and fires the next projectile every `stream_interval` frames.
+func _hold_stream() -> bool:
+	if _special == null or not _special.is_stream() or _frame != _move.startup_frames + _move.active_frames:
+		return false
+	if _stream_wait > 0:
+		_stream_wait -= 1
+		return true
+	if _special_held() and _stream_shots < _special.stream_max_shots and fighter.try_spend_reiatsu(_special.stream_cost):
+		var shot := _special.projectiles[_stream_shots % _special.projectiles.size()]
+		_stream_shots += 1
+		_stream_wait = _special.stream_interval
+		fighter.spawn_projectile(shot, _special, 0.0)
+		return true
+	return false
 
 
 ## The projectiles of a move that fires in beats appear `delay_frames` after the active frames began.

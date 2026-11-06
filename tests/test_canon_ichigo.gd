@@ -1,6 +1,6 @@
 extends TestCase
 ## Ichigo's kit follows the series: Getsuga Tenshō (black with a red rim in Bankai), Shunpo Strike,
-## Rising Cut, Ground Slam, Final Getsuga Tenshō.
+## Rising Cut, Tensa Zangetsu, Final Getsuga Tenshō.
 
 const ICHIGO: CharacterData = preload("res://resources/characters/swordsman.tres")
 
@@ -10,7 +10,7 @@ func test_canon_names() -> void:
 	check_eq(kit.neutral.display_name, "Getsuga Tenshō", "the signature skill")
 	check_eq(kit.forward.display_name, "Shunpo Strike", "the flash step")
 	check_eq(kit.up.display_name, "Rising Cut", "the rising slash")
-	check_eq(kit.down.display_name, "Ground Slam", "the shockwave")
+	check_eq(kit.down.display_name, "Tensa Zangetsu", "the counter stance")
 	check_eq(ICHIGO.ultimate.display_name, "Final Getsuga Tenshō", "the final technique")
 
 

@@ -79,6 +79,50 @@ ignore_gravity = false
 cinematic_frames = 0
 title = ""
 
+[sub_resource type="Resource" id="P_swordsmanb_cross_h"]
+script = ExtResource("3")
+offset = Vector2(16, -18)
+velocity = Vector2(300, 0)
+lifetime_frames = 60
+size = Vector2(26, 12)
+pierce = false
+color = Color(0.05, 0.0, 0.07, 1.0)
+rim = Color(0.9, 0.1, 0.15, 1.0)
+art = &""
+style = &"crescent"
+
+[sub_resource type="Resource" id="P_swordsmanb_cross_v"]
+script = ExtResource("3")
+offset = Vector2(16, -22)
+velocity = Vector2(300, 0)
+lifetime_frames = 60
+size = Vector2(12, 46)
+pierce = true
+color = Color(0.05, 0.0, 0.07, 1.0)
+rim = Color(0.9, 0.1, 0.15, 1.0)
+art = &""
+style = &"pillar"
+
+[sub_resource type="Resource" id="S_swordsmanb_cross"]
+script = ExtResource("2")
+display_name = "Getsuga Jūjishō +"
+direction = &"neutral"
+damage = 11.5
+base_knockback = 200
+knockback_growth = 100
+angle_degrees = 35
+startup_frames = 8
+active_frames = 2
+recovery_frames = 20
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+projectiles = Array[ExtResource("3")]([SubResource("P_swordsmanb_cross_h"), SubResource("P_swordsmanb_cross_v")])
+
 [sub_resource type="Resource" id="S_swordsmanb_neutral"]
 script = ExtResource("2")
 display_name = "Black Getsuga Tenshō"
@@ -105,6 +149,9 @@ charge_damage_scale = 1.8
 charge_size_scale = 1.7
 charge_speed_scale = 1.25
 charge_pierce = true
+follow_up = SubResource("S_swordsmanb_cross")
+follow_up_cost = 0
+follow_up_window = 26
 cooldown_frames = 45
 
 [sub_resource type="Resource" id="S_swordsmanb_forward"]
@@ -154,26 +201,46 @@ follow_up_cost = 0.0
 follow_up_window = 30
 cooldown_frames = 240
 
+[sub_resource type="Resource" id="S_swordsmanb_tensa"]
+script = ExtResource("2")
+display_name = "Tensa Zangetsu +"
+direction = &"neutral"
+damage = 12
+base_knockback = 230
+knockback_growth = 120
+angle_degrees = 45
+startup_frames = 2
+active_frames = 4
+recovery_frames = 16
+hitbox_size = Vector2(40, 26)
+hitbox_offset = Vector2(24, -16)
+self_velocity = Vector2(160, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+
 [sub_resource type="Resource" id="S_swordsmanb_down"]
 script = ExtResource("2")
-display_name = "Ground Slam +"
+display_name = "Tensa Zangetsu +"
 role = &"defend"
 direction = &"down"
-damage = 8.0
-base_knockback = 190.0
-knockback_growth = 100.0
-angle_degrees = 80.0
-startup_frames = 5
-active_frames = 3
-recovery_frames = 20
-hitbox_size = Vector2(52, 20)
-hitbox_offset = Vector2(14, -10)
+damage = 0
+base_knockback = 0
+knockback_growth = 0
+angle_degrees = 0
+startup_frames = 4
+active_frames = 20
+recovery_frames = 22
+hitbox_size = Vector2(0, 0)
+hitbox_offset = Vector2(0, 0)
 self_velocity = Vector2(0, 0)
 teleport = Vector2(0, 0)
 ignore_gravity = false
 cinematic_frames = 0
 title = ""
-projectiles = Array[ExtResource("3")]([SubResource("P_swordsmanb_slam")])
+counter_move = SubResource("S_swordsmanb_tensa")
+cost = 0
 cooldown_frames = 150
 
 [resource]

@@ -67,6 +67,17 @@ const HEAVY_MIN_DAMAGE := 11.0
 @export_group("Command")
 ## More than zero sends all of the fighter's commandable projectiles flying forward at this speed.
 @export var command_speed: float = 0.0
+## With a command speed: the projectiles fly back toward the fighter instead of forward (thrown
+## blades called home, hitting whoever stands in their way).
+@export var command_recall: bool = false
+
+@export_group("Stream")
+## More than zero lets the player hold the special button after the first shot to keep firing:
+## one more shot every this many frames, up to `stream_max_shots`, each paid with `stream_cost`.
+## The projectiles are used in turn, so a stream can sweep a little up and down.
+@export var stream_interval: int = 0
+@export var stream_max_shots: int = 8
+@export var stream_cost: float = 6.0
 
 @export_group("Counter")
 ## A counter stance: a hit that lands during the active frames is negated and this move
@@ -88,6 +99,10 @@ func slot_key() -> StringName:
 
 
 const FREE_CHARGE_SHARE := 0.6
+
+
+func is_stream() -> bool:
+	return stream_interval > 0
 
 
 func is_chargeable() -> bool:

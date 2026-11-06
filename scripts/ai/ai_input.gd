@@ -21,6 +21,8 @@ const UNDER_STAGE_DEPTH := 28.0
 const MELEE_RANGE := 38.0
 const FOLLOW_UP_CHANCE := 0.6
 var _follow_up_in: int = 0
+## Frames to keep holding special after the follow-up press, when the follow-up is a stream.
+var _follow_up_hold: int = 0
 const TRAP_MIN := 110.0
 const TRAP_CHANCE := 0.35
 const RANGED_MIN := 90.0
@@ -69,6 +71,9 @@ func get_frame() -> InputFrame:
 	if _follow_up_in > 0:
 		_follow_up_in -= 1
 		frame.special_just_pressed = _follow_up_in == 0 # press special again: the follow-up
+		if _follow_up_in == 0 and _follow_up_hold > 0:
+			_special_hold_left = _rng.randi_range(4, _follow_up_hold)
+			_follow_up_hold = 0
 	if state == &"Attack" and fighter.hit_connected and level >= 2 and _rng.randf() < 0.3:
 		frame.attack_just_pressed = true # continue the combo string
 	elif state == &"Attack" and level >= 3 and fighter.hit_confirm_left > 0:
@@ -206,6 +211,7 @@ func _decide(frame: InputFrame, gap: float, rise: float) -> void:
 		var charge_special := fighter.current_specials().neutral
 		if level >= 2 and charge_special != null and charge_special.follow_up != null and _rng.randf() < 0.6:
 			_follow_up_in = _rng.randi_range(16, 36)
+			_follow_up_hold = stream_hold_frames(charge_special)
 		if level >= 2 and charge_special != null and charge_special.is_chargeable():
 			_special_hold_left = _rng.randi_range(0, charge_special.charge_max_frames)
 
@@ -232,7 +238,15 @@ func _try_skill(frame: InputFrame, toward: float, distance: float, rise: float, 
 	var delay := follow_up_delay(specials.select(pick) if specials != null else null, _rng) if level >= 2 else -1
 	if delay >= 0 and _rng.randf() < FOLLOW_UP_CHANCE:
 		_follow_up_in = delay # the second press: dance back, chop, shockwave...
+		_follow_up_hold = stream_hold_frames(specials.select(pick) if specials != null else null)
 	return true
+
+
+## How long to hold special after pressing it for `skill`'s follow-up, when that is a stream (else 0).
+static func stream_hold_frames(skill: SpecialData) -> int:
+	if skill == null or skill.follow_up == null or not skill.follow_up.is_stream():
+		return 0
+	return skill.follow_up.stream_interval * maxi(1, skill.follow_up.stream_max_shots - 1)
 
 
 ## Frames to wait before pressing special again for `skill`'s follow-up (inside its window, once the

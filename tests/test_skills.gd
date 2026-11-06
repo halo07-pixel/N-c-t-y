@@ -154,7 +154,7 @@ func test_ichigos_kit_has_the_new_pieces_and_the_form_makes_them_free() -> void:
 		check(set.neutral.is_chargeable(), "Getsuga can be charged")
 		check(set.forward.follow_up != null and set.forward.follow_up.flip_facing, "Shunpo Strike has a return slash")
 		check(set.up.follow_up != null, "Rising Cut has a dive")
-		check(not set.down.projectiles.is_empty(), "Ground Slam sends a shockwave")
+		check(set.down.counter_move != null, "Tensa Zangetsu is a counter stance")
 	check(SWORDSMAN.specials.neutral.charge_cost > 0.0 and SWORDSMAN.specials.forward.follow_up_cost > 0.0, "costs Reiatsu normally")
 	check_eq(SWORDSMAN.bankai_specials.neutral.charge_cost, 0.0, "free in the form")
 	check_eq(SWORDSMAN.bankai_specials.forward.follow_up_cost, 0.0, "follow-ups are free in the form")
