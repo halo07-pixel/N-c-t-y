@@ -32,6 +32,8 @@ static func plan(skill: SpecialData, situation: Dictionary, rng: RandomNumberGen
 	if follow.release_frames > 0: # Eyepatch Release: only when healthy enough to pay for it
 		var healthy: bool = float(situation.get("self_percent", 0.0)) <= RELEASE_MAX_PERCENT and not situation.get("released", false)
 		return {"use": healthy, "delay": soon + rng.randi_range(0, 6), "hold": 0}
+	if _is_wall(follow): # Kōri no Kabe: when they attack or rush from mid range
+		return {"use": distance >= WALL_MIN and distance <= WALL_MAX and (attacking or distance <= NEAR + 20.0), "delay": soon + rng.randi_range(0, 3), "hold": 0}
 	if follow.armor: # Armored Rush: through an attack, or to finish a close fight
 		return {"use": attacking or distance <= NEAR, "delay": soon + rng.randi_range(0, 3), "hold": 0}
 	if follow.is_spin(): # Zabimaru Whirl: only when they are within the ring
@@ -39,8 +41,6 @@ static func plan(skill: SpecialData, situation: Dictionary, rng: RandomNumberGen
 	if follow.is_stream(): # Ginrei Kojaku: a long volley from a distance
 		var shots := maxi(1, follow.stream_max_shots - 1)
 		return {"use": distance >= STREAM_MIN, "delay": soon + rng.randi_range(0, 4), "hold": follow.stream_interval * shots}
-	if _is_wall(follow): # Kōri no Kabe: when they attack or rush from mid range
-		return {"use": distance >= WALL_MIN and distance <= WALL_MAX and (attacking or distance <= NEAR + 20.0), "delay": soon + rng.randi_range(0, 3), "hold": 0}
 	if follow.command_recall: # Seele Schneider: call the blades home late, when the opponent has walked up
 		return {"use": distance <= NEAR + 40.0, "delay": maxi(soon, latest - rng.randi_range(0, 8)), "hold": 0}
 	if _is_pull(follow): # Zabimaru Pull: a chain to drag in someone keeping away
