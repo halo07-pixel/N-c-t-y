@@ -21,6 +21,9 @@ var _stocks: Dictionary = {}
 var _respawn_in: Dictionary = {}
 var _transforms: Dictionary = {}
 var _guards: Dictionary = {}
+var _moves: Dictionary = {} # character name -> move name -> times started
+var _damage: Dictionary = {} # character name -> damage dealt
+var _names_by_id: Dictionary = {}
 
 
 func _initialize() -> void:
@@ -53,6 +56,14 @@ func _run() -> void:
 			_transforms[id] = _transforms.get(id, 0) + 1)
 	events.fighter_guarded.connect(func(victim: int, _a: int, _p: bool, _s: Vector2) -> void:
 		_guards[victim] = _guards.get(victim, 0) + 1)
+
+	events.fighter_attack_started.connect(func(id: int, move_name: String) -> void:
+		var who: String = _names_by_id.get(id, "?")
+		_moves[who] = _moves.get(who, {})
+		_moves[who][move_name] = _moves[who].get(move_name, 0) + 1)
+	events.fighter_hit.connect(func(attacker: int, _v: int, damage: float) -> void:
+		var who: String = _names_by_id.get(attacker, "?")
+		_damage[who] = _damage.get(who, 0.0) + damage)
 
 	var report := {"settings": {"matches": matches, "level": level, "stocks": stocks, "seconds": seconds}, "pairs": {}, "totals": {}}
 	var totals := {}
@@ -98,6 +109,8 @@ func _run() -> void:
 			"guards": t["guards"],
 		}
 		print("%s: win rate %.0f%%, full gauge after %.1fs (%d/%d games), %d transforms, %d guards" % [name, report["totals"][name]["win_rate"] * 100.0, avg_full, full.size(), t["games"], t["transforms"], t["guards"]])
+	report["moves"] = _moves
+	report["damage"] = _damage
 	var file := FileAccess.open(out_path, FileAccess.WRITE)
 	file.store_string(JSON.stringify(report, "  "))
 	file.close()
@@ -116,6 +129,7 @@ func _collect(totals: Dictionary, name: String, result: Dictionary, id: int) -> 
 func _play(a: String, b: String, level: int, stocks: int, max_frames: int, seed_value: int) -> Dictionary:
 	_transforms.clear()
 	_guards.clear()
+	_names_by_id = {1: a, 2: b}
 	_stocks = {1: stocks, 2: stocks}
 	_respawn_in = {}
 	_stage = (load(STAGE_SCENE) as PackedScene).instantiate()
