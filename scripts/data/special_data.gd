@@ -34,6 +34,9 @@ extends MoveData
 @export var follow_up_window: int = 26
 ## Turns the fighter around when the move starts (a slash back through the opponent).
 @export var flip_facing: bool = false
+## Turns the fighter toward the nearest opponent when the move starts (a binding or a wall must
+## land between the two, whichever side the dash ended on).
+@export var face_enemy: bool = false
 
 @export_group("Look")
 ## Quincy skills gather reishi during the wind-up: blue motes flow into the bow arm.

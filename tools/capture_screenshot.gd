@@ -218,6 +218,8 @@ func _play_scenario(scenario: String) -> void:
 			_bot_input.tap_attack()
 			await _play_until(func() -> bool: return not root.find_children("*", "SwingTrail", true, false).is_empty())
 			await _frames(3)
+		"skill_cross", "skill_blades", "skill_stream", "skill_wall", "skill_veil", "skill_bind", "skill_whirl", "skill_pull", "skill_release":
+			await _signature_skill(scenario)
 		"ko":
 			_fighters[1].set_percent(180.0)
 			await _play_until(func() -> bool: return _fighters[1].is_ko())
@@ -373,6 +375,62 @@ func _play_scenario(scenario: String) -> void:
 			await _frames(70 + 18)
 		_:
 			await _frames(45)
+
+
+## The second press of a signature skill, caught at its best frame. Player 1 plays the skill.
+func _signature_skill(scenario: String) -> void:
+	_fighters[0].set_reiatsu(300.0)
+	_fighters[1].set_reiatsu(300.0)
+	await _frames(30)
+	var follow_gap := 8
+	var hold := false
+	var wait_after := 12
+	match scenario:
+		"skill_cross": # Getsuga, then the cross
+			follow_gap = 14
+		"skill_blades": # Seele Schneider planted
+			_bot_input.held_move = Vector2(1.0, 0.0)
+			follow_gap = 0
+			wait_after = 20
+		"skill_stream":
+			follow_gap = 14
+			hold = true
+			wait_after = 30
+		"skill_wall":
+			_bot_input.held_move = Vector2(1.0, 0.0)
+			wait_after = 40
+		"skill_veil":
+			_bot_input.held_move = Vector2(0.0, -1.0)
+			follow_gap = 12
+			wait_after = 20
+		"skill_bind":
+			_bot_input.held_move = Vector2(1.0, 0.0)
+			wait_after = 34
+		"skill_whirl":
+			_bot_input.held_move = Vector2(1.0, 0.0)
+			hold = true
+			wait_after = 24
+		"skill_pull":
+			follow_gap = 10
+			wait_after = 14
+		"skill_release":
+			_bot_input.held_move = Vector2(0.0, 1.0)
+			follow_gap = 24
+			wait_after = 10
+	_bot_input.tap_special()
+	if scenario == "skill_blades":
+		await _frames(18)
+		await _save_after_wait(wait_after)
+		return
+	await _frames(follow_gap)
+	_bot_input.held_move = Vector2.ZERO
+	_bot_input.tap_special()
+	_bot_input.held_special = hold
+	await _frames(wait_after)
+
+
+func _save_after_wait(frames: int) -> void:
+	await _frames(frames)
 
 
 func _setup_fighters() -> void:

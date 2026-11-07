@@ -89,7 +89,7 @@ ignore_gravity = false
 cinematic_frames = 0
 title = ""
 projectiles = Array[ExtResource("3")]([SubResource("P_ice_wall")])
-flip_facing = true
+face_enemy = true
 
 [sub_resource type="Resource" id="S_ice_neutral"]
 script = ExtResource("2")

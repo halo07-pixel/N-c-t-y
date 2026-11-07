@@ -967,6 +967,22 @@ func take_queued_move() -> MoveData:
 	return move
 
 
+## Turns toward the nearest living opponent (keeps the facing when there is none).
+func face_nearest_enemy() -> void:
+	var best: Fighter = null
+	var best_gap := INF
+	for node in get_tree().get_nodes_in_group(FIGHTER_GROUP):
+		var other := node as Fighter
+		if other == null or other == self or other.is_ko():
+			continue
+		var gap := absf(other.global_position.x - global_position.x)
+		if gap < best_gap:
+			best_gap = gap
+			best = other
+	if best != null and absf(best.global_position.x - global_position.x) > 2.0:
+		facing = 1 if best.global_position.x > global_position.x else -1
+
+
 ## True when a throw can start now: off cooldown, grounded, and an opponent right in front.
 func can_throw() -> bool:
 	if throw_cooldown > 0 or not is_on_floor() or data.moveset.throw_move == null:

@@ -44,7 +44,9 @@ func enter(_previous: StringName) -> void:
 	if chosen_by_button and _special != null:
 		fighter.try_spend_reiatsu(_special.cost)
 		fighter.begin_special_use(_special, _aerial)
-	if _special != null and _special.flip_facing:
+	if _special != null and _special.face_enemy:
+		fighter.face_nearest_enemy()
+	elif _special != null and _special.flip_facing:
 		fighter.facing = -fighter.facing
 	if _special != null and _special.cinematic_frames > 0:
 		Events.ultimate_started.emit(fighter.player_id, _special.cinematic_frames, _special.title)
