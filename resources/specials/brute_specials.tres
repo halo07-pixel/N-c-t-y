@@ -80,7 +80,7 @@ cinematic_frames = 0
 title = ""
 release_frames = 480
 release_dealt = 1.3
-release_taken = 1.4
+release_taken = 1.5
 
 
 [sub_resource type="Resource" id="S_brute_neutral"]
