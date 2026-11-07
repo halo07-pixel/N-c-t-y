@@ -246,6 +246,17 @@ func set_input_source(source: InputSource) -> void:
 	add_child(source)
 
 
+## The attack being played, for the CPU: the move and Vector2i(frame, frame the hit ends on).
+func attack_move() -> MoveData:
+	var state: Object = _state_machine.current
+	return state.call("current_move") as MoveData if state != null and state.has_method("current_move") else null
+
+
+func attack_timing() -> Vector2i:
+	var state: Object = _state_machine.current
+	return state.call("timing") if state != null and state.has_method("timing") else Vector2i(-1, -1)
+
+
 func get_state_name() -> StringName:
 	return _state_machine.current_name
 

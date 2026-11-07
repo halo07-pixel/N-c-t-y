@@ -58,9 +58,12 @@ func test_level_is_clamped_to_the_known_range() -> void:
 func test_cpu_recovers_to_the_stage_after_being_thrown_off() -> void:
 	_build_world(SWORDSMAN, Vector2(200.0, 10.0), -60.0, 3)
 	_cpu.velocity = Vector2(60.0, -50.0)
-	await wait_frames(300)
-	var on_stage := absf(_cpu.global_position.x) < 165.0 and _cpu.global_position.y < 70.0
-	check(on_stage, "back on the stage at (%d, %d)" % [int(_cpu.global_position.x), int(_cpu.global_position.y)])
+	# it started off the stage; what matters is that it got back onto it (the fight may then carry it off again)
+	var on_stage := false
+	for i in 30:
+		await wait_frames(10)
+		on_stage = on_stage or (absf(_cpu.global_position.x) < 160.0 and _cpu.global_position.y < 70.0 and _cpu.is_on_floor())
+	check(on_stage, "the CPU got back onto the stage")
 	_teardown_world()
 
 

@@ -74,7 +74,10 @@ func get_frame() -> InputFrame:
 		if _follow_up_in == 0 and _follow_up_hold > 0:
 			_special_hold_left = _rng.randi_range(4, _follow_up_hold)
 			_follow_up_hold = 0
-	if state == &"Attack" and fighter.hit_connected and level >= 2 and _rng.randf() < 0.3:
+	if state == &"Attack" and fighter.hit_connected and level >= 3 and fighter.attack_move() != null and fighter.attack_move().rhythm_bonus > 0.0:
+		var timing := fighter.attack_timing()
+		frame.attack_just_pressed = CpuTactics.rhythm_press(fighter.attack_move(), timing.x, timing.y, _rng) # in the beat: a perfect link
+	elif state == &"Attack" and fighter.hit_connected and level >= 2 and _rng.randf() < 0.3:
 		frame.attack_just_pressed = true # continue the combo string
 	elif state == &"Attack" and level >= 3 and fighter.hit_confirm_left > 0:
 		_try_cancel(frame)
@@ -149,7 +152,7 @@ func _try_defend(frame: InputFrame) -> bool:
 	if _rng.randf() >= chance:
 		return false
 	var down := fighter.current_specials().down
-	if down != null and down.counter_move != null and fighter.can_afford(down.cost) and _rng.randf() < 0.3:
+	if down != null and down.counter_move != null and fighter.can_afford(down.cost) and _rng.randf() < (0.6 if level >= 3 else 0.3):
 		frame.special_just_pressed = true # a counter stance instead of a guard
 		frame.move.y = 1.0
 		return true
@@ -209,10 +212,12 @@ func _decide(frame: InputFrame, gap: float, rise: float) -> void:
 			frame.special_held = false
 			return
 		var charge_special := fighter.current_specials().neutral
-		if level >= 2 and charge_special != null and charge_special.follow_up != null and _rng.randf() < 0.6:
+		if level >= 3 and charge_special != null and charge_special.follow_up != null:
+			_plan_follow_up(charge_special, gap_distance(), 12)
+		elif level >= 2 and charge_special != null and charge_special.follow_up != null and _rng.randf() < 0.6:
 			_follow_up_in = _rng.randi_range(16, 36)
 			_follow_up_hold = stream_hold_frames(charge_special)
-		if level >= 2 and charge_special != null and charge_special.is_chargeable():
+		if level >= 2 and charge_special != null and charge_special.is_chargeable() and _follow_up_in <= 0:
 			_special_hold_left = _rng.randi_range(0, charge_special.charge_max_frames)
 
 
@@ -235,11 +240,32 @@ func _try_skill(frame: InputFrame, toward: float, distance: float, rise: float, 
 	frame.special_just_pressed = true
 	frame.move = pick
 	var specials := fighter.current_specials()
+	if level >= 3 and specials != null and specials.select(pick) != null and specials.select(pick).follow_up != null:
+		_plan_follow_up(specials.select(pick), distance, 0)
+		return true
 	var delay := follow_up_delay(specials.select(pick) if specials != null else null, _rng) if level >= 2 else -1
 	if delay >= 0 and _rng.randf() < FOLLOW_UP_CHANCE:
 		_follow_up_in = delay # the second press: dance back, chop, shockwave...
 		_follow_up_hold = stream_hold_frames(specials.select(pick) if specials != null else null)
 	return true
+
+
+func gap_distance() -> float:
+	return absf(target.global_position.x - fighter.global_position.x)
+
+
+## Level 3+: the second press of a skill is planned from what the skill is for (CpuTactics).
+func _plan_follow_up(skill: SpecialData, distance: float, extra_delay: int) -> void:
+	var plan := CpuTactics.plan(skill, {
+		"distance": distance,
+		"target_attacking": target.get_state_name() == &"Attack",
+		"self_percent": fighter.percent,
+		"target_percent": target.percent,
+		"released": fighter.release_frames > 0,
+	}, _rng)
+	if plan["use"]:
+		_follow_up_in = int(plan["delay"]) + extra_delay
+		_follow_up_hold = int(plan["hold"])
 
 
 ## How long to hold special after pressing it for `skill`'s follow-up, when that is a stream (else 0).
@@ -276,8 +302,8 @@ func _melee(frame: InputFrame, toward: float, distance: float, rise: float) -> v
 	frame.move.x = toward if distance > 20.0 else FACING_NUDGE * toward
 	if rise < -30.0:
 		frame.move.y = -1.0
-	if level >= 2:
-		_retreat_frames = _rng.randi_range(0, 14)
+	if level >= 2 and fighter.release_frames <= 0:
+		_retreat_frames = _rng.randi_range(0, 14) # in a release he never backs off
 
 
 ## Returns true if it used this decision on the gauge, the form or the Reiatsu meter.

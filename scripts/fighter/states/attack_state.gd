@@ -140,6 +140,17 @@ func _special_held() -> bool:
 	return fighter.input.special_held
 
 
+## Where this attack is in its move, for the CPU's timing: the frame and the frame the hit ends on.
+func timing() -> Vector2i:
+	if _move == null:
+		return Vector2i(-1, -1)
+	return Vector2i(_frame, _move.startup_frames + _move.active_frames)
+
+
+func current_move() -> MoveData:
+	return _move
+
+
 func move_name() -> String:
 	return _move.display_name if _move != null else ""
 
