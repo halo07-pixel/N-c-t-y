@@ -41,32 +41,47 @@ self_velocity = Vector2(0, 430)
 
 [sub_resource type="Resource" id="S_brute_chop"]
 script = ExtResource("2")
-display_name = "Overhead Chop"
+display_name = "Armored Rush"
 direction = &"down"
-damage = 13.0
-base_knockback = 230
-knockback_growth = 140
-angle_degrees = 55
-startup_frames = 8
-active_frames = 4
-recovery_frames = 26
-hitbox_size = Vector2(40, 40)
-hitbox_offset = Vector2(24, -22)
+damage = 12
+base_knockback = 220
+knockback_growth = 130
+angle_degrees = 40
+startup_frames = 6
+active_frames = 6
+recovery_frames = 22
+hitbox_size = Vector2(46, 26)
+hitbox_offset = Vector2(26, -16)
+self_velocity = Vector2(300, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+armor = true
+
 
 [sub_resource type="Resource" id="S_brute_after"]
 script = ExtResource("2")
-display_name = "Aftershock"
+display_name = "Eyepatch Release"
 direction = &"down"
-damage = 8.0
-base_knockback = 200
-knockback_growth = 100
-angle_degrees = 60
-startup_frames = 6
-active_frames = 3
+damage = 0
+base_knockback = 0
+knockback_growth = 0
+angle_degrees = 0
+startup_frames = 10
+active_frames = 2
 recovery_frames = 20
 hitbox_size = Vector2(0, 0)
 hitbox_offset = Vector2(0, 0)
-projectiles = Array[ExtResource("3")]([SubResource("P_brute_shock")])
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+release_frames = 480
+release_dealt = 1.3
+release_taken = 1.4
+
 
 [sub_resource type="Resource" id="S_brute_neutral"]
 script = ExtResource("2")

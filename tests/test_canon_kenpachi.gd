@@ -9,7 +9,7 @@ func test_his_skills_are_interactive_like_the_first_three() -> void:
 	for set: SpecialSet in [KENPACHI.specials, KENPACHI.bankai_specials]:
 		check(set.neutral.is_chargeable() and set.neutral.charge_pierce, "hold the skill key to charge the slash; a full charge pierces")
 		check(set.forward.follow_up != null, "the cleave has a second press (an overhead chop)")
-		check(set.down.follow_up != null and not set.down.follow_up.projectiles.is_empty(), "the smash has a second press that sends a shockwave")
+		check(set.down.follow_up != null and set.down.follow_up.release_frames > 0, "the smash has a second press that tears off the eyepatch")
 
 
 func test_the_eyepatch_comes_off_when_unleashed() -> void:

@@ -105,6 +105,13 @@ var rhythm_scale: float = 1.0
 var armored: bool = false
 ## Byakuya's binding: frames left in which this fighter cannot walk, jump or attack (guarding still works).
 var bound_frames: int = 0
+## Kenpachi's release: frames left, and the damage dealt and taken scales while it lasts.
+var release_frames: int = 0
+var release_dealt: float = 1.0
+var release_taken: float = 1.0
+## A snow veil slows this fighter while the frames last, to this fraction of their speed.
+var slowed_frames: int = 0
+var slow_scale: float = 1.0
 ## Cut (Byakuya): marks on this fighter and the frames until they burst; recoil (Uryu): frames a second hit still stacks.
 var cut_marks: int = 0
 var _cut_frames_left: int = 0
@@ -190,6 +197,8 @@ func _physics_process(delta: float) -> void:
 		_body.sync_to(_state_machine.current_name, facing, velocity)
 		return
 	_tick_bankai()
+	if release_frames > 0:
+		release_frames -= 1
 	_tick_gauge()
 	_tick_riders()
 	_tick_defense()
@@ -201,6 +210,7 @@ func _physics_process(delta: float) -> void:
 		_apply_bind()
 	_tick_drop_through()
 	_state_machine.physics_update(delta)
+	_apply_slow()
 	move_and_slide()
 	_body.sync_to(_state_machine.current_name, facing, velocity)
 
@@ -269,7 +279,7 @@ func _on_hit_received(info: HitInfo) -> void:
 		_take_armored_hit(info)
 		return
 	bound_frames = 0 # a real hit breaks the binding
-	set_percent(percent + info.damage)
+	set_percent(percent + info.damage * (release_taken if release_frames > 0 else 1.0))
 	_take_cut_marks(info)
 	refill_jumps() # being hit gives the air jumps back
 	last_attacker_id = info.attacker_id
@@ -604,6 +614,33 @@ func _apply_recoil(info: HitInfo) -> void:
 
 
 ## A swing with armor shrugs a light hit off: the damage lands, the swing goes on, and the pain pays Reiatsu.
+## Everything this fighter deals is scaled by the gauge form and by a release.
+func outgoing_multiplier() -> float:
+	return damage_multiplier * (release_dealt if release_frames > 0 else 1.0)
+
+
+func begin_release(special: SpecialData) -> void:
+	release_frames = special.release_frames
+	release_dealt = special.release_dealt
+	release_taken = special.release_taken
+	Events.mechanic_triggered.emit(player_id, &"zeal", global_position + Vector2(0.0, -20.0))
+	Events.screen_shake.emit(3.0)
+
+
+## A fighter in a snow veil walks and flies slower; being launched is not slowed.
+func slow_down(scale: float) -> void:
+	slowed_frames = 3
+	slow_scale = scale
+
+
+func _apply_slow() -> void:
+	if slowed_frames <= 0:
+		return
+	slowed_frames -= 1
+	if _state_machine.current_name != &"Hitstun":
+		velocity.x *= slow_scale
+
+
 ## A binding hit: a little damage and no launch; the target is held in place for the move's frames.
 func _take_bind(info: HitInfo) -> void:
 	set_percent(percent + info.damage)
@@ -1008,7 +1045,7 @@ func spawn_projectile(projectile_data: ProjectileData, move: MoveData, charge: f
 	var special := move as SpecialData
 	var scales := special.charge_scales(charge) if special != null else {"damage": 1.0, "size": 1.0, "speed": 1.0, "pierce": false}
 	projectile.launch(
-		projectile_data, move, player_id, facing, damage_multiplier * empower_scale * scales["damage"], global_position,
+		projectile_data, move, player_id, facing, outgoing_multiplier() * empower_scale * scales["damage"], global_position,
 		scales["size"], scales["speed"], scales["pierce"]
 	)
 	if projectile_data.style == &"":

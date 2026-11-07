@@ -206,7 +206,7 @@ func _advance_move() -> void:
 	elif _frame == active_end:
 		fighter.hitbox.deactivate()
 	elif NormalRiders.is_flurry_frame(_move, _frame):
-		fighter.hitbox.strike_again(_move, fighter.facing, fighter.damage_multiplier * fighter.empower_scale)
+		fighter.hitbox.strike_again(_move, fighter.facing, fighter.outgoing_multiplier() * fighter.empower_scale)
 	if _special != null and _frame > active_start:
 		_spawn_delayed()
 	if _special != null and _frame >= active_start and _frame < active_end:
@@ -226,7 +226,7 @@ func _begin_active() -> void:
 	if _special != null:
 		fighter.global_position += Vector2(_special.teleport.x * float(fighter.facing), _special.teleport.y)
 	if _move.hitbox_size.x > 0.0:
-		fighter.hitbox.activate(_move, fighter.facing, fighter.damage_multiplier * fighter.empower_scale)
+		fighter.hitbox.activate(_move, fighter.facing, fighter.outgoing_multiplier() * fighter.empower_scale)
 		if fighter.global_position != origin:
 			fighter.hitbox.cover_path(origin, fighter.global_position) # a teleport hurts along its path
 	if _move.lunge_speed != 0.0:
@@ -238,6 +238,8 @@ func _begin_active() -> void:
 	if _special.self_velocity.y != 0.0:
 		fighter.velocity.y = _special.self_velocity.y
 		_aerial = true # leaving the ground on purpose must not cancel the move
+	if _special.release_frames > 0:
+		fighter.begin_release(_special)
 	if _special.command_speed > 0.0:
 		fighter.command_projectiles(_special.command_speed, _special.command_recall)
 	if _special.limit_active > 0:
@@ -277,7 +279,7 @@ func _hold_spin() -> bool:
 		return true
 	if _special_held() and _spin_spent < _special.spin_frames and fighter.try_spend_reiatsu(_special.spin_cost):
 		_spin_wait = _special.spin_gap
-		fighter.hitbox.strike_again(_move, fighter.facing, fighter.damage_multiplier * fighter.empower_scale)
+		fighter.hitbox.strike_again(_move, fighter.facing, fighter.outgoing_multiplier() * fighter.empower_scale)
 		Events.mechanic_triggered.emit(fighter.player_id, &"spin", fighter.global_position + Vector2(0.0, -16.0))
 		return true
 	return false

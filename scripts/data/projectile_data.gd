@@ -27,6 +27,13 @@ extends Resource
 ## An absorbing projectile (a petal wall, a void sphere) destroys enemy projectiles that touch it.
 @export var absorbs: bool = false
 
+@export_group("Terrain")
+## A solid projectile (an ice wall) blocks fighters like a wall until it expires.
+@export var solid: bool = false
+## Below 1 makes a slow zone (a snow veil): it hits no one, but enemy fighters inside it move at
+## this fraction of their speed. Its owner is not slowed.
+@export var slow_scale: float = 1.0
+
 @export_group("Sequence")
 ## Frames after the active frames begin before this projectile appears, so an ultimate can fire in beats.
 @export var delay_frames: int = 0

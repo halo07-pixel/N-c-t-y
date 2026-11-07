@@ -26,7 +26,7 @@ func test_her_kit_has_a_way_in_a_way_back_and_a_jab_string() -> void:
 func test_her_skills_are_interactive_like_the_first_three() -> void:
 	for set: SpecialSet in [RUKIA.specials, RUKIA.bankai_specials]:
 		check(set.neutral.is_chargeable() and set.neutral.charge_pierce, "hold the skill key to widen the ice stream; a full charge pierces")
-		check(set.forward.follow_up != null and set.forward.follow_up.flip_facing, "the step has a second press that dances back through the target")
+		check(set.forward.follow_up != null and set.forward.follow_up.flip_facing and not set.forward.follow_up.projectiles.is_empty(), "the step has a second press that turns and raises a wall")
 		check(set.down.projectiles[0].trap and set.down.limit_active > 1, "Tsukishiro is a rune trap she can lay more than one of")
 
 

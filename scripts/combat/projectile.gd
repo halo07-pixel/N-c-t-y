@@ -6,6 +6,7 @@ extends Area2D
 signal hit_landed(info: HitInfo)
 
 const HURTBOX_LAYER_VALUE := 16 # physics layer 5
+const SOLID_LAYER_VALUE := 32 # physics layer 6: walls of ice
 const OFFSCREEN_LIMIT := 1600.0
 const CORE_SCALE := 0.55
 const MIN_ART_SCALE := 0.35
@@ -117,6 +118,8 @@ func _ready() -> void:
 	if is_trap():
 		add_to_group(TRAP_GROUP)
 	area_entered.connect(_on_area_entered)
+	if _data != null and _data.solid:
+		_add_solid_body()
 	Events.ultimate_started.connect(_on_ultimate_started)
 	if _data != null and _data.style != &"" and not _data.trap:
 		Events.projectile_flash.emit(position, _velocity.normalized(), _data.color, false)
@@ -138,6 +141,8 @@ func _physics_process(delta: float) -> void:
 		_freeze_left -= 1
 		return
 	position += _velocity * delta
+	if _data.slow_scale < 1.0:
+		_slow_enemies()
 	if _data.absorbs:
 		_absorb_enemy_shots()
 	_age += delta
@@ -150,6 +155,28 @@ func _physics_process(delta: float) -> void:
 		if _data.style != &"" and not _data.trap and position.length() <= OFFSCREEN_LIMIT:
 			Events.projectile_flash.emit(position, _velocity.normalized(), _data.color, true)
 		queue_free()
+
+
+## A wall of ice: a static body on the terrain layer fighters collide with.
+func _add_solid_body() -> void:
+	var body := StaticBody2D.new()
+	body.collision_layer = SOLID_LAYER_VALUE
+	body.collision_mask = 0
+	var shape := CollisionShape2D.new()
+	var box := RectangleShape2D.new()
+	box.size = _size
+	shape.shape = box
+	body.add_child(shape)
+	add_child(body)
+
+
+## A snow veil slows every enemy fighter standing in it.
+func _slow_enemies() -> void:
+	var zone := Rect2(position - _size * 0.5, _size)
+	for node in get_tree().get_nodes_in_group(Fighter.FIGHTER_GROUP):
+		var other := node as Fighter
+		if other != null and other.player_id != owner_id and zone.has_point(other.global_position + Vector2(0.0, -12.0)):
+			other.slow_down(_data.slow_scale)
 
 
 ## Destroys every enemy projectile overlapping this one (traps and other absorbers excepted).
@@ -211,7 +238,7 @@ func _on_area_entered(area: Area2D) -> void:
 	var hurtbox := area as Hurtbox
 	if hurtbox == null or not hurtbox.is_active:
 		return
-	if hurtbox.fighter_id == owner_id or _already_hit.has(hurtbox):
+	if hurtbox.fighter_id == owner_id or _already_hit.has(hurtbox) or _data.slow_scale < 1.0:
 		return
 	_already_hit.append(hurtbox)
 	var info := HitInfo.new()

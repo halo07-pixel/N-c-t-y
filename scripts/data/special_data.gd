@@ -87,6 +87,13 @@ const HEAVY_MIN_DAMAGE := 11.0
 @export var spin_gap: int = 8
 @export var spin_cost: float = 3.0
 
+@export_group("Release")
+## More than zero starts a release (Kenpachi tearing off his eyepatch): for this many frames the
+## fighter deals `release_dealt` times the damage and takes `release_taken` times.
+@export var release_frames: int = 0
+@export var release_dealt: float = 1.3
+@export var release_taken: float = 1.4
+
 @export_group("Counter")
 ## A counter stance: a hit that lands during the active frames is negated and this move
 ## is played at once, facing the attacker. The stance itself deals no damage.
