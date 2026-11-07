@@ -78,6 +78,7 @@ teleport = Vector2(0, 0)
 ignore_gravity = false
 cinematic_frames = 0
 title = ""
+release_speed = 1.15
 release_frames = 600
 release_dealt = 1.35
 release_taken = 1.4

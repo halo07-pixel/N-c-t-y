@@ -109,6 +109,7 @@ var bound_frames: int = 0
 var release_frames: int = 0
 var release_dealt: float = 1.0
 var release_taken: float = 1.0
+var release_speed: float = 1.0
 ## A snow veil slows this fighter while the frames last, to this fraction of their speed.
 var slowed_frames: int = 0
 var slow_scale: float = 1.0
@@ -634,6 +635,7 @@ func begin_release(special: SpecialData) -> void:
 	release_frames = special.release_frames
 	release_dealt = special.release_dealt
 	release_taken = special.release_taken
+	release_speed = special.release_speed
 	Events.mechanic_triggered.emit(player_id, &"zeal", global_position + Vector2(0.0, -20.0))
 	Events.screen_shake.emit(3.0)
 
@@ -957,6 +959,8 @@ func pick_move(aerial: bool) -> MoveData:
 		var special := current_specials().select(input.move)
 		if special == null:
 			return data.moveset.select(aerial, input.move)
+		if special.recall_planted and special.follow_up != null and has_planted_projectiles():
+			return special.follow_up # call the planted blades home
 		var affordable := special.cost <= 0.0 or can_afford(special.cost)
 		var ready := skill_ready(special.slot_key())
 		var refreshable := special.direction == &"up" and can_afford(Reiatsu.BLOCK)
@@ -964,6 +968,15 @@ func pick_move(aerial: bool) -> MoveData:
 			_refresh_pending = not ready
 			return special
 	return data.moveset.select(aerial, input.move)
+
+
+## True while any of this fighter's commandable projectiles (planted blades, petals) is out.
+func has_planted_projectiles() -> bool:
+	for node in get_tree().get_nodes_in_group(Projectile.COMMAND_GROUP):
+		var shot := node as Projectile
+		if shot != null and shot.owner_id == player_id and not shot.is_queued_for_deletion():
+			return true
+	return false
 
 
 ## Queues a move for the attack state to play next (an ultimate or a follow-up).
@@ -1075,6 +1088,8 @@ func spawn_projectile(projectile_data: ProjectileData, move: MoveData, charge: f
 		projectile_data, move, player_id, facing, outgoing_multiplier() * empower_scale * scales["damage"], global_position,
 		scales["size"], scales["speed"], scales["pierce"]
 	)
+	if projectile_data.aim > 0.0:
+		projectile.steer(input.move.y * projectile_data.aim)
 	if projectile_data.style == &"":
 		projectile.set_art(_body.effect_texture(projectile_data.art))
 	projectile.hit_landed.connect(_on_projectile_hit)
@@ -1189,7 +1204,7 @@ func apply_horizontal(
 	delta: float, direction: float, max_speed: float, accel: float, friction: float
 ) -> void:
 	if direction != 0.0:
-		var scale := speed_scale * (PETAL_RUN_SCALE if in_petal_zone else 1.0)
+		var scale := speed_scale * (PETAL_RUN_SCALE if in_petal_zone else 1.0) * (release_speed if release_frames > 0 else 1.0)
 		velocity.x = move_toward(velocity.x, direction * max_speed * scale, accel * delta)
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, friction * delta)

@@ -224,6 +224,8 @@ func _decide(frame: InputFrame, gap: float, rise: float) -> void:
 ## Uses a skill that suits the distance: a rush at mid range, a shot from far away, the rising
 ## skill when the opponent is overhead, the down skill when they are close.
 func _try_skill(frame: InputFrame, toward: float, distance: float, rise: float, special_chance: float) -> bool:
+	if level >= 3 and _recall_planted(frame, toward, distance):
+		return true
 	if _rng.randf() >= special_chance * 0.6:
 		return false
 	var pick := Vector2.ZERO
@@ -247,6 +249,18 @@ func _try_skill(frame: InputFrame, toward: float, distance: float, rise: float, 
 	if delay >= 0 and _rng.randf() < FOLLOW_UP_CHANCE:
 		_follow_up_in = delay # the second press: dance back, chop, shockwave...
 		_follow_up_hold = stream_hold_frames(specials.select(pick) if specials != null else null)
+	return true
+
+
+## Blades planted on the floor are called home when the opponent walks up to them (level 3+).
+func _recall_planted(frame: InputFrame, toward: float, distance: float) -> bool:
+	var specials := fighter.current_specials()
+	if specials == null or specials.forward == null or not specials.forward.recall_planted:
+		return false
+	if not fighter.has_planted_projectiles() or distance > CpuTactics.NEAR + 40.0 or _rng.randf() > 0.25:
+		return false
+	frame.special_just_pressed = true
+	frame.move = Vector2(toward, 0.0)
 	return true
 
 

@@ -37,6 +37,9 @@ var _reflected_now: bool = false
 
 
 ## Sets everything up; call before adding to the scene tree.
+var _planted: bool = false
+
+
 func launch(
 	data: ProjectileData, move: MoveData, id: int, facing: int, damage_scale: float, origin: Vector2,
 	size_scale: float = 1.0, speed_scale: float = 1.0, force_pierce: bool = false
@@ -136,7 +139,23 @@ func _process(_delta: float) -> void:
 		queue_redraw()
 
 
+## Held up/down at the moment of firing bends the shot (Byakurai).
+func steer(extra_vertical: float) -> void:
+	_velocity.y += extra_vertical
+
+
+## Drops a planted projectile onto the floor below it, point first.
+func _plant() -> void:
+	var query := PhysicsRayQueryParameters2D.create(global_position, global_position + Vector2(0.0, 220.0), 5)
+	var hit := get_world_2d().direct_space_state.intersect_ray(query)
+	if not hit.is_empty():
+		global_position.y = float(hit["position"].y) - _size.y * 0.5 + 3.0
+
+
 func _physics_process(delta: float) -> void:
+	if _data.plant and not _planted:
+		_planted = true
+		_plant()
 	if _freeze_left > 0:
 		_freeze_left -= 1
 		return

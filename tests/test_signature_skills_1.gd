@@ -59,6 +59,9 @@ func _stage_with(character: CharacterData) -> Array:
 	tree.root.add_child(fighter)
 	var input := ScriptedInput.new()
 	fighter.set_input_source(input)
+	for old in _shots:
+		if is_instance_valid(old):
+			old.free()
 	_shots.clear()
 	fighter.projectile_spawned.connect(_on_shot)
 	return [stage, fighter, input]
@@ -128,5 +131,47 @@ func test_blades_wait_in_the_air_and_come_home() -> void:
 	for shot in _live():
 		moved = moved or absf(shot.global_position.x - fighter.global_position.x) < absf(before[0] - fighter.global_position.x)
 	check(moved, "the blades fly back toward Uryu")
+	fighter.free()
+	rig[0].free()
+
+
+func test_planted_blades_come_home_on_a_second_press_any_time_later() -> void:
+	var rig := _stage_with(URYU)
+	var fighter: Fighter = rig[1]
+	var input: ScriptedInput = rig[2]
+	await wait_frames(30)
+	input.held_move = Vector2.RIGHT
+	input.tap_special()
+	await wait_frames(14)
+	input.held_move = Vector2.ZERO
+	await wait_frames(90) # long after the move and its follow-up window are over
+	check(fighter.has_planted_projectiles(), "the blades are still planted")
+	var far := _live()[0].global_position.x
+	input.held_move = Vector2.RIGHT
+	input.tap_special() # the same skill again
+	await wait_frames(2)
+	input.held_move = Vector2.ZERO
+	await wait_frames(10)
+	var home := false
+	for shot in _live():
+		home = home or absf(shot.global_position.x - fighter.global_position.x) < absf(far - fighter.global_position.x)
+	check(home, "pressing the skill again calls them home")
+	fighter.free()
+	rig[0].free()
+
+
+func test_blades_are_planted_on_the_floor() -> void:
+	var rig := _stage_with(URYU)
+	var fighter: Fighter = rig[1]
+	var input: ScriptedInput = rig[2]
+	await wait_frames(30)
+	input.held_move = Vector2.RIGHT
+	input.tap_special()
+	await wait_frames(20)
+	input.held_move = Vector2.ZERO
+	var live := _live()
+	check_eq(live.size(), 3, "three blades")
+	for shot in live:
+		check(absf(shot.global_position.y - (fighter.global_position.y - 9.0)) < 6.0, "stuck in the floor (%.1f vs %.1f)" % [shot.global_position.y, fighter.global_position.y])
 	fighter.free()
 	rig[0].free()

@@ -50,6 +50,9 @@ func _duel(character: CharacterData, gap: float) -> Array:
 	a.set_input_source(input_a)
 	var input_b := ScriptedInput.new()
 	b.set_input_source(input_b)
+	for old in _shots:
+		if is_instance_valid(old):
+			old.free()
 	_shots.clear()
 	a.projectile_spawned.connect(_on_shot)
 	return [stage, a, b, input_a, input_b]
@@ -118,4 +121,30 @@ func test_the_spin_keeps_striking_while_held() -> void:
 	check(a.reiatsu < 100.0 or b.percent > 0.0, "the ring struck")
 	check(b.percent > 15.0, "several times (%.1f)" % b.percent)
 	for n in [a, b, rig[0]]:
+		n.free()
+
+
+func test_byakurai_bends_with_the_held_direction() -> void:
+	var bolt: ProjectileData = BYAKUYA.specials.up.follow_up.projectiles[0]
+	check(bolt.aim > 0.0, "the bolt can be aimed")
+	var rig := _duel(BYAKUYA, 300.0)
+	var a: Fighter = rig[1]
+	var input_a: ScriptedInput = rig[3]
+	await wait_frames(20)
+	input_a.held_move = Vector2(0.0, -1.0)
+	await wait_frames(2)
+	a.spawn_projectile(bolt, BYAKUYA.specials.up.follow_up, 0.0)
+	var up_shot := _shots[_shots.size() - 1]
+	input_a.held_move = Vector2(0.0, 1.0)
+	await wait_frames(2)
+	a.spawn_projectile(bolt, BYAKUYA.specials.up.follow_up, 0.0)
+	var down_shot := _shots[_shots.size() - 1]
+	input_a.held_move = Vector2.ZERO
+	await wait_frames(2)
+	a.spawn_projectile(bolt, BYAKUYA.specials.up.follow_up, 0.0)
+	var flat_shot := _shots[_shots.size() - 1]
+	await wait_frames(4)
+	check(up_shot.global_position.y < flat_shot.global_position.y, "held up: a flatter bolt")
+	check(down_shot.global_position.y > flat_shot.global_position.y, "held down: a steeper one")
+	for n in [a, rig[2], rig[0]]:
 		n.free()

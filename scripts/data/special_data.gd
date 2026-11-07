@@ -73,6 +73,9 @@ const HEAVY_MIN_DAMAGE := 11.0
 ## With a command speed: the projectiles fly back toward the fighter instead of forward (thrown
 ## blades called home, hitting whoever stands in their way).
 @export var command_recall: bool = false
+## Pressing this skill again while its commandable projectiles are still out plays its follow-up
+## (calling them home) instead, even after the move has ended and while it is on cooldown.
+@export var recall_planted: bool = false
 
 @export_group("Stream")
 ## More than zero lets the player hold the special button after the first shot to keep firing:
@@ -96,6 +99,8 @@ const HEAVY_MIN_DAMAGE := 11.0
 @export var release_frames: int = 0
 @export var release_dealt: float = 1.3
 @export var release_taken: float = 1.4
+## Running and flying speed scale during the release.
+@export var release_speed: float = 1.0
 
 @export_group("Counter")
 ## A counter stance: a hit that lands during the active frames is negated and this move

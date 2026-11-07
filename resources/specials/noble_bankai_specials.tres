@@ -208,6 +208,7 @@ pierce = false
 color = Color(0.75, 0.85, 1.0, 1)
 art = &""
 style = &"bolt"
+aim = 330.0
 
 
 [sub_resource type="Resource" id="S_nobleb_drop"]

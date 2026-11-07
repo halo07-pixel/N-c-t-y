@@ -34,6 +34,11 @@ extends Resource
 ## this fraction of their speed. Its owner is not slowed.
 @export var slow_scale: float = 1.0
 
+## Settles on the floor below its spawn point (a blade planted in the ground).
+@export var plant: bool = false
+## More than zero lets the held up/down direction steer it when it is fired: added to the vertical speed.
+@export var aim: float = 0.0
+
 @export_group("Sequence")
 ## Frames after the active frames begin before this projectile appears, so an ultimate can fire in beats.
 @export var delay_frames: int = 0

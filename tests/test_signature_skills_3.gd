@@ -46,6 +46,9 @@ func _duel(character: CharacterData, other: CharacterData, gap: float) -> Array:
 	a.set_input_source(input_a)
 	var input_b := ScriptedInput.new()
 	b.set_input_source(input_b)
+	for old in _shots:
+		if is_instance_valid(old):
+			old.free()
 	_shots.clear()
 	a.projectile_spawned.connect(_on_shot)
 	return [stage, a, b, input_a, input_b]
@@ -117,4 +120,24 @@ func test_the_release_trades_defence_for_power() -> void:
 	check(a.release_taken > 1.0, "and is hurt more")
 	await wait_frames(a.release_frames + 5)
 	check_eq(a.outgoing_multiplier(), 1.0, "back to normal after")
+	_free(rig)
+
+
+func test_the_release_makes_him_faster() -> void:
+	var rig := _duel(KENPACHI, BYAKUYA, 200.0)
+	var a: Fighter = rig[1]
+	var input_a: ScriptedInput = rig[3]
+	await wait_frames(30)
+	input_a.held_move = Vector2.RIGHT
+	var start := a.global_position.x
+	await wait_frames(30)
+	var plain := a.global_position.x - start
+	input_a.held_move = Vector2.ZERO
+	await wait_frames(30)
+	a.begin_release(KENPACHI.specials.down.follow_up)
+	var from := a.global_position.x
+	input_a.held_move = Vector2.RIGHT
+	await wait_frames(30)
+	var released := a.global_position.x - from
+	check(released > plain * 1.05, "faster in a release (%.0f vs %.0f)" % [released, plain])
 	_free(rig)

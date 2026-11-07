@@ -14,7 +14,7 @@ const TEXT := {
 	"Tensa Zangetsu": "Phản đòn: bị đánh trúng thì không mất máu và chém trả ngay.",
 	"Heilig Pfeil": "Bắn mũi tên Quincy. Giữ nút để tụ lực.",
 	"Ginrei Kojaku": "GIỮ nút Skill để bắn liên tục.",
-	"Seele Schneider": "Cắm 3 lưỡi kiếm đứng yên như bẫy chặn đường. Chạm vào là trúng đòn.",
+	"Seele Schneider": "Cắm 3 lưỡi kiếm xuống sàn như bẫy chặn đường. Chạm vào là trúng đòn.",
 	"Seele Schneider: Return": "Gọi các lưỡi kiếm bay về phía Uryu, gây sát thương dọc đường.",
 	"Reishi Platform": "Dựng bệ reishi giữa không trung để nhảy lên và về sân.",
 	"Sky Shot": "Bắn chéo xuống từ trên cao.",
@@ -24,7 +24,7 @@ const TEXT := {
 	"Flash Step": "Dịch chuyển chớp nhoáng tới sát đối thủ và chém.",
 	"Rikujōkōrō": "Quay về phía đối thủ, 6 thanh sáng giáng xuống trói lại. Đối thủ không đi, nhảy, đánh được nhưng vẫn đỡ được; bị đánh trúng thì hết trói.",
 	"Sky Flash": "Dịch chuyển lên cao: dùng để về sân.",
-	"Byakurai": "Bắn tia sét cực nhanh chéo xuống.",
+	"Byakurai": "Bắn tia sét cực nhanh chéo xuống. Giữ Lên/Xuống khi bắn để đổi góc.",
 	"Petal Wall": "Tường cánh hoa chặn và hủy đạn của đối thủ.",
 	"Hoero Zabimaru": "Phóng xích Zabimaru thẳng ra. Giữ nút để tụ lực.",
 	"Zabimaru Pull": "Bắn xích kéo đối thủ về phía Renji.",
@@ -70,7 +70,7 @@ static func facts_for(skill: SpecialData) -> String:
 	if skill.is_spin():
 		parts.append("Tối đa %.1fs, %d Reiatsu/nhịp." % [float(skill.spin_frames) / 60.0, int(skill.spin_cost)])
 	if skill.release_frames > 0:
-		parts.append("%.0fs: gây ×%.2f, nhận ×%.2f." % [float(skill.release_frames) / 60.0, skill.release_dealt, skill.release_taken])
+		parts.append("%.0fs: gây ×%.2f, nhận ×%.2f, chạy nhanh ×%.2f." % [float(skill.release_frames) / 60.0, skill.release_dealt, skill.release_taken, skill.release_speed])
 	if skill.counter_move != null and skill.cost > 0.0:
 		parts.append("Tốn %d Reiatsu." % int(skill.cost))
 	for projectile in skill.projectiles:
@@ -88,6 +88,8 @@ static func trigger_for(parent: SpecialData) -> String:
 	var follow := parent.follow_up
 	if follow == null:
 		return ""
+	if parent.recall_planted:
+		return "bấm lại skill này bất cứ lúc nào khi lưỡi kiếm còn trên sàn"
 	var text := "lần 2 trong %.1fs" % (float(parent.follow_up_window) / 60.0)
 	if parent.follow_up_cost > 0.0:
 		text += " · %d Reiatsu" % int(parent.follow_up_cost)
