@@ -21,6 +21,8 @@ const UNDER_STAGE_DEPTH := 28.0
 const MELEE_RANGE := 38.0
 const FOLLOW_UP_CHANCE := 0.6
 var _follow_up_in: int = 0
+## The skill whose second press is pending: when that press has a third (a pull, then a slam) it is planned too.
+var _pending_skill: SpecialData
 ## Frames to keep holding special after the follow-up press, when the follow-up is a stream.
 var _follow_up_hold: int = 0
 const TRAP_MIN := 110.0
@@ -71,6 +73,9 @@ func get_frame() -> InputFrame:
 	if _follow_up_in > 0:
 		_follow_up_in -= 1
 		frame.special_just_pressed = _follow_up_in == 0 # press special again: the follow-up
+		if _follow_up_in == 0 and _pending_skill != null and _pending_skill.follow_up != null and _pending_skill.follow_up.follow_up != null:
+			_follow_up_in = _pending_skill.follow_up.startup_frames + _rng.randi_range(3, 8)
+			_pending_skill = _pending_skill.follow_up
 		if _follow_up_in == 0 and _follow_up_hold > 0:
 			_special_hold_left = _rng.randi_range(4, _follow_up_hold)
 			_follow_up_hold = 0
@@ -278,6 +283,7 @@ func _plan_follow_up(skill: SpecialData, distance: float, extra_delay: int) -> v
 		"released": fighter.release_frames > 0,
 	}, _rng)
 	if plan["use"]:
+		_pending_skill = skill
 		_follow_up_in = int(plan["delay"]) + extra_delay
 		_follow_up_hold = int(plan["hold"])
 

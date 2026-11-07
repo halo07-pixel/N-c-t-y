@@ -30,6 +30,9 @@ extends Resource
 @export_group("Terrain")
 ## A solid projectile (an ice wall) blocks fighters like a wall until it expires.
 @export var solid: bool = false
+## More than zero gives a solid wall this much health: shots it eats and melee hits it takes wear it
+## down, and it breaks at zero. Zero means it only expires.
+@export var wall_health: float = 0.0
 ## Below 1 makes a slow zone (a snow veil): it hits no one, but enemy fighters inside it move at
 ## this fraction of their speed. Its owner is not slowed.
 @export var slow_scale: float = 1.0

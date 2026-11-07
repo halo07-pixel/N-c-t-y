@@ -31,6 +31,9 @@ var _art: Texture2D
 var _size: Vector2 = Vector2.ONE
 var _pierce: bool = false
 var _age: float = 0.0
+## What is left of a wall that can break, and the last swing of each fighter it already felt.
+var _wall_health: float = 0.0
+var _felt_swings: Dictionary = {}
 var _trail: Array[Vector2] = []
 ## Set by reflect() while the hit that was parried is still being handled.
 var _reflected_now: bool = false
@@ -123,6 +126,7 @@ func _ready() -> void:
 	area_entered.connect(_on_area_entered)
 	if _data != null and _data.solid:
 		_add_solid_body()
+		_wall_health = _data.wall_health
 	Events.ultimate_started.connect(_on_ultimate_started)
 	if _data != null and _data.style != &"" and not _data.trap:
 		Events.projectile_flash.emit(position, _velocity.normalized(), _data.color, false)
@@ -164,6 +168,11 @@ func _physics_process(delta: float) -> void:
 		_slow_enemies()
 	if _data.absorbs:
 		_absorb_enemy_shots()
+	if _data.solid and _data.wall_health > 0.0:
+		_feel_melee()
+		if _wall_health <= 0.0:
+			_break_wall()
+			return
 	_age += delta
 	if _data.style != &"" and GameSettings.screen_effects:
 		_trail.append(position)
@@ -174,6 +183,41 @@ func _physics_process(delta: float) -> void:
 		if _data.style != &"" and not _data.trap and position.length() <= OFFSCREEN_LIMIT:
 			Events.projectile_flash.emit(position, _velocity.normalized(), _data.color, true)
 		queue_free()
+
+
+## A breakable wall loses health to the shots it eats and the melee swings that reach it.
+func _wear(damage: float) -> void:
+	_wall_health -= damage
+	Events.mechanic_triggered.emit(owner_id, &"armor", position)
+	queue_redraw()
+
+
+## Each active swing of an enemy that overlaps the wall wears it down once.
+func _feel_melee() -> void:
+	var mine := Rect2(position - _size * 0.5, _size)
+	for node in get_tree().get_nodes_in_group(Fighter.FIGHTER_GROUP):
+		var other := node as Fighter
+		if other == null or other.player_id == owner_id or not other.hitbox.is_active:
+			continue
+		if _felt_swings.get(other.player_id, -1) == other.hitbox.activations:
+			continue
+		if mine.intersects(other.hitbox.world_rect()):
+			_felt_swings[other.player_id] = other.hitbox.activations
+			_wear(other.hitbox.swing_damage())
+
+
+## A breakable wall fades as it wears: from solid to half see-through.
+func _wall_tint() -> Color:
+	var tint := _data.color
+	if _data.solid and _data.wall_health > 0.0:
+		tint.a *= 0.5 + 0.5 * clampf(_wall_health / _data.wall_health, 0.0, 1.0)
+	return tint
+
+
+func _break_wall() -> void:
+	Events.projectile_flash.emit(position, Vector2.UP, _data.color, true)
+	Events.screen_shake.emit(2.0)
+	queue_free()
 
 
 ## A wall of ice: a static body on the terrain layer fighters collide with.
@@ -208,6 +252,8 @@ func _absorb_enemy_shots() -> void:
 		if other._data.absorbs:
 			continue
 		if mine.intersects(Rect2(other.position - other._size * 0.5, other._size)):
+			if _data.solid and _data.wall_health > 0.0:
+				_wear(other._move.damage * other._damage_scale)
 			other.queue_free()
 
 
@@ -219,7 +265,7 @@ func _draw() -> void:
 		for point in _trail:
 			local_trail.append(point - position)
 		var angle := _velocity.angle() if _velocity != Vector2.ZERO else (0.0 if _facing > 0 else PI)
-		ProjectileArt.draw(self, _data.style, _size, _data.color, angle, _age, local_trail, _data.rim)
+		ProjectileArt.draw(self, _data.style, _size, _wall_tint(), angle, _age, local_trail, _data.rim)
 		return
 	if _art != null:
 		_draw_art()

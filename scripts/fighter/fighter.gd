@@ -113,6 +113,7 @@ var release_speed: float = 1.0
 ## A snow veil slows this fighter while the frames last, to this fraction of their speed.
 var slowed_frames: int = 0
 var slow_scale: float = 1.0
+var _slow_debt: float = 0.0
 ## Cut (Byakuya): marks on this fighter and the frames until they burst; recoil (Uryu): frames a second hit still stacks.
 var cut_marks: int = 0
 var _cut_frames_left: int = 0
@@ -644,6 +645,18 @@ func begin_release(special: SpecialData) -> void:
 func slow_down(scale: float) -> void:
 	slowed_frames = 3
 	slow_scale = scale
+
+
+## In a snow veil an attack also plays slower: now and then a frame of it is held back.
+func slow_skips_frame() -> bool:
+	if slowed_frames <= 0:
+		_slow_debt = 0.0
+		return false
+	_slow_debt += 1.0 - slow_scale
+	if _slow_debt >= 1.0:
+		_slow_debt -= 1.0
+		return true
+	return false
 
 
 func _apply_slow() -> void:

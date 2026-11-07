@@ -51,6 +51,26 @@ color = Color(1.0, 0.45, 0.4, 1)
 art = &""
 style = &"chain"
 
+[sub_resource type="Resource" id="S_lieutenantb_slam"]
+script = ExtResource("2")
+display_name = "Zabimaru Slam +"
+direction = &"forward"
+damage = 12.65
+base_knockback = 200
+knockback_growth = 110
+angle_degrees = -55
+startup_frames = 3
+active_frames = 3
+recovery_frames = 20
+hitbox_size = Vector2(44, 34)
+hitbox_offset = Vector2(24, -16)
+self_velocity = Vector2(0, 0)
+teleport = Vector2(0, 0)
+ignore_gravity = false
+cinematic_frames = 0
+title = ""
+
+
 [sub_resource type="Resource" id="S_lieutenantb_recall"]
 script = ExtResource("2")
 display_name = "Zabimaru Pull +"
@@ -70,6 +90,9 @@ ignore_gravity = false
 cinematic_frames = 0
 title = ""
 projectiles = Array[ExtResource("3")]([SubResource("P_lieutenantb_pull")])
+follow_up = SubResource("S_lieutenantb_slam")
+follow_up_cost = 0
+follow_up_window = 22
 
 
 [sub_resource type="Resource" id="S_lieutenantb_fang"]

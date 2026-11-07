@@ -13,6 +13,8 @@ const DEBUG_COLOR := Color(1.0, 0.2, 0.2, 0.4)
 
 var fighter_id: int = 0
 var is_active: bool = false
+## Counts activations, so something that wears down under hits can count each swing once.
+var activations: int = 0
 
 var _move: MoveData
 var _facing: int = 1
@@ -51,10 +53,23 @@ func _physics_process(_delta: float) -> void:
 		_on_area_entered(area)
 
 
+## The damage this swing deals, and the box it covers in the world.
+func swing_damage() -> float:
+	return _move.damage * _damage_scale if _move != null else 0.0
+
+
+func world_rect() -> Rect2:
+	var rectangle := _shape.shape as RectangleShape2D
+	if rectangle == null:
+		return Rect2()
+	return Rect2(_shape.global_position - rectangle.size * 0.5, rectangle.size)
+
+
 func activate(move: MoveData, facing: int, damage_scale: float = 1.0) -> void:
 	_move = move
 	_facing = facing
 	_damage_scale = damage_scale
+	activations += 1
 	_already_hit.clear()
 	var rectangle := RectangleShape2D.new()
 	rectangle.size = move.hitbox_size

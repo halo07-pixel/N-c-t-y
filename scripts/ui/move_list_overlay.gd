@@ -164,6 +164,10 @@ static func _slot_entries(key: String, skill: SpecialData) -> Array:
 		var again := _skill_entry("+ lần 2", follow, true)
 		again["text"] = ("(%s) " % SkillGuide.trigger_for(skill)) + again["text"]
 		entries.append(again)
+		if follow.follow_up != null:
+			var third := _skill_entry("+ lần 3", follow.follow_up, true)
+			third["text"] = ("(%s) " % SkillGuide.trigger_for(follow)) + third["text"]
+			entries.append(third)
 	if skill.counter_move != null:
 		var strike := _skill_entry("trả đòn", skill.counter_move, true)
 		strike["name"] = skill.counter_move.display_name + " (chém trả)"

@@ -37,6 +37,7 @@ art = &""
 style = &"wall"
 absorbs = true
 solid = true
+wall_health = 30.0
 
 [sub_resource type="Resource" id="P_iceb_veil"]
 script = ExtResource("3")

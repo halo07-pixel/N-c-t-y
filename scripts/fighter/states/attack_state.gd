@@ -75,6 +75,8 @@ func physics_update(delta: float) -> StringName:
 	var chained := _check_chain()
 	if chained != &"":
 		return chained
+	if fighter.slow_skips_frame():
+		return &"" # in a snow veil the attack plays slower too
 	_advance_move()
 	_update_counter()
 	if _frame >= _move.total_frames():

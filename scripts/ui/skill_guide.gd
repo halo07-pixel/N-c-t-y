@@ -28,6 +28,7 @@ const TEXT := {
 	"Petal Wall": "Tường cánh hoa chặn và hủy đạn của đối thủ.",
 	"Hoero Zabimaru": "Phóng xích Zabimaru thẳng ra. Giữ nút để tụ lực.",
 	"Zabimaru Pull": "Bắn xích kéo đối thủ về phía Renji.",
+	"Zabimaru Slam": "Bấm lần nữa ngay khi đối thủ bị kéo tới: đập xuống, hất đối thủ xuống đất.",
 	"Fang Dash": "Lao tới chém nặng. Dùng để áp sát.",
 	"Zabimaru Whirl": "GIỮ nút Skill: vòng xích xoay quanh người, đánh trúng liên tục; mỗi nhịp tốn Reiatsu.",
 	"Snake Hook": "Móc xích hất lên và bay cao: dùng để về sân.",
