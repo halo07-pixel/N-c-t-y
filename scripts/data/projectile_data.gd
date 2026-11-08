@@ -36,6 +36,12 @@ extends Resource
 ## Below 1 makes a slow zone (a snow veil): it hits no one, but enemy fighters inside it move at
 ## this fraction of their speed. Its owner is not slowed.
 @export var slow_scale: float = 1.0
+## A slow zone that also chills every enemy inside it: the third chill freezes them (frost only).
+@export var chill_in_zone: bool = false
+## A solid wall that hurts the enemy fighters touching it, once every CONTACT_GAP frames.
+@export var contact_damage: float = 0.0
+## Radians per second the shot turns toward the nearest enemy; 0 flies straight (petals that hunt).
+@export var homing: float = 0.0
 
 ## Settles on the floor below its spawn point (a blade planted in the ground).
 @export var plant: bool = false

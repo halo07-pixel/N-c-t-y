@@ -69,6 +69,10 @@ var invincible_left: int = 0
 var reiatsu: float = 0.0
 var bankai_frames_left: int = 0
 var exhausted_frames: int = 0
+## Frames left in which the ground is slick under us (an enemy ice-floor Bankai): friction is cut.
+var slippery_frames: int = 0
+## Frames until the petal ring (Byakuya's Bankai) can cut again.
+var ring_cooldown: int = 0
 var ultimate_used: bool = false
 var gauge: float = 0.0
 var combo_count: int = 0
@@ -498,6 +502,10 @@ func _counter_hit(info: HitInfo) -> void:
 
 ## Rukia's frost: each of her hits adds a chill; the third freezes the target where it stands
 ## (a long hitlag) before the launch plays out.
+func apply_chill(attacker_id: int) -> void:
+	_chill(attacker_id)
+
+
 func _chill(attacker_id: int) -> void:
 	var attacker := _fighter_with_id(attacker_id)
 	if attacker == null or attacker.data.mechanic != &"frost":
@@ -855,6 +863,10 @@ func end_bankai(exhaust: bool = false) -> void:
 
 
 func _tick_bankai() -> void:
+	if slippery_frames > 0:
+		slippery_frames -= 1
+	if is_bankai():
+		BankaiTraits.tick(self)
 	if exhausted_frames > 0:
 		exhausted_frames -= 1
 		if exhausted_frames == 0:
@@ -1251,7 +1263,7 @@ func apply_horizontal(
 		var scale := speed_scale * (PETAL_RUN_SCALE if in_petal_zone else 1.0) * (release_speed if release_frames > 0 else 1.0)
 		velocity.x = move_toward(velocity.x, direction * max_speed * scale, accel * delta)
 	else:
-		velocity.x = move_toward(velocity.x, 0.0, friction * delta)
+		velocity.x = move_toward(velocity.x, 0.0, friction * (BankaiTraits.SLIPPERY_FRICTION if slippery_frames > 0 else 1.0) * delta)
 
 
 func apply_gravity(delta: float, fast_fall: bool = false) -> void:

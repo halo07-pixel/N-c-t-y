@@ -16,6 +16,9 @@ const COMMAND_GROUP := &"commandable"
 const COMMAND_DAMAGE_SCALE := 1.3
 const COMMAND_MIN_LIFE := 50
 const REFLECT_MIN_LIFE := 40
+const CONTACT_GAP := 40
+const CHILL_ZONE_GAP := 45
+const CONTACT_PAD := 4.0
 
 var owner_id: int = 0
 
@@ -35,6 +38,8 @@ var _age: float = 0.0
 var _wall_health: float = 0.0
 var _felt_swings: Dictionary = {}
 var _trail: Array[Vector2] = []
+var _contact_left: int = 0
+var _chill_left: int = 0
 ## Set by reflect() while the hit that was parried is still being handled.
 var _reflected_now: bool = false
 
@@ -77,6 +82,13 @@ func set_art(texture: Texture2D) -> void:
 ## Keeps the projectile alive a few frames longer.
 func sustain(frames: int) -> void:
 	_frames_left += frames
+
+
+## Heavy shots (piercing blasts and ultimates) cut straight through a petal ring.
+func can_pass_ring() -> bool:
+	if _data.solid or _data.slow_scale < 1.0:
+		return true # terrain and zones are not shots
+	return _pierce and _move != null and _move.damage >= 14.0
 
 
 func is_trap() -> bool:
@@ -163,9 +175,13 @@ func _physics_process(delta: float) -> void:
 	if _freeze_left > 0:
 		_freeze_left -= 1
 		return
+	if _data.homing > 0.0:
+		_home_in(delta)
 	position += _velocity * delta
 	if _data.slow_scale < 1.0:
 		_slow_enemies()
+	if _data.contact_damage > 0.0:
+		_burn_touching_enemies()
 	if _data.absorbs:
 		_absorb_enemy_shots()
 	if _data.solid and _data.wall_health > 0.0:
@@ -183,6 +199,54 @@ func _physics_process(delta: float) -> void:
 		if _data.style != &"" and not _data.trap and position.length() <= OFFSCREEN_LIMIT:
 			Events.projectile_flash.emit(position, _velocity.normalized(), _data.color, true)
 		queue_free()
+
+
+## Turns the velocity toward the nearest enemy fighter, at most `homing` radians per second.
+func _home_in(delta: float) -> void:
+	var target := _nearest_enemy()
+	if target == null or _velocity == Vector2.ZERO:
+		return
+	var want := (target.global_position + Vector2(0.0, -14.0) - position).angle()
+	var turn := clampf(angle_difference(_velocity.angle(), want), -_data.homing * delta, _data.homing * delta)
+	_velocity = _velocity.rotated(turn)
+
+
+func _nearest_enemy() -> Fighter:
+	var best: Fighter = null
+	var best_distance := INF
+	for node in get_tree().get_nodes_in_group(Fighter.FIGHTER_GROUP):
+		var other := node as Fighter
+		if other == null or other.player_id == owner_id or other.is_ko():
+			continue
+		var distance := other.global_position.distance_to(position)
+		if distance < best_distance:
+			best_distance = distance
+			best = other
+	return best
+
+
+## A wall with teeth: an enemy touching it takes a small hit every CONTACT_GAP frames.
+func _burn_touching_enemies() -> void:
+	if _contact_left > 0:
+		_contact_left -= 1
+		return
+	var zone := Rect2(position - _size * 0.5 - Vector2.ONE * CONTACT_PAD, _size + Vector2.ONE * CONTACT_PAD * 2.0)
+	for node in get_tree().get_nodes_in_group(Fighter.FIGHTER_GROUP):
+		var other := node as Fighter
+		if other == null or other.player_id == owner_id or other.is_ko():
+			continue
+		if not zone.has_point(other.global_position + Vector2(0.0, -14.0)):
+			continue
+		var info := HitInfo.new()
+		info.attacker_id = owner_id
+		info.damage = _data.contact_damage * _damage_scale
+		info.base_knockback = 90.0
+		info.knockback_growth = 20.0
+		info.direction = Vector2(signf(other.global_position.x - position.x), -0.6).normalized()
+		info.projectile = self
+		other.hurtbox.receive_hit(info)
+		_contact_left = CONTACT_GAP
+		Events.mechanic_triggered.emit(owner_id, &"chill", position)
 
 
 ## A breakable wall loses health to the shots it eats and the melee swings that reach it.
@@ -240,6 +304,16 @@ func _slow_enemies() -> void:
 		var other := node as Fighter
 		if other != null and other.player_id != owner_id and zone.has_point(other.global_position + Vector2(0.0, -12.0)):
 			other.slow_down(_data.slow_scale)
+			if _data.chill_in_zone:
+				_chill_enemy(other)
+
+
+## A chilling zone adds one chill stack to an enemy inside it every CHILL_ZONE_GAP frames.
+func _chill_enemy(other: Fighter) -> void:
+	_chill_left -= 1
+	if _chill_left <= 0:
+		_chill_left = CHILL_ZONE_GAP
+		other.apply_chill(owner_id)
 
 
 ## Destroys every enemy projectile overlapping this one (traps and other absorbers excepted).

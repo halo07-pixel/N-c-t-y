@@ -6,6 +6,7 @@
 
 [sub_resource type="Resource" id="P_nobleb_neutral_0"]
 script = ExtResource("3")
+homing = 2.4
 offset = Vector2(16, -18)
 velocity = Vector2(195, 0)
 lifetime_frames = 130
@@ -18,6 +19,7 @@ commandable = true
 
 [sub_resource type="Resource" id="P_nobleb_neutral_1"]
 script = ExtResource("3")
+homing = 2.4
 offset = Vector2(16, -52)
 velocity = Vector2(180, -20)
 lifetime_frames = 130
@@ -30,6 +32,7 @@ commandable = true
 
 [sub_resource type="Resource" id="P_nobleb_neutral_2"]
 script = ExtResource("3")
+homing = 2.4
 offset = Vector2(16, 14)
 velocity = Vector2(180, 20)
 lifetime_frames = 130
@@ -90,7 +93,7 @@ script = ExtResource("3")
 offset = Vector2(6, -22)
 velocity = Vector2(0, 0)
 lifetime_frames = 40
-size = Vector2(10, 46)
+size = Vector2(16, 64)
 pierce = true
 color = Color(1.0, 0.75, 0.9, 1)
 art = &""
@@ -101,7 +104,7 @@ script = ExtResource("3")
 offset = Vector2(24, -22)
 velocity = Vector2(0, 0)
 lifetime_frames = 40
-size = Vector2(10, 46)
+size = Vector2(16, 64)
 pierce = true
 color = Color(1.0, 0.75, 0.9, 1)
 art = &""
@@ -112,7 +115,7 @@ script = ExtResource("3")
 offset = Vector2(42, -22)
 velocity = Vector2(0, 0)
 lifetime_frames = 40
-size = Vector2(10, 46)
+size = Vector2(16, 64)
 pierce = true
 color = Color(1.0, 0.75, 0.9, 1)
 art = &""
@@ -123,7 +126,7 @@ script = ExtResource("3")
 offset = Vector2(60, -22)
 velocity = Vector2(0, 0)
 lifetime_frames = 40
-size = Vector2(10, 46)
+size = Vector2(16, 64)
 pierce = true
 color = Color(1.0, 0.75, 0.9, 1)
 art = &""
@@ -134,7 +137,7 @@ script = ExtResource("3")
 offset = Vector2(78, -22)
 velocity = Vector2(0, 0)
 lifetime_frames = 40
-size = Vector2(10, 46)
+size = Vector2(16, 64)
 pierce = true
 color = Color(1.0, 0.75, 0.9, 1)
 art = &""
@@ -145,7 +148,7 @@ script = ExtResource("3")
 offset = Vector2(96, -22)
 velocity = Vector2(0, 0)
 lifetime_frames = 40
-size = Vector2(10, 46)
+size = Vector2(16, 64)
 pierce = true
 color = Color(1.0, 0.75, 0.9, 1)
 art = &""
@@ -170,7 +173,7 @@ ignore_gravity = false
 cinematic_frames = 0
 title = ""
 projectiles = Array[ExtResource("3")]([SubResource("P_nobleb_bar_0"), SubResource("P_nobleb_bar_1"), SubResource("P_nobleb_bar_2"), SubResource("P_nobleb_bar_3"), SubResource("P_nobleb_bar_4"), SubResource("P_nobleb_bar_5")])
-bind_frames = 70
+bind_frames = 100
 face_enemy = true
 
 
@@ -260,8 +263,8 @@ cooldown_frames = 240
 script = ExtResource("3")
 offset = Vector2(40, -28)
 velocity = Vector2(0, 0)
-lifetime_frames = 200
-size = Vector2(18, 56)
+lifetime_frames = 300
+size = Vector2(24, 64)
 pierce = true
 color = Color(1.0, 0.6, 0.8, 1)
 art = &""

@@ -22,7 +22,12 @@ func setup(fighter: Fighter) -> void:
 
 ## True while the fighter has any mechanic to show.
 static func is_showing(fighter: Fighter) -> bool:
-	return fighter.empowered or fighter.in_petal_zone or fighter.arrow_streak() >= 2 or fighter.gathering
+	return fighter.empowered or fighter.in_petal_zone or has_petal_ring(fighter) or fighter.arrow_streak() >= 2 or fighter.gathering
+
+
+## Byakuya's Bankai keeps a ring of blades turning around him.
+static func has_petal_ring(fighter: Fighter) -> bool:
+	return fighter.is_bankai() and fighter.data.mechanic == &"petals"
 
 
 func _process(delta: float) -> void:
@@ -46,8 +51,21 @@ func _draw() -> void:
 		_draw_streak(size, amount)
 	if _fighter.in_petal_zone:
 		_draw_petals(size, center, amount)
+	if has_petal_ring(_fighter):
+		_draw_ring(center, amount)
 	if _fighter.gathering:
 		_draw_gather(size, amount)
+
+
+func _draw_ring(center: Vector2, amount: float) -> void:
+	var colors := MechanicBurst.palette(&"cut")
+	var blades := maxi(int(round(10.0 * amount)), 4)
+	for i in blades:
+		var angle := _time * 2.6 + TAU * float(i) / float(blades)
+		var at := center + Vector2(cos(angle), sin(angle) * 0.7) * BankaiTraits.RING_RADIUS
+		var along := Vector2(-sin(angle), cos(angle) * 0.7).normalized()
+		draw_line(at - along * 4.0, at + along * 4.0, Color(colors[0].r, colors[0].g, colors[0].b, 0.85), 2.0)
+		draw_line(at - along * 2.0, at + along * 2.0, Color(colors[1].r, colors[1].g, colors[1].b, 0.9), 1.0)
 
 
 func _draw_hollow(size: Vector2, amount: float) -> void:

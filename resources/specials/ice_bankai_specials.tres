@@ -37,7 +37,8 @@ art = &""
 style = &"wall"
 absorbs = true
 solid = true
-wall_health = 30.0
+wall_health = 50.0
+contact_damage = 4.0
 
 [sub_resource type="Resource" id="P_iceb_veil"]
 script = ExtResource("3")
@@ -49,7 +50,8 @@ pierce = true
 color = Color(0.7, 0.92, 1.0, 1)
 art = &""
 style = &"rune"
-slow_scale = 0.8
+slow_scale = 0.55
+chill_in_zone = true
 
 [sub_resource type="Resource" id="S_iceb_icestep"]
 script = ExtResource("2")
