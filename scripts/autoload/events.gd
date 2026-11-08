@@ -77,6 +77,9 @@ signal fighter_respawn_due(player_id: int)
 signal fighter_reiatsu_changed(player_id: int, reiatsu: float)
 @warning_ignore("unused_signal")
 signal fighter_bankai_changed(player_id: int, active: bool)
+## The stage should show (or stop showing) the field of a Bankai: the mechanic names its look and
+## `tint` its color.
+signal bankai_field_changed(player_id: int, kind: StringName, tint: Color, active: bool)
 ## An ultimate begins: everyone else freezes for freeze_frames and the camera zooms in.
 @warning_ignore("unused_signal")
 signal ultimate_started(player_id: int, freeze_frames: int, title: String)

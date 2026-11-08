@@ -68,6 +68,8 @@ var chill_frames_left: int = 0
 var invincible_left: int = 0
 var reiatsu: float = 0.0
 var bankai_frames_left: int = 0
+var exhausted_frames: int = 0
+var ultimate_used: bool = false
 var gauge: float = 0.0
 var combo_count: int = 0
 var last_attacker_id: int = 0
@@ -292,6 +294,7 @@ func _on_hit_received(info: HitInfo) -> void:
 		_take_armored_hit(info)
 		return
 	bound_frames = 0 # a real hit breaks the binding
+	_drain_form(info.damage)
 	set_percent(percent + info.damage * (release_taken if release_frames > 0 else 1.0))
 	_take_cut_marks(info)
 	refill_jumps() # being hit gives the air jumps back
@@ -800,17 +803,18 @@ func is_bankai() -> bool:
 
 
 func can_bankai() -> bool:
-	return not is_bankai() and gauge >= CombatGauge.MAX
+	return not is_bankai() and exhausted_frames <= 0 and gauge >= CombatGauge.MAX
 
 
 func can_ultimate() -> bool:
-	return data.ultimate != null and is_bankai() and reiatsu >= Reiatsu.ULTIMATE_COST
+	return data.ultimate != null and is_bankai() and not ultimate_used and reiatsu >= Reiatsu.ULTIMATE_COST
 
 
 ## What pressing the charge key does right now. Returns the state to enter.
 func charge_press_state() -> StringName:
 	if can_ultimate():
 		spend_reiatsu(Reiatsu.ULTIMATE_COST)
+		ultimate_used = true
 		_queued_move = data.ultimate
 		var safe_frames := data.ultimate.startup_frames + data.ultimate.active_frames
 		grant_invincibility(safe_frames + Reiatsu.ULTIMATE_SAFE_FRAMES)
@@ -823,30 +827,53 @@ func charge_press_state() -> StringName:
 func start_bankai() -> void:
 	set_gauge(0.0)
 	bankai_frames_left = CombatGauge.FORM_FRAMES
+	exhausted_frames = 0
+	ultimate_used = false
 	damage_multiplier = CombatGauge.DAMAGE_SCALE
 	speed_scale = CombatGauge.SPEED_SCALE
 	_body.set_bankai(true)
 	Events.fighter_bankai_changed.emit(player_id, true)
+	Events.bankai_field_changed.emit(player_id, data.mechanic, data.accent_color, true)
 	_announce_cooldowns() # the form has its own kit
 
 
-func end_bankai() -> void:
+## `exhaust` is true when the form runs out or is burnt away (not on a KO or a reset).
+func end_bankai(exhaust: bool = false) -> void:
 	if bankai_frames_left == 0 and damage_multiplier == 1.0:
 		return
 	bankai_frames_left = 0
 	damage_multiplier = 1.0
 	speed_scale = 1.0
+	exhausted_frames = BankaiRules.EXHAUST_FRAMES if exhaust else 0
+	if exhaust:
+		speed_scale = BankaiRules.speed_for_exhaustion(exhausted_frames)
+		Events.mechanic_triggered.emit(player_id, &"exhaust", global_position + Vector2(0.0, -16.0))
 	_body.set_bankai(false)
 	Events.fighter_bankai_changed.emit(player_id, false)
+	Events.bankai_field_changed.emit(player_id, data.mechanic, data.accent_color, false)
 	_announce_cooldowns()
 
 
 func _tick_bankai() -> void:
+	if exhausted_frames > 0:
+		exhausted_frames -= 1
+		if exhausted_frames == 0:
+			speed_scale = 1.0
 	if bankai_frames_left <= 0:
 		return
 	bankai_frames_left -= 1
 	if bankai_frames_left == 0:
-		end_bankai()
+		end_bankai(true)
+
+
+## A hit taken in the form burns part of it away; enough of them end it early.
+func _drain_form(damage: float) -> void:
+	if not is_bankai():
+		return
+	bankai_frames_left -= BankaiRules.drain_for(damage)
+	Events.mechanic_triggered.emit(player_id, &"drain", global_position + Vector2(0.0, -16.0))
+	if bankai_frames_left <= 0:
+		end_bankai(true)
 
 
 func _on_ultimate_started(attacker_id: int, freeze_frames: int, _title: String) -> void:
@@ -1129,6 +1156,8 @@ func enter_ko() -> void:
 	combo_count = 0
 	clear_riders()
 	end_bankai()
+	exhausted_frames = 0
+	speed_scale = 1.0
 	_body.modulate.a = 1.0
 	velocity = Vector2.ZERO
 	_state_machine.transition_to(&"Ko")
@@ -1160,6 +1189,8 @@ func reset_for_practice(spot: Vector2, new_facing: int, start_gauge: float) -> v
 	_body.modulate.a = 1.0
 	hurtbox.set_active(true)
 	end_bankai()
+	exhausted_frames = 0
+	speed_scale = 1.0
 	refill_jumps()
 	reset_cooldowns()
 	set_gauge(start_gauge)

@@ -149,7 +149,10 @@ func test_bankai_wears_off_and_resets_the_stats() -> void:
 	await wait_frames(6)
 	check(not _a.is_bankai(), "Bankai ended")
 	check_eq(_a.damage_multiplier, 1.0, "damage back to normal")
-	check_eq(_a.speed_scale, 1.0, "speed back to normal")
+	check_near(_a.speed_scale, BankaiRules.EXHAUST_SPEED, 0.001, "slower while exhausted")
+	_a.exhausted_frames = 1
+	await wait_frames(3)
+	check_eq(_a.speed_scale, 1.0, "speed back to normal once rested")
 	check_eq(_a.current_specials(), SWORDSMAN.specials, "normal specials again")
 	_teardown_world()
 
