@@ -14,16 +14,6 @@ pierce = false
 color = Color(0.95, 0.5, 0.25, 1)
 style = &"crescent"
 
-[sub_resource type="Resource" id="P_brute_shock"]
-script = ExtResource("3")
-offset = Vector2(30, -5)
-velocity = Vector2(300, 0)
-lifetime_frames = 34
-size = Vector2(46, 10)
-pierce = true
-color = Color(1.0, 0.6, 0.25, 1)
-style = &"crescent"
-
 [sub_resource type="Resource" id="S_brute_drop"]
 script = ExtResource("2")
 display_name = "Meteor Drop"
@@ -59,7 +49,6 @@ cinematic_frames = 0
 title = ""
 armor = true
 
-
 [sub_resource type="Resource" id="S_brute_after"]
 script = ExtResource("2")
 display_name = "Eyepatch Release"
@@ -82,7 +71,6 @@ release_speed = 1.15
 release_frames = 480
 release_dealt = 1.3
 release_taken = 1.5
-
 
 [sub_resource type="Resource" id="S_brute_neutral"]
 script = ExtResource("2")

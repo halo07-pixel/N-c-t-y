@@ -105,7 +105,7 @@ func test_defend_and_recover_skills_do_not_cancel() -> void:
 	_a.input.special_just_pressed = true
 	_a.input.move = Vector2(0.0, -1.0) # up: Rising Cut, a recovery
 	check_eq(_a.skill_cancel_target(), null, "the recovery skill is not a cancel")
-	_a.input.move = Vector2(0.0, 1.0) # down: Ground Slam, a defend skill
+	_a.input.move = Vector2(0.0, 1.0) # down: Tensa Zangetsu, a defend skill
 	check_eq(_a.skill_cancel_target(), null, "nor is the defend skill")
 	_a.input.move = Vector2(1.0, 0.0) # forward: Shunpo Strike, a rush skill
 	check(_a.skill_cancel_target() != null, "a rush skill does cancel")

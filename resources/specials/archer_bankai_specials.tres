@@ -124,39 +124,6 @@ follow_up_cost = 0
 follow_up_window = 26
 cooldown_frames = 24
 
-[sub_resource type="Resource" id="P_archerb_forward_0"]
-script = ExtResource("3")
-offset = Vector2(14, -20)
-velocity = Vector2(442, 0)
-lifetime_frames = 58
-size = Vector2(22, 8)
-pierce = true
-color = Color(0.55, 0.9, 1.0, 1)
-art = &"24"
-style = &"arrow"
-
-[sub_resource type="Resource" id="P_archerb_forward_1"]
-script = ExtResource("3")
-offset = Vector2(14, -20)
-velocity = Vector2(429, -91)
-lifetime_frames = 58
-size = Vector2(22, 8)
-pierce = true
-color = Color(0.55, 0.9, 1.0, 1)
-art = &"24"
-style = &"arrow"
-
-[sub_resource type="Resource" id="P_archerb_forward_2"]
-script = ExtResource("3")
-offset = Vector2(14, -20)
-velocity = Vector2(429, 91)
-lifetime_frames = 58
-size = Vector2(22, 8)
-pierce = true
-color = Color(0.55, 0.9, 1.0, 1)
-art = &"24"
-style = &"arrow"
-
 [sub_resource type="Resource" id="P_archerb_blade_0"]
 script = ExtResource("3")
 offset = Vector2(36, -8)
@@ -245,7 +212,6 @@ follow_up = SubResource("S_archerb_recall")
 follow_up_cost = 0
 follow_up_window = 40
 cooldown_frames = 100
-
 
 [sub_resource type="Resource" id="P_archerb_skyshot_0"]
 script = ExtResource("3")

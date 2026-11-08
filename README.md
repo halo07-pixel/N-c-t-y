@@ -75,7 +75,7 @@ ready skill is lit; a cooling one is dark with the seconds left; a red frame mea
 lack. **F3** opens the full move list of both fighters (buttons, combos, throw, skills with cooldowns, form, ultimate).
 
 **Canon:** the skills and effects follow the series as closely as we can draw them ourselves (see `docs/CANON.md`).
-Ichigo is done: Getsuga Tenshō (pale blue; black with a red rim in Bankai), Shunpo Strike, Rising Cut, Ground Slam,
+Ichigo is done: Getsuga Tenshō (pale blue; black with a red rim in Bankai), Shunpo Strike, Rising Cut, Tensa Zangetsu (a counter),
 Final Getsuga Tenshō. A projectile with a `rim` color is drawn dark and solid with a glowing edge; the `beam` style draws a Cero.
 
 **Signature mechanics** (`CharacterData.mechanic`):
@@ -259,10 +259,10 @@ powerful parts of special moves, which are pure data on `SpecialData`:
   `follow_up_cost` (`flip_facing` turns the fighter around for a slash back).
 
 Ichigo is the first character with the new kit: a chargeable Getsuga, Dash Slash + Return Slash,
-Rising Cut + Dive Slash and a Ground Slam shockwave. In the form the costs are zero and the Getsuga
+Rising Cut + Dive Slash and the Tensa Zangetsu counter. In the form the costs are zero and the Getsuga
 fires two waves.
 
-Uryu's kit: a chargeable Heilig Pfeil (a full charge pierces and costs a block), Path Control,
+Uryu's kit: a chargeable Heilig Pfeil (a full charge pierces and costs a block), Seele Schneider (blades planted in the floor),
 Reishi Platform + Sky Shot (press special again for an arrow diagonally downward, half a block) and
 Reishi Mine, a stationary trap (`ProjectileData.trap`) that explodes on the first enemy. He keeps at
 most two live traps (`limit_active`): a second one costs half a block (`repeat_cost`), otherwise
