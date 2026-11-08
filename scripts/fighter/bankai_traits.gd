@@ -6,6 +6,8 @@ extends RefCounted
 ##  - hollow (Getsuga charge): every hit landed in the form charges the next shot; at GETSUGA_MIN
 ##    stacks the next projectile skill is bigger and hits harder, and spends the charge.
 ##  - heartless (blade lattice): enemies standing between two of Uryu's planted blades are shocked.
+##  - reach (Zabimaru's tail): a melee hit lands an echo from the tail a moment later on whoever is near.
+##  - zeal (fury): hits taken feed Kenpachi, and his form lasts through them.
 ##  - frost (Hyōrinmaru-style ice floor): the ground turns slick for enemies standing on it.
 
 const RING_RADIUS := 48.0
@@ -21,6 +23,13 @@ const LATTICE_MAX_GAP := 220.0
 const LATTICE_HEIGHT := 70.0
 const LATTICE_DAMAGE := 2.2
 const LATTICE_GAP := 30
+const ECHO_DELAY := 14
+const ECHO_SHARE := 0.45 # of the hit that started it
+const ECHO_REACH := 90.0
+const ZEAL_FORM_FACTOR := 2.0 # his zeal climbs twice as far in the form
+const FURY_MAX := 6
+const FURY_STEP := 0.06
+const ZEAL_DRAIN_SCALE := 0.5
 
 
 static func tick(fighter: Fighter) -> void:
@@ -31,10 +40,15 @@ static func tick(fighter: Fighter) -> void:
 			_ice_floor(fighter)
 		&"heartless":
 			_blade_lattice(fighter)
+		&"reach":
+			_tail_echo(fighter)
 
 
 ## A hit landed in the form: Ichigo's next Getsuga grows.
-static func on_hit_landed(fighter: Fighter) -> void:
+static func on_hit_landed(fighter: Fighter, damage: float = 0.0) -> void:
+	if fighter.data.mechanic == &"reach" and damage > 0.0 and fighter.echo_frames <= 0:
+		fighter.echo_frames = ECHO_DELAY
+		fighter.echo_damage = damage * ECHO_SHARE
 	if fighter.data.mechanic != &"hollow":
 		return
 	fighter.getsuga_stacks = mini(fighter.getsuga_stacks + 1, GETSUGA_MAX)
@@ -134,3 +148,45 @@ static func _ice_floor(fighter: Fighter) -> void:
 	for other in _enemies(fighter):
 		if other.is_on_floor():
 			other.slippery_frames = SLIPPERY_HOLD
+
+
+## Kenpachi: fury grows with every hit taken in the form.
+static func on_hit_taken(fighter: Fighter) -> void:
+	if fighter.data.mechanic == &"zeal":
+		fighter.fury_stacks = mini(fighter.fury_stacks + 1, FURY_MAX)
+		Events.mechanic_triggered.emit(fighter.player_id, &"zeal", fighter.global_position + Vector2(0.0, -20.0))
+
+
+static func fury_bonus(fighter: Fighter) -> float:
+	return FURY_STEP * float(fighter.fury_stacks) if fighter.is_bankai() else 0.0
+
+
+## How much of a hit's cost the form actually pays: Kenpachi shrugs half of it off.
+static func drain_scale(fighter: Fighter) -> float:
+	return ZEAL_DRAIN_SCALE if fighter.data.mechanic == &"zeal" else 1.0
+
+
+## The tail strikes `echo_frames` after the hit, at the nearest enemy within reach.
+static func _tail_echo(fighter: Fighter) -> void:
+	if fighter.echo_frames <= 0:
+		return
+	fighter.echo_frames -= 1
+	if fighter.echo_frames > 0:
+		return
+	var best: Fighter = null
+	var best_distance := ECHO_REACH
+	for other in _enemies(fighter):
+		var distance := other.global_position.distance_to(fighter.global_position)
+		if distance <= best_distance:
+			best_distance = distance
+			best = other
+	if best == null:
+		return
+	var info := HitInfo.new()
+	info.attacker_id = fighter.player_id
+	info.damage = fighter.echo_damage
+	info.base_knockback = 120.0
+	info.knockback_growth = 40.0
+	info.direction = Vector2(signf(best.global_position.x - fighter.global_position.x), -0.5).normalized()
+	best.hurtbox.receive_hit(info)
+	Events.mechanic_triggered.emit(fighter.player_id, &"reach", best.global_position + Vector2(0.0, -16.0))

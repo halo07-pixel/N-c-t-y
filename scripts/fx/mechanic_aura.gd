@@ -34,7 +34,7 @@ static func has_petal_ring(fighter: Fighter) -> bool:
 static func has_form_trait(fighter: Fighter) -> bool:
 	if not fighter.is_bankai():
 		return false
-	return fighter.getsuga_stacks > 0 or (fighter.data.mechanic == &"heartless" and not BankaiTraits.lattice_pairs(fighter).is_empty())
+	return fighter.getsuga_stacks > 0 or fighter.fury_stacks > 0 or (fighter.data.mechanic == &"heartless" and not BankaiTraits.lattice_pairs(fighter).is_empty())
 
 
 func _process(delta: float) -> void:
@@ -64,6 +64,8 @@ func _draw() -> void:
 		_draw_getsuga_pips(size)
 	if _fighter.is_bankai() and _fighter.data.mechanic == &"heartless":
 		_draw_lattice()
+	if _fighter.is_bankai() and _fighter.fury_stacks > 0:
+		_draw_fury(size)
 	if _fighter.gathering:
 		_draw_gather(size, amount)
 
@@ -86,6 +88,16 @@ func _draw_getsuga_pips(size: Vector2) -> void:
 		var glow := 0.55 + (0.35 * sin(_time * 12.0 + float(i)) if ready else 0.0)
 		draw_rect(Rect2(at - Vector2(2.0, 3.0), Vector2(4.0, 6.0)), Color(1.0, 0.15, 0.2, glow))
 		draw_rect(Rect2(at - Vector2(1.0, 2.0), Vector2(2.0, 4.0)), Color(0.05, 0.0, 0.07, 0.9))
+
+
+## Kenpachi's fury: golden flame ticks that rise with every hit he has taken.
+func _draw_fury(size: Vector2) -> void:
+	var colors := MechanicBurst.palette(&"zeal")
+	for i in _fighter.fury_stacks:
+		var x := (float(i) - float(BankaiTraits.FURY_MAX - 1) * 0.5) * size.x * 0.22
+		var height := 8.0 + 8.0 * (0.5 + 0.5 * sin(_time * 10.0 + float(i) * 1.3))
+		draw_line(Vector2(x, -size.y * 0.3), Vector2(x, -size.y * 0.3 - height), Color(colors[0].r, colors[0].g, colors[0].b, 0.7), 2.0)
+		draw_line(Vector2(x, -size.y * 0.3), Vector2(x, -size.y * 0.3 - height * 0.6), Color(colors[1].r, colors[1].g, colors[1].b, 0.8), 1.0)
 
 
 func _draw_lattice() -> void:

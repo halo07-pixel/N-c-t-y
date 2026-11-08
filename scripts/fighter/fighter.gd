@@ -71,6 +71,10 @@ var bankai_frames_left: int = 0
 var exhausted_frames: int = 0
 ## Frames left in which the ground is slick under us (an enemy ice-floor Bankai): friction is cut.
 var slippery_frames: int = 0
+## Kenpachi's Bankai: each hit taken feeds his fury. Renji's: the tail echo waits to strike.
+var fury_stacks: int = 0
+var echo_frames: int = 0
+var echo_damage: float = 0.0
 ## Ichigo's Bankai: hits landed charge the next Getsuga; `getsuga_boost` scales the shot being fired.
 var getsuga_stacks: int = 0
 var getsuga_boost: float = 1.0
@@ -352,7 +356,8 @@ func _on_hit_landed(info: HitInfo) -> void:
 
 ## Kenpachi: the more punishment he has taken, the harder he hits (1.0 at 0%, up to 1.35 at 100%).
 func zeal_scale() -> float:
-	return 1.0 + ZEAL_MAX * clampf(percent / ZEAL_FULL_PERCENT, 0.0, 1.0)
+	var reach := ZEAL_MAX * (BankaiTraits.ZEAL_FORM_FACTOR if is_bankai() else 1.0)
+	return 1.0 + reach * clampf(percent / ZEAL_FULL_PERCENT, 0.0, 1.0) + BankaiTraits.fury_bonus(self)
 
 
 ## A melee hit that landed on the far part of the blade (not a throw, not a projectile).
@@ -601,7 +606,7 @@ func _register_landed_hit(damage: float) -> void:
 	_combo_frames = CombatGauge.COMBO_WINDOW_FRAMES
 	if is_bankai():
 		bankai_frames_left = CombatGauge.extend_form(bankai_frames_left)
-		BankaiTraits.on_hit_landed(self)
+		BankaiTraits.on_hit_landed(self, damage)
 	else:
 		add_gauge(CombatGauge.gain_for_hit(damage, combo_count))
 
@@ -858,6 +863,8 @@ func end_bankai(exhaust: bool = false) -> void:
 	speed_scale = 1.0
 	getsuga_stacks = 0
 	getsuga_boost = 1.0
+	fury_stacks = 0
+	echo_frames = 0
 	exhausted_frames = BankaiRules.EXHAUST_FRAMES if exhaust else 0
 	if exhaust:
 		speed_scale = BankaiRules.speed_for_exhaustion(exhausted_frames)
@@ -888,7 +895,8 @@ func _tick_bankai() -> void:
 func _drain_form(damage: float) -> void:
 	if not is_bankai():
 		return
-	bankai_frames_left -= BankaiRules.drain_for(damage)
+	bankai_frames_left -= int(round(BankaiRules.drain_for(damage) * BankaiTraits.drain_scale(self)))
+	BankaiTraits.on_hit_taken(self)
 	Events.mechanic_triggered.emit(player_id, &"drain", global_position + Vector2(0.0, -16.0))
 	if bankai_frames_left <= 0:
 		end_bankai(true)
