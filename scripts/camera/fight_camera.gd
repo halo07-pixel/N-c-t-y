@@ -7,7 +7,7 @@ extends Camera2D
 @export var min_zoom: float = 0.6 * RenderScale.FACTOR
 @export var max_zoom: float = 1.4 * RenderScale.FACTOR
 @export var follow_speed: float = 6.0
-@export var bounds: Rect2 = Rect2(-420.0, -300.0, 840.0, 600.0)
+@export var bounds: Rect2 = Rect2(-700.0, -380.0, 1400.0, 780.0)
 
 const CINEMATIC_ZOOM := 2.2 * RenderScale.FACTOR
 const CINEMATIC_FOLLOW_SPEED := 10.0

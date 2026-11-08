@@ -9,8 +9,8 @@ enum Kind { SKY, STARS, FAR, MID, NEAR }
 @export var depth: float = 0.0
 @export var seed_value: int = 1
 
-const LEFT := -900.0
-const RIGHT := 900.0
+const LEFT := -1300.0
+const RIGHT := 1300.0
 
 
 func _draw() -> void:

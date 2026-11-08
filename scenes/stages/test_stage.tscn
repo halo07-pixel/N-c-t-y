@@ -6,13 +6,13 @@
 [ext_resource type="Script" path="res://scripts/stage/stage_atmosphere.gd" id="4"]
 
 [sub_resource type="RectangleShape2D" id="main_shape"]
-size = Vector2(320, 28)
+size = Vector2(560, 28)
 
 [sub_resource type="RectangleShape2D" id="side_shape"]
-size = Vector2(70, 6)
+size = Vector2(90, 6)
 
 [sub_resource type="RectangleShape2D" id="top_shape"]
-size = Vector2(60, 6)
+size = Vector2(80, 6)
 
 [node name="Stage" type="Node2D"]
 script = ExtResource("1")
@@ -51,7 +51,7 @@ position = Vector2(0, 14)
 shape = SubResource("main_shape")
 
 [node name="SoftLeft" type="StaticBody2D" parent="."]
-position = Vector2(-90, 18)
+position = Vector2(-170, 18)
 collision_layer = 4
 collision_mask = 0
 
@@ -61,7 +61,7 @@ shape = SubResource("side_shape")
 one_way_collision = true
 
 [node name="SoftRight" type="StaticBody2D" parent="."]
-position = Vector2(90, 18)
+position = Vector2(170, 18)
 collision_layer = 4
 collision_mask = 0
 
@@ -71,7 +71,7 @@ shape = SubResource("side_shape")
 one_way_collision = true
 
 [node name="SoftTop" type="StaticBody2D" parent="."]
-position = Vector2(0, -24)
+position = Vector2(0, -34)
 collision_layer = 4
 collision_mask = 0
 
@@ -83,10 +83,10 @@ one_way_collision = true
 [node name="Spawns" type="Node2D" parent="."]
 
 [node name="P1" type="Marker2D" parent="Spawns"]
-position = Vector2(-70, 40)
+position = Vector2(-120, 40)
 
 [node name="P2" type="Marker2D" parent="Spawns"]
-position = Vector2(70, 40)
+position = Vector2(120, 40)
 
 [node name="Respawn" type="Marker2D" parent="Spawns"]
 position = Vector2(0, -70)

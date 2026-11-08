@@ -113,7 +113,7 @@ func test_air_jumps_have_no_limit_but_wait_and_weaken() -> void:
 
 
 func test_down_while_falling_triggers_a_fast_fall() -> void:
-	_build_world(Vector2(135.0, -150.0))
+	_build_world(Vector2(250.0, -150.0))
 	await wait_frames(10)
 	_input.tap_down()
 	await wait_frames(30)
@@ -126,7 +126,7 @@ func test_down_while_falling_triggers_a_fast_fall() -> void:
 
 
 func test_down_drops_through_a_soft_platform() -> void:
-	_build_world(Vector2(-90.0, 10.0))
+	_build_world(Vector2(-170.0, 10.0))
 	await wait_frames(30)
 	check(_fighter.is_on_floor(), "standing on the soft platform")
 	check_near(_fighter.position.y, LEFT_SOFT_PLATFORM_Y, 1.5, "feet on the soft platform")
@@ -141,7 +141,7 @@ func test_down_drops_through_a_soft_platform() -> void:
 
 
 func test_soft_platform_blocks_from_above_and_lets_through_from_below() -> void:
-	_build_world(Vector2(-90.0, 60.0))
+	_build_world(Vector2(-170.0, 60.0))
 	await wait_frames(20)
 	_input.tap_up()
 	await wait_frames(40)

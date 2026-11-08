@@ -3,8 +3,8 @@ extends Node2D
 ## The look of the platforms: stone with brick courses, a lit top edge, a ragged underside
 ## and a soft shadow. Pure drawing, the collision shapes live on the StaticBody2D nodes.
 
-const MAIN := Rect2(-160.0, 60.0, 320.0, 28.0)
-const SOFT := [Rect2(-125.0, 18.0, 70.0, 6.0), Rect2(55.0, 18.0, 70.0, 6.0), Rect2(-30.0, -24.0, 60.0, 6.0)]
+const MAIN := Rect2(-280.0, 60.0, 560.0, 28.0)
+const SOFT := [Rect2(-215.0, 18.0, 90.0, 6.0), Rect2(125.0, 18.0, 90.0, 6.0), Rect2(-40.0, -34.0, 80.0, 6.0)]
 
 
 func _draw() -> void:

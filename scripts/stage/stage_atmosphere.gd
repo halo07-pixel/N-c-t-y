@@ -8,7 +8,7 @@ enum Kind { FOG, DUST, FIREFLIES }
 @export var kind: Kind = Kind.FOG
 @export var seed_value: int = 3
 
-const AREA := Rect2(-380.0, -200.0, 760.0, 340.0)
+const AREA := Rect2(-640.0, -240.0, 1280.0, 400.0)
 const DUST_COUNT := 36
 const FIREFLY_COUNT := 12
 const MAX_AMOUNT := 1.5

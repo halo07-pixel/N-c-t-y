@@ -62,7 +62,7 @@ func test_cpu_recovers_to_the_stage_after_being_thrown_off() -> void:
 	var on_stage := false
 	for i in 30:
 		await wait_frames(10)
-		on_stage = on_stage or (absf(_cpu.global_position.x) < 160.0 and _cpu.global_position.y < 70.0 and _cpu.is_on_floor())
+		on_stage = on_stage or (absf(_cpu.global_position.x) < 280.0 and _cpu.global_position.y < 70.0 and _cpu.is_on_floor())
 	check(on_stage, "the CPU got back onto the stage")
 	_teardown_world()
 

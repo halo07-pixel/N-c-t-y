@@ -4,9 +4,9 @@ extends Node2D
 ## when a fighter has been knocked out.
 
 ## Leaving this rectangle (in stage space) costs a stock.
-@export var blast_zone: Rect2 = Rect2(-380.0, -260.0, 760.0, 520.0)
+@export var blast_zone: Rect2 = Rect2(-640.0, -340.0, 1280.0, 700.0)
 ## The camera may not show anything outside this rectangle.
-@export var camera_bounds: Rect2 = Rect2(-420.0, -300.0, 840.0, 600.0)
+@export var camera_bounds: Rect2 = Rect2(-700.0, -380.0, 1400.0, 780.0)
 
 
 func get_spawn_position(player_id: int) -> Vector2:
