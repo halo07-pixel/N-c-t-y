@@ -64,3 +64,18 @@ func test_every_fighter_has_a_signature_line_for_the_select_screen() -> void:
 	for name in ROSTER:
 		var text := SkillGuide.signature_for(_character(name))
 		check(text != "" and text.length() <= 44, "%s: a short line (%d)" % [name, text.length()])
+
+
+func test_every_fighter_explains_what_its_bankai_does() -> void:
+	for character: CharacterData in [
+		preload("res://resources/characters/swordsman.tres"), preload("res://resources/characters/archer.tres"),
+		preload("res://resources/characters/noble.tres"), preload("res://resources/characters/lieutenant.tres"),
+		preload("res://resources/characters/ice.tres"), preload("res://resources/characters/brute.tres"),
+	]:
+		check(SkillGuide.bankai_trait_for(character).length() > 20, "%s has a Bankai line" % character.display_name)
+		var page: Array = MoveListOverlay.pages_for(character, 1)[2]
+		var notes := 0
+		for entry: Dictionary in page:
+			if entry["kind"] == "note":
+				notes += 1
+		check(notes >= 2, "%s: the page shows the line and the shared rules" % character.display_name)

@@ -215,6 +215,10 @@ static func _bankai_page(character: CharacterData, player_id: int) -> Array:
 	var special := _key(player_id, &"special")
 	var kit := character.bankai_specials
 	var page: Array = [{"kind": "title", "text": "%s · %s" % [character.display_name.to_upper(), character.transform_title]}]
+	var trait_text := SkillGuide.bankai_trait_for(character)
+	if trait_text != "":
+		page.append({"kind": "note", "text": trait_text})
+	page.append({"kind": "note", "text": SkillGuide.BANKAI_RULES})
 	if kit == null:
 		page.append({"kind": "note", "text": "Dạng này dùng lại bộ skill thường."})
 		return page

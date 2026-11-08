@@ -61,6 +61,22 @@ const SIGNATURE := {
 }
 
 
+## What the Bankai itself does for each fighter, beyond stronger skills (the F3 Bankai page).
+const BANKAI_TRAIT := {
+	"Ichigo": "Đòn trúng tích cột đỏ; đủ 3 cột, đạn kế to hơn.",
+	"Uryu": "Hai lưỡi kiếm cắm sàn nối tia sét, đứng giữa bị giật.",
+	"Byakuya": "Vòng lưỡi kiếm quanh người chém kẻ lại gần.",
+	"Renji": "Mỗi đòn trúng, đuôi Zabimaru quất thêm một cú.",
+	"Rukia": "Sàn băng làm đối thủ trượt; tường băng gây sát thương.",
+	"Kenpachi": "Bị đánh tích cuồng nộ (+6% mỗi cấp, tối đa 6).",
+}
+const BANKAI_RULES := "Bị đánh hao Bankai · hết giờ thì kiệt sức."
+
+
+static func bankai_trait_for(character: CharacterData) -> String:
+	return BANKAI_TRAIT.get(character.display_name, "")
+
+
 static func signature_for(character: CharacterData) -> String:
 	return SIGNATURE.get(character.display_name, "")
 
