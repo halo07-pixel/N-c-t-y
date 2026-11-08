@@ -317,10 +317,11 @@ func _draw_panel(player_id: int) -> void:
 		draw_left("a fighter is drawn when you confirm", origin + Vector2(10.0, 52.0), 7, DIM)
 		return
 	PortraitArt.draw_portrait(self, origin + Vector2(20.0, 38.0), 12.0, character, color)
-	draw_left(character.display_name.to_upper(), origin + Vector2(38.0, 34.0), 12, WHITE)
-	_draw_bar("SPEED", origin + Vector2(38.0, 44.0), character.run_speed / SPEED_MAX, color)
-	_draw_bar("WEIGHT", origin + Vector2(38.0, 55.0), character.weight / WEIGHT_MAX, color)
+	draw_left(character.display_name.to_upper(), origin + Vector2(38.0, 32.0), 12, WHITE)
+	_draw_bar("SPEED", origin + Vector2(38.0, 40.0), character.run_speed / SPEED_MAX, color)
+	_draw_bar("WEIGHT", origin + Vector2(38.0, 49.0), character.weight / WEIGHT_MAX, color)
 	_draw_skill_icons(character, origin + Vector2(134.0, 25.0))
+	draw_left(SkillGuide.signature_for(character), origin + Vector2(8.0, PANEL_SIZE.y - 4.0), 6, WARM)
 
 
 func _panel_title(player_id: int) -> String:

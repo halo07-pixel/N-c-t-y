@@ -50,6 +50,21 @@ const TEXT := {
 }
 
 
+## What sets each fighter's skills apart, in a few words (the character select screen).
+const SIGNATURE := {
+	"Ichigo": "Chữ thập · phản đòn Tensa · nhịp combo",
+	"Uryu": "Lưỡi kiếm làm bẫy · bắn liên tục",
+	"Byakuya": "Trói đối thủ · tia sét · cánh hoa",
+	"Renji": "Vòng xích xoay · kéo rồi đập",
+	"Rukia": "Tường băng · vùng tuyết làm chậm",
+	"Kenpachi": "Giải phóng băng mắt · lao có giáp",
+}
+
+
+static func signature_for(character: CharacterData) -> String:
+	return SIGNATURE.get(character.display_name, "")
+
+
 ## The sentence and the facts of a skill, one text.
 static func text_for(skill: SpecialData) -> String:
 	if skill == null:

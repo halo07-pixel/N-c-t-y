@@ -300,11 +300,13 @@ func _play_scenario(scenario: String) -> void:
 			_bot_input.held_move = Vector2(0.0, 1.0)
 			_bot_input.tap_special()
 			await _frames(12)
-		"movelist", "movelist_basics": # the F3 move list, page 1 (skills) or 2 (basics)
+		"movelist", "movelist_basics", "movelist_bankai": # the F3 move list, pages 1 to 3
 			await _frames(5)
 			_match.get_node("MoveListOverlay").toggle()
 			if scenario == "movelist_basics":
 				_match.get_node("MoveListOverlay").show_page(1)
+			elif scenario == "movelist_bankai":
+				_match.get_node("MoveListOverlay").show_page(2)
 			await _frames(3)
 		"canon_getsuga_form": # the black Getsuga with its red rim, in Bankai
 			_fighters[0].start_bankai()

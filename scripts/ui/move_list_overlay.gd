@@ -9,7 +9,7 @@ const TITLE_SIZE := 12
 const LINE_HEIGHT := 9.0
 const SCREEN := Vector2(480.0, 270.0)
 const COLUMN_WIDTH := 232.0
-const PAGE_NAMES := ["KỸ NĂNG (Skill)", "ĐÒN THƯỜNG & CƠ BẢN"]
+const PAGE_NAMES := ["KỸ NĂNG (Skill)", "ĐÒN THƯỜNG & CƠ BẢN", "DẠNG BANKAI"]
 
 const GOLD := Color(1.0, 0.85, 0.4)
 const TEXT := Color(0.93, 0.95, 1.0)
@@ -207,7 +207,22 @@ static func pages_for(character: CharacterData, player_id: int) -> Array:
 	var ultimate := character.ultimate.display_name if character.ultimate != null else "-"
 	basics.append({"kind": "row", "label": charge, "text": "Biến hình: %s (khi đầy Gauge)" % character.transform_title})
 	basics.append({"kind": "row", "label": "Ultimate", "text": "%s (đang biến hình + đủ Reiatsu, bấm %s)" % [ultimate, charge]})
-	return [skills, basics]
+	return [skills, basics, _bankai_page(character, player_id)]
+
+
+## The skills of the transformed form: the same slots, stronger, some changed.
+static func _bankai_page(character: CharacterData, player_id: int) -> Array:
+	var special := _key(player_id, &"special")
+	var kit := character.bankai_specials
+	var page: Array = [{"kind": "title", "text": "%s · %s" % [character.display_name.to_upper(), character.transform_title]}]
+	if kit == null:
+		page.append({"kind": "note", "text": "Dạng này dùng lại bộ skill thường."})
+		return page
+	page.append_array(_slot_entries(special, kit.neutral))
+	page.append_array(_slot_entries("%s + Tiến" % special, kit.forward))
+	page.append_array(_slot_entries("%s + Lên" % special, kit.up))
+	page.append_array(_slot_entries("%s + Xuống" % special, kit.down))
+	return page
 
 
 ## Every text of a character's list, one per line; the first is the name. Used by tests and logs.
