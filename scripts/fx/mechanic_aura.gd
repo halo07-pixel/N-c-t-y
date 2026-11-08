@@ -22,12 +22,19 @@ func setup(fighter: Fighter) -> void:
 
 ## True while the fighter has any mechanic to show.
 static func is_showing(fighter: Fighter) -> bool:
-	return fighter.empowered or fighter.in_petal_zone or has_petal_ring(fighter) or fighter.arrow_streak() >= 2 or fighter.gathering
+	return fighter.empowered or fighter.in_petal_zone or has_petal_ring(fighter) or has_form_trait(fighter) or fighter.arrow_streak() >= 2 or fighter.gathering
 
 
 ## Byakuya's Bankai keeps a ring of blades turning around him.
 static func has_petal_ring(fighter: Fighter) -> bool:
 	return fighter.is_bankai() and fighter.data.mechanic == &"petals"
+
+
+## Getsuga charge pips over Ichigo, lightning between Uryu's blades.
+static func has_form_trait(fighter: Fighter) -> bool:
+	if not fighter.is_bankai():
+		return false
+	return fighter.getsuga_stacks > 0 or (fighter.data.mechanic == &"heartless" and not BankaiTraits.lattice_pairs(fighter).is_empty())
 
 
 func _process(delta: float) -> void:
@@ -53,6 +60,10 @@ func _draw() -> void:
 		_draw_petals(size, center, amount)
 	if has_petal_ring(_fighter):
 		_draw_ring(center, amount)
+	if _fighter.is_bankai() and _fighter.getsuga_stacks > 0:
+		_draw_getsuga_pips(size)
+	if _fighter.is_bankai() and _fighter.data.mechanic == &"heartless":
+		_draw_lattice()
 	if _fighter.gathering:
 		_draw_gather(size, amount)
 
@@ -66,6 +77,30 @@ func _draw_ring(center: Vector2, amount: float) -> void:
 		var along := Vector2(-sin(angle), cos(angle) * 0.7).normalized()
 		draw_line(at - along * 4.0, at + along * 4.0, Color(colors[0].r, colors[0].g, colors[0].b, 0.85), 2.0)
 		draw_line(at - along * 2.0, at + along * 2.0, Color(colors[1].r, colors[1].g, colors[1].b, 0.9), 1.0)
+
+
+func _draw_getsuga_pips(size: Vector2) -> void:
+	var ready := _fighter.getsuga_stacks >= BankaiTraits.GETSUGA_MIN
+	for i in _fighter.getsuga_stacks:
+		var at := Vector2((float(i) - float(BankaiTraits.GETSUGA_MAX - 1) * 0.5) * 6.0, -size.y - 12.0)
+		var glow := 0.55 + (0.35 * sin(_time * 12.0 + float(i)) if ready else 0.0)
+		draw_rect(Rect2(at - Vector2(2.0, 3.0), Vector2(4.0, 6.0)), Color(1.0, 0.15, 0.2, glow))
+		draw_rect(Rect2(at - Vector2(1.0, 2.0), Vector2(2.0, 4.0)), Color(0.05, 0.0, 0.07, 0.9))
+
+
+func _draw_lattice() -> void:
+	var colors := MechanicBurst.palette(&"heartless")
+	for pair in BankaiTraits.lattice_pairs(_fighter):
+		var a: Vector2 = _fighter.to_local(pair[0]) + Vector2(0.0, -20.0)
+		var b: Vector2 = _fighter.to_local(pair[1]) + Vector2(0.0, -20.0)
+		var points := PackedVector2Array([a])
+		var steps := 8
+		for k in range(1, steps):
+			var t := float(k) / float(steps)
+			points.append(a.lerp(b, t) + Vector2(0.0, sin(_time * 40.0 + float(k) * 1.7) * 3.0))
+		points.append(b)
+		draw_polyline(points, Color(colors[0].r, colors[0].g, colors[0].b, 0.8), 1.4)
+		draw_polyline(points, Color(colors[1].r, colors[1].g, colors[1].b, 0.5), 0.6)
 
 
 func _draw_hollow(size: Vector2, amount: float) -> void:

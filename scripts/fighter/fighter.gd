@@ -71,8 +71,11 @@ var bankai_frames_left: int = 0
 var exhausted_frames: int = 0
 ## Frames left in which the ground is slick under us (an enemy ice-floor Bankai): friction is cut.
 var slippery_frames: int = 0
+## Ichigo's Bankai: hits landed charge the next Getsuga; `getsuga_boost` scales the shot being fired.
+var getsuga_stacks: int = 0
+var getsuga_boost: float = 1.0
 ## Frames until the petal ring (Byakuya's Bankai) can cut again.
-var ring_cooldown: int = 0
+var trait_cooldown: int = 0
 var ultimate_used: bool = false
 var gauge: float = 0.0
 var combo_count: int = 0
@@ -598,6 +601,7 @@ func _register_landed_hit(damage: float) -> void:
 	_combo_frames = CombatGauge.COMBO_WINDOW_FRAMES
 	if is_bankai():
 		bankai_frames_left = CombatGauge.extend_form(bankai_frames_left)
+		BankaiTraits.on_hit_landed(self)
 	else:
 		add_gauge(CombatGauge.gain_for_hit(damage, combo_count))
 
@@ -852,6 +856,8 @@ func end_bankai(exhaust: bool = false) -> void:
 	bankai_frames_left = 0
 	damage_multiplier = 1.0
 	speed_scale = 1.0
+	getsuga_stacks = 0
+	getsuga_boost = 1.0
 	exhausted_frames = BankaiRules.EXHAUST_FRAMES if exhaust else 0
 	if exhaust:
 		speed_scale = BankaiRules.speed_for_exhaustion(exhausted_frames)
@@ -930,6 +936,7 @@ func begin_special_use(special: SpecialData, aerial: bool) -> void:
 		empowered = false
 		empower_frames_left = 0
 		empower_scale = HOLLOW_SCALE
+	BankaiTraits.on_special_used(self, special)
 	var slot := special.slot_key()
 	if _refresh_pending:
 		_refresh_pending = false
@@ -1137,8 +1144,8 @@ func spawn_projectile(projectile_data: ProjectileData, move: MoveData, charge: f
 	var special := move as SpecialData
 	var scales := special.charge_scales(charge) if special != null else {"damage": 1.0, "size": 1.0, "speed": 1.0, "pierce": false}
 	projectile.launch(
-		projectile_data, move, player_id, facing, outgoing_multiplier() * empower_scale * scales["damage"], global_position,
-		scales["size"], scales["speed"], scales["pierce"]
+		projectile_data, move, player_id, facing, outgoing_multiplier() * empower_scale * getsuga_boost * scales["damage"],
+		global_position, scales["size"] * getsuga_boost, scales["speed"], scales["pierce"]
 	)
 	if projectile_data.aim > 0.0:
 		projectile.steer(input.move.y * projectile_data.aim)

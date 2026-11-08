@@ -91,6 +91,11 @@ func can_pass_ring() -> bool:
 	return _pierce and _move != null and _move.damage >= 14.0
 
 
+## A blade stuck in the floor (Uryu's Seele Schneider).
+func is_planted_blade() -> bool:
+	return _data != null and _data.plant and _planted
+
+
 func is_trap() -> bool:
 	return _data != null and _data.trap
 
