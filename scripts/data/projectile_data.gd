@@ -13,6 +13,9 @@ extends Resource
 @export var color: Color = Color(0.6, 0.9, 1.0)
 ## An edge color for the crescent styles. When set (alpha above zero) the body is drawn dark and
 ## solid with this glowing edge, like the black Getsuga with its red rim.
+## The soft halo around a flying shot (alpha above zero to use). A Bankai's shots glow in a stronger,
+## truer colour than the normal kit; without one the shot gets a faint halo in its own colour.
+@export var glow: Color = Color(0.0, 0.0, 0.0, 0.0)
 @export var rim: Color = Color(0.0, 0.0, 0.0, 0.0)
 ## Name of an effect sprite in the owner's sprite set; empty draws the plain shape.
 @export var art: StringName = &""

@@ -344,7 +344,7 @@ func _draw() -> void:
 		for point in _trail:
 			local_trail.append(point - position)
 		var angle := _velocity.angle() if _velocity != Vector2.ZERO else (0.0 if _facing > 0 else PI)
-		ProjectileArt.draw(self, _data.style, _size, _wall_tint(), angle, _age, local_trail, _data.rim)
+		ProjectileArt.draw(self, _data.style, _size, _wall_tint(), angle, _age, local_trail, _data.rim, _data.glow)
 		return
 	if _art != null:
 		_draw_art()
