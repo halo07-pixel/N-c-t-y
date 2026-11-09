@@ -12,7 +12,7 @@ const LABELS := {
 	&"settings": "SETTINGS",
 	&"quit": "QUIT",
 }
-const DEFAULT_CPU_LEVEL := 2
+const DEFAULT_CPU_LEVEL := 2 # GIỎI
 const ROW_HEIGHT := 22.0
 
 var cursor := MenuCursor.new(ITEMS.size())

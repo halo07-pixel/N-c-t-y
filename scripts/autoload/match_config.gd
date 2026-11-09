@@ -14,6 +14,12 @@ const ROSTER_PATHS: PackedStringArray = [
 const RANDOM_PICK := -1
 const CPU_OFF := 0
 const CPU_MAX_LEVEL := 3
+const LEVEL_NAMES := {1: "KHÁ", 2: "GIỎI", 3: "BẬC THẦY", 4: "BOSS"}
+
+
+static func cpu_level_name(level: int) -> String:
+	return LEVEL_NAMES.get(level, "CPU %d" % level)
+
 
 var p1_index: int = 0
 var p2_index: int = 1
@@ -94,5 +100,5 @@ func cycle_cpu() -> void:
 func describe() -> String:
 	var p2_label := character_for(2).display_name
 	if cpu_level > CPU_OFF:
-		p2_label += " (CPU %d)" % cpu_level
+		p2_label += " (CPU %s)" % cpu_level_name(cpu_level)
 	return "P1 %s   P2 %s" % [character_for(1).display_name, p2_label]

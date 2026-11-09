@@ -73,3 +73,46 @@ static func rhythm_press(move: MoveData, frame: int, active_end: int, rng: Rando
 	if not NormalRiders.is_perfect(frame, active_end):
 		return false
 	return rng.randf() < 0.45
+
+
+## How far from the opponent the CPU wants to stand while its Bankai lasts, so the form's own
+## mechanic works: Vector2(nearest, farthest). Empty (ZERO) = no preference.
+static func bankai_spacing(mechanic: StringName) -> Vector2:
+	match mechanic:
+		&"petals": # the blade ring cuts whoever is inside it
+			return Vector2(0.0, 44.0)
+		&"reach": # the tail echo needs someone within its reach
+			return Vector2(0.0, 70.0)
+		&"zeal": # fury feeds on being hit: stay in the middle of it
+			return Vector2(0.0, 55.0)
+		&"heartless": # lightning between blades: shoot and keep away
+			return Vector2(120.0, 230.0)
+		&"hollow": # a charged Getsuga wants space to be thrown
+			return Vector2(60.0, 150.0)
+		&"frost":
+			return Vector2(70.0, 160.0)
+	return Vector2.ZERO
+
+
+## Whether to turn the gauge into a Bankai now. Level 1 takes it the moment it can; better CPUs wait
+## for a moment that is worth it: close enough to use it, not in the middle of being hit, and when
+## they are hurt, ahead, or have sat on a full gauge too long.
+static func bankai_wanted(level: int, situation: Dictionary) -> bool:
+	var distance: float = situation.get("distance", 100.0)
+	if distance <= 60.0:
+		return false
+	if level < 2:
+		return true
+	if distance > 190.0 or situation.get("target_attacking", false):
+		return false
+	var waited: int = situation.get("waited", 0)
+	return float(situation.get("self_percent", 0.0)) >= 60.0 or float(situation.get("target_percent", 0.0)) >= 40.0 or waited >= 480
+
+
+## Whether to spend the ultimate now: the better CPUs wait until it will hurt (or the form is ending).
+static func ultimate_wanted(level: int, situation: Dictionary) -> bool:
+	if float(situation.get("distance", 100.0)) >= 220.0:
+		return false
+	if level < 2:
+		return true
+	return float(situation.get("target_percent", 0.0)) >= 40.0 or int(situation.get("form_frames_left", 999)) < 240

@@ -78,10 +78,21 @@ func test_cpu_does_nothing_while_knocked_out_or_stunned() -> void:
 
 
 func test_cpu_transforms_when_its_gauge_is_full() -> void:
-	_build_world(SWORDSMAN, Vector2(-120.0, 50.0), 120.0, 3)
+	_build_world(SWORDSMAN, Vector2(-120.0, 50.0), 120.0, 1)
 	_cpu.set_gauge(CombatGauge.MAX)
 	await wait_frames(240)
 	check(_cpu.is_bankai(), "the CPU transformed")
+	_teardown_world()
+
+
+func test_a_better_cpu_transforms_once_the_moment_is_right() -> void:
+	_build_world(SWORDSMAN, Vector2(-70.0, 50.0), 70.0, 3)
+	_cpu.set_gauge(CombatGauge.MAX)
+	await wait_frames(120)
+	check(not _cpu.is_bankai(), "it waits while the fight is even")
+	_dummy.set_percent(70.0)
+	await wait_frames(240)
+	check(_cpu.is_bankai(), "and transforms when the opponent is hurt")
 	_teardown_world()
 
 
@@ -100,13 +111,17 @@ func test_cpu_defends_when_the_opponent_attacks_close_by() -> void:
 	_teardown_world()
 
 
-func test_easy_cpu_never_defends() -> void:
+func test_even_the_easiest_cpu_defends() -> void:
 	_build_world(SWORDSMAN, Vector2(-20.0, 50.0), 20.0, 1)
 	await wait_frames(30)
 	_dummy._state_machine.transition_to(&"Attack")
-	for _i in 40:
+	var defended := 0
+	for _i in 60:
 		_brain._defend_cooldown = 0
-		check(not _brain.get_frame().guard_just_pressed, "level 1 does not defend")
+		_brain._guard_frames_left = 0
+		if _brain.get_frame().guard_just_pressed:
+			defended += 1
+	check(defended > 5, "there is no helpless level any more (%d of 60)" % defended)
 	_teardown_world()
 
 
@@ -123,8 +138,11 @@ func test_cpu_dashes_in_from_far_away() -> void:
 	_teardown_world()
 
 
-func test_level_one_never_dashes() -> void:
-	check_eq(AIInput.LEVELS[1]["dash"], 0.0, "the easiest CPU has no dash")
+func test_every_level_dashes_and_the_harder_ones_more() -> void:
+	for level in [1, 2, 3, 4]:
+		check(AIInput.LEVELS[level]["dash"] > 0.0, "level %d dashes" % level)
+	check(AIInput.LEVELS[4]["dash"] > AIInput.LEVELS[1]["dash"], "the boss dashes the most")
+	check(AIInput.LEVELS[4]["mistake"] <= AIInput.LEVELS[1]["mistake"], "and makes the fewest mistakes")
 
 
 func test_cpu_presses_special_again_for_any_skill_with_a_follow_up() -> void:

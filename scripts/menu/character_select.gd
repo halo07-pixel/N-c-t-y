@@ -326,7 +326,7 @@ func _draw_panel(player_id: int) -> void:
 
 func _panel_title(player_id: int) -> String:
 	if player_id == 2 and is_cpu_mode():
-		return "CPU  LEVEL %d" % MatchConfig.cpu_level
+		return "CPU  %s" % MatchConfig.cpu_level_name(MatchConfig.cpu_level)
 	return "PLAYER %d" % player_id
 
 

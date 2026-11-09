@@ -2,7 +2,8 @@ extends SceneTree
 ## Balance simulation: every character against every character (CPU vs CPU), several seeded
 ## matches per pairing, and a report of win rates and how fast the transform gauge fills.
 ##
-## godot --headless --fixed-fps 60 --path . -s tools/balance_sim.gd -- out.json [matches=4] [level=3] [stocks=2]
+## godot --headless --fixed-fps 60 --path . -s tools/balance_sim.gd -- out.json [matches=4] [level=3] [level_b=1] [stocks=2]
+## (level_b: the CPU level of player 2 when it should differ, to see whether a level really is stronger)
 ##   [seconds=90] [chars=swordsman,archer,noble,emperor]
 ##
 ## It uses the real fighters, states, hits, guard and gauge; only the match rules are
@@ -35,12 +36,15 @@ func _run() -> void:
 	var out_path: String = args[0] if args.size() > 0 else "balance.json"
 	var matches := 4
 	var level := 3
+	var level_b := 0
 	var stocks := 2
 	var seconds := 90
 	var names := ["swordsman", "archer", "noble", "emperor"]
 	for arg in args:
 		if arg.begins_with("matches="):
 			matches = int(arg.substr(8))
+		elif arg.begins_with("level_b="):
+			level_b = int(arg.substr(8))
 		elif arg.begins_with("level="):
 			level = int(arg.substr(6))
 		elif arg.begins_with("stocks="):
@@ -77,7 +81,7 @@ func _run() -> void:
 			var wins_b := 0
 			var ties := 0
 			for m in matches:
-				var result := await _play(a, b, level, stocks, seconds * 60, 1000 + m * 7 + names.find(a) * 131 + names.find(b) * 17)
+				var result := await _play(a, b, level, stocks, level_b if level_b > 0 else level, seconds * 60, 1000 + m * 7 + names.find(a) * 131 + names.find(b) * 17)
 				match result["winner"]:
 					1:
 						wins_a += 1
@@ -126,7 +130,7 @@ func _collect(totals: Dictionary, name: String, result: Dictionary, id: int) -> 
 		t["gauge_full_frames"].append(result["gauge_full"][id])
 
 
-func _play(a: String, b: String, level: int, stocks: int, max_frames: int, seed_value: int) -> Dictionary:
+func _play(a: String, b: String, level: int, stocks: int, level_p2: int, max_frames: int, seed_value: int) -> Dictionary:
 	_transforms.clear()
 	_guards.clear()
 	_names_by_id = {1: a, 2: b}
@@ -147,7 +151,7 @@ func _play(a: String, b: String, level: int, stocks: int, max_frames: int, seed_
 		_fighters.append(fighter)
 	for index in 2:
 		var brain = load(AI_PATH).new()
-		brain.bind(_fighters[index], _fighters[1 - index], level, seed_value + index * 31)
+		brain.bind(_fighters[index], _fighters[1 - index], level if index == 0 else level_p2, seed_value + index * 31)
 		_fighters[index].set_input_source(brain)
 	var gauge_full := {}
 	var frame := 0
