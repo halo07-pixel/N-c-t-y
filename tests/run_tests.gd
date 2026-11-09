@@ -69,7 +69,10 @@ func _run_all() -> void:
 	var total_assertions := 0
 	var total_tests := 0
 
+	var only := OS.get_environment("TEST_ONLY") # e.g. TEST_ONLY=bankai runs just the matching files
 	for path in TEST_SCRIPTS:
+		if only != "" and not path.contains(only):
+			continue
 		var suite: TestCase = load(path).new()
 		suite.tree = self
 		for method in suite.get_method_list():
