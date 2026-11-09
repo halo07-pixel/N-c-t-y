@@ -34,7 +34,7 @@ static func has_petal_ring(fighter: Fighter) -> bool:
 static func has_form_trait(fighter: Fighter) -> bool:
 	if not fighter.is_bankai():
 		return false
-	return fighter.getsuga_stacks > 0 or fighter.fury_stacks > 0 or (fighter.data.mechanic == &"heartless" and not BankaiTraits.lattice_pairs(fighter).is_empty())
+	return fighter.getsuga_stacks > 0 or fighter.fury_stacks > 0 or fighter.memory_damage > 0.0 or (fighter.data.mechanic == &"heartless" and not BankaiTraits.lattice_pairs(fighter).is_empty())
 
 
 func _process(delta: float) -> void:
@@ -66,6 +66,8 @@ func _draw() -> void:
 		_draw_lattice()
 	if _fighter.is_bankai() and _fighter.fury_stacks > 0:
 		_draw_fury(size)
+	if _fighter.is_bankai() and _fighter.memory_damage > 0.0:
+		_draw_memory(size)
 	if _fighter.gathering:
 		_draw_gather(size, amount)
 
@@ -98,6 +100,16 @@ func _draw_fury(size: Vector2) -> void:
 		var height := 8.0 + 8.0 * (0.5 + 0.5 * sin(_time * 10.0 + float(i) * 1.3))
 		draw_line(Vector2(x, -size.y * 0.3), Vector2(x, -size.y * 0.3 - height), Color(colors[0].r, colors[0].g, colors[0].b, 0.7), 2.0)
 		draw_line(Vector2(x, -size.y * 0.3), Vector2(x, -size.y * 0.3 - height * 0.6), Color(colors[1].r, colors[1].g, colors[1].b, 0.8), 1.0)
+
+
+## Yhwach's memory: dark red motes circling him, one per 8% of damage he is holding on to.
+func _draw_memory(size: Vector2) -> void:
+	var motes := clampi(int(ceil(_fighter.memory_damage / 8.0)), 1, 3)
+	for i in motes:
+		var angle := _time * 3.0 + TAU * float(i) / float(motes)
+		var at := Vector2(cos(angle) * 14.0, -size.y * 0.5 + sin(angle) * 10.0)
+		draw_circle(at, 2.5, Color(0.9, 0.1, 0.25, 0.9))
+		draw_circle(at, 1.2, Color(1.0, 0.8, 0.85, 0.9))
 
 
 func _draw_lattice() -> void:

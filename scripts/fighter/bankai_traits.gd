@@ -8,6 +8,8 @@ extends RefCounted
 ##  - heartless (blade lattice): enemies standing between two of Uryu's planted blades are shocked.
 ##  - reach (Zabimaru's tail): a melee hit lands an echo from the tail a moment later on whoever is near.
 ##  - zeal (fury): hits taken feed Kenpachi, and his form lasts through them.
+##  - steal (the Almighty's memory): damage taken in the form is remembered; his next hit lands an
+##    echo of it on whoever is near, once.
 ##  - frost (Hyōrinmaru-style ice floor): the ground turns slick for enemies standing on it.
 
 const RING_RADIUS := 48.0
@@ -30,6 +32,8 @@ const ZEAL_FORM_FACTOR := 2.0 # his zeal climbs twice as far in the form
 const FURY_MAX := 6
 const FURY_STEP := 0.06
 const ZEAL_DRAIN_SCALE := 0.5
+const MEMORY_CAP := 24.0
+const MEMORY_SHARE := 0.7
 
 
 static func tick(fighter: Fighter) -> void:
@@ -40,7 +44,7 @@ static func tick(fighter: Fighter) -> void:
 			_ice_floor(fighter)
 		&"heartless":
 			_blade_lattice(fighter)
-		&"reach":
+		&"reach", &"steal":
 			_tail_echo(fighter)
 
 
@@ -49,6 +53,10 @@ static func on_hit_landed(fighter: Fighter, damage: float = 0.0) -> void:
 	if fighter.data.mechanic == &"reach" and damage > 0.0 and fighter.echo_frames <= 0:
 		fighter.echo_frames = ECHO_DELAY
 		fighter.echo_damage = damage * ECHO_SHARE
+	if fighter.data.mechanic == &"steal" and fighter.memory_damage > 0.0 and fighter.echo_frames <= 0:
+		fighter.echo_frames = ECHO_DELAY
+		fighter.echo_damage = fighter.memory_damage * MEMORY_SHARE
+		fighter.memory_damage = 0.0
 	if fighter.data.mechanic != &"hollow":
 		return
 	fighter.getsuga_stacks = mini(fighter.getsuga_stacks + 1, GETSUGA_MAX)
@@ -151,7 +159,10 @@ static func _ice_floor(fighter: Fighter) -> void:
 
 
 ## Kenpachi: fury grows with every hit taken in the form.
-static func on_hit_taken(fighter: Fighter) -> void:
+static func on_hit_taken(fighter: Fighter, damage: float = 0.0) -> void:
+	if fighter.data.mechanic == &"steal":
+		fighter.memory_damage = minf(fighter.memory_damage + damage, MEMORY_CAP)
+		Events.mechanic_triggered.emit(fighter.player_id, &"steal", fighter.global_position + Vector2(0.0, -20.0))
 	if fighter.data.mechanic == &"zeal":
 		fighter.fury_stacks = mini(fighter.fury_stacks + 1, FURY_MAX)
 		Events.mechanic_triggered.emit(fighter.player_id, &"zeal", fighter.global_position + Vector2(0.0, -20.0))
@@ -189,4 +200,4 @@ static func _tail_echo(fighter: Fighter) -> void:
 	info.knockback_growth = 40.0
 	info.direction = Vector2(signf(best.global_position.x - fighter.global_position.x), -0.5).normalized()
 	best.hurtbox.receive_hit(info)
-	Events.mechanic_triggered.emit(fighter.player_id, &"reach", best.global_position + Vector2(0.0, -16.0))
+	Events.mechanic_triggered.emit(fighter.player_id, &"steal" if fighter.data.mechanic == &"steal" else &"reach", best.global_position + Vector2(0.0, -16.0))

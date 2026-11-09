@@ -68,6 +68,7 @@ const BANKAI_TRAIT := {
 	"Byakuya": "Vòng lưỡi kiếm quanh người chém kẻ lại gần.",
 	"Renji": "Mỗi đòn trúng, đuôi Zabimaru quất thêm một cú.",
 	"Rukia": "Sàn băng làm đối thủ trượt; tường băng gây sát thương.",
+	"Yhwach": "Nhớ sát thương đã nhận, đòn trúng kế tiếp trả lại 70%.",
 	"Kenpachi": "Bị đánh tích cuồng nộ (+6% mỗi cấp, tối đa 6).",
 }
 const BANKAI_RULES := "Bị đánh hao Bankai · hết giờ thì kiệt sức."

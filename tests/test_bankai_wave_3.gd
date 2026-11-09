@@ -127,3 +127,28 @@ func test_renjis_bankai_slam_reaches_further_and_the_whirl_lasts_longer() -> voi
 	var form := _chain_moves(RENJI.bankai_specials)
 	check(form["Zabimaru Slam"].hitbox_size.x > normal["Zabimaru Slam"].hitbox_size.x, "the slam reaches further")
 	check(form["Zabimaru Whirl"].spin_frames > normal["Zabimaru Whirl"].spin_frames, "the whirl spins longer")
+
+
+const YHWACH: CharacterData = preload("res://resources/characters/emperor.tres")
+
+
+func test_yhwach_remembers_damage_taken_in_the_form_and_returns_it_once() -> void:
+	_build(YHWACH, 60.0)
+	_a._on_hit_received(_hit(5.0)) # outside the form: forgotten
+	check_eq(_a.memory_damage, 0.0, "nothing is remembered outside the form")
+	_a.start_bankai()
+	_a._on_hit_received(_hit(8.0))
+	_a._on_hit_received(_hit(30.0))
+	check_near(_a.memory_damage, BankaiTraits.MEMORY_CAP, 0.001, "the memory has a cap")
+	_a.global_position = Vector2(-60.0, 50.0) # the hits threw him back; he is next to the enemy again
+	_a.velocity = Vector2.ZERO
+	_a.hitlag_left = 0
+	_a._register_landed_hit(6.0)
+	check_eq(_a.memory_damage, 0.0, "the next hit spends it")
+	check_near(_a.echo_damage, BankaiTraits.MEMORY_CAP * BankaiTraits.MEMORY_SHARE, 0.001, "and gives most of it back")
+	var before := _b.percent
+	await wait_frames(BankaiTraits.ECHO_DELAY + 30)
+	check(_b.percent > before, "the echo hit the nearby enemy")
+	_a._register_landed_hit(6.0)
+	check_eq(_a.echo_damage, BankaiTraits.MEMORY_CAP * BankaiTraits.MEMORY_SHARE, "nothing more to give back")
+	_teardown()

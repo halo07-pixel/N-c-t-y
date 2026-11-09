@@ -73,6 +73,8 @@ var exhausted_frames: int = 0
 var slippery_frames: int = 0
 ## Kenpachi's Bankai: each hit taken feeds his fury. Renji's: the tail echo waits to strike.
 var fury_stacks: int = 0
+## Yhwach's Bankai remembers the damage he took and gives it back on his next hit.
+var memory_damage: float = 0.0
 var echo_frames: int = 0
 var echo_damage: float = 0.0
 ## Ichigo's Bankai: hits landed charge the next Getsuga; `getsuga_boost` scales the shot being fired.
@@ -864,6 +866,7 @@ func end_bankai(exhaust: bool = false) -> void:
 	getsuga_stacks = 0
 	getsuga_boost = 1.0
 	fury_stacks = 0
+	memory_damage = 0.0
 	echo_frames = 0
 	exhausted_frames = BankaiRules.EXHAUST_FRAMES if exhaust else 0
 	if exhaust:
@@ -896,7 +899,7 @@ func _drain_form(damage: float) -> void:
 	if not is_bankai():
 		return
 	bankai_frames_left -= int(round(BankaiRules.drain_for(damage) * BankaiTraits.drain_scale(self)))
-	BankaiTraits.on_hit_taken(self)
+	BankaiTraits.on_hit_taken(self, damage)
 	Events.mechanic_triggered.emit(player_id, &"drain", global_position + Vector2(0.0, -16.0))
 	if bankai_frames_left <= 0:
 		end_bankai(true)
