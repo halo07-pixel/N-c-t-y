@@ -108,3 +108,4 @@ func test_the_stage_shows_a_field_while_the_form_lasts() -> void:
 	await wait_frames(120)
 	check_near(field.level_of(1), 0.0, 0.001, "and out again")
 	_teardown()
+

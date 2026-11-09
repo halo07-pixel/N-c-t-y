@@ -125,6 +125,7 @@ func test_blades_wait_in_the_air_and_come_home() -> void:
 		still = still and absf(shot.global_position.x - before[i]) < 1.0
 		i += 1
 	check(still, "they do not move on their own")
+	fighter.set_reiatsu(Reiatsu.MAX)
 	input.tap_special()
 	await wait_frames(24)
 	var moved := false
