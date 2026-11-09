@@ -63,6 +63,7 @@ func _draw() -> void:
 		var length := size * (0.6 + 0.8 * cos(spread * 0.9)) * (0.4 + ease_out)
 		draw_line(Vector2.from_angle(a) * size * 0.3 * ease_out, Vector2.from_angle(a) * length, Color(color.r, color.g, color.b, fade), 1.5 * fade + 0.4)
 	_draw_style(t, size)
+	_draw_debris(t, size)
 	if power > 0.55:
 		var normal := direction.orthogonal()
 		for i in 5:
@@ -70,6 +71,23 @@ func _draw() -> void:
 			var start := -direction * (size * 0.8) + normal * offset
 			var length := (20.0 + 30.0 * power) * ease_out
 			draw_line(start, start - direction * length, Color(1.0, 1.0, 1.0, 0.7 * fade), 1.0)
+
+
+## Chips thrown out of a heavy hit (tier 2): they fly along the knockback and fall.
+static func debris_count(tier: int) -> int:
+	return 0 if tier < 2 else 7
+
+
+func _draw_debris(t: float, size: float) -> void:
+	var count := debris_count(tier_for(power))
+	var fade := 1.0 - t
+	var base := direction.angle()
+	for i in count:
+		var spread := (float(i) / float(maxi(count - 1, 1)) - 0.5) * 2.6
+		var speed := size * (1.1 + 0.5 * fmod(float(i) * 0.37, 1.0))
+		var at := Vector2.from_angle(base + spread) * speed * t * 2.2 + Vector2(0.0, 70.0 * t * t)
+		var chip := 1.2 + fmod(float(i) * 0.61, 1.0) * 1.6
+		draw_rect(Rect2(at - Vector2(chip, chip) * 0.5, Vector2(chip, chip)), Color(accent.r, accent.g, accent.b, fade))
 
 
 ## The character-specific layer on top of the common flash.

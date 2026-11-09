@@ -39,8 +39,10 @@ static func _alpha(color: Color, alpha: float) -> Color:
 ## Draws one projectile. `trail` holds recent positions in the item's local space.
 static func draw(
 	item: CanvasItem, style: StringName, size: Vector2, color: Color, angle: float, age: float,
-	trail: PackedVector2Array = PackedVector2Array(), rim: Color = Color(0.0, 0.0, 0.0, 0.0)
+	trail: PackedVector2Array = PackedVector2Array(), rim: Color = Color(0.0, 0.0, 0.0, 0.0),
+	glow: Color = Color(0.0, 0.0, 0.0, 0.0)
 ) -> void:
+	_draw_halo(item, style, size, color, glow, age)
 	_draw_trail(item, trail, color, size)
 	item.draw_set_transform(Vector2.ZERO, 0.0 if style == &"pillar" else angle, Vector2.ONE)
 	match style:
@@ -79,6 +81,26 @@ static func draw(
 		_:
 			_crescent(item, size, color, 1.0, rim)
 	item.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## Styles that are terrain or zones, not flying light: no halo.
+const NO_HALO: Array[StringName] = [&"pillar", &"wall", &"mine", &"rune"]
+
+
+## The halo's strength: a normal shot glows faintly in its own colour, a shot with a `glow` brightly in that.
+static func halo_alpha(glow: Color) -> float:
+	return 0.32 if glow.a > 0.0 else 0.12
+
+
+static func _draw_halo(item: CanvasItem, style: StringName, size: Vector2, color: Color, glow: Color, age: float) -> void:
+	if NO_HALO.has(style):
+		return
+	var tint := Color(glow.r, glow.g, glow.b, 1.0) if glow.a > 0.0 else color
+	var strength := halo_alpha(glow) * (0.85 + 0.15 * sin(age * 14.0))
+	var radius := maxf(size.y, size.x * 0.45) * (1.1 if glow.a > 0.0 else 0.85)
+	item.draw_circle(Vector2.ZERO, radius * 1.5, _alpha(tint, strength * 0.35))
+	item.draw_circle(Vector2.ZERO, radius, _alpha(tint, strength * 0.6))
+	item.draw_circle(Vector2.ZERO, radius * 0.55, _alpha(tint.lerp(Color.WHITE, 0.5), strength))
 
 
 static func _draw_trail(item: CanvasItem, trail: PackedVector2Array, color: Color, size: Vector2) -> void:

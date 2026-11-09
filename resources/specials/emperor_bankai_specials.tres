@@ -12,6 +12,7 @@ lifetime_frames = 156
 size = Vector2(56, 56)
 pierce = true
 color = Color(0.75, 0.4, 1.0, 1)
+glow = Color(0.9, 0.1, 0.3, 1.0)
 art = &"orb"
 style = &"orb"
 absorbs = true

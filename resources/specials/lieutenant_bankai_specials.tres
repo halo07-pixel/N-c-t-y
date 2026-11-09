@@ -12,6 +12,7 @@ lifetime_frames = 15
 size = Vector2(64, 12)
 pierce = true
 color = Color(1.0, 0.45, 0.4, 1)
+glow = Color(1, 0.2, 0.1, 1.0)
 style = &"baboon"
 
 [sub_resource type="Resource" id="P_lieutenant_snare_b"]
@@ -22,6 +23,7 @@ lifetime_frames = 420
 size = Vector2(38, 38)
 pierce = false
 color = Color(1.0, 0.4, 0.35, 1)
+glow = Color(1, 0.2, 0.1, 1.0)
 style = &"coil"
 trap = true
 
@@ -48,6 +50,7 @@ lifetime_frames = 16
 size = Vector2(70, 10)
 pierce = false
 color = Color(1.0, 0.45, 0.4, 1)
+glow = Color(1, 0.2, 0.1, 1.0)
 art = &""
 style = &"chain"
 
