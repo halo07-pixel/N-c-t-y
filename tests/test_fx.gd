@@ -372,3 +372,16 @@ func test_the_presentation_sits_below_the_hud() -> void:
 	check(fx.layer < hud.layer, "the HUD stays readable over the dimming")
 	hud.free()
 	fx.free()
+
+
+func test_presentation_gathers_then_bursts() -> void:
+	var early := PresentationFx.sequence(30.0, 75)
+	var late := PresentationFx.sequence(65.0, 75)
+	check(early["gather"] > 0.0 and early["burst"] == 0.0, "energy gathers before the release")
+	check(late["gather"] == 0.0 and late["burst"] > 0.0, "speed lines burst after the release")
+
+
+func test_title_reveal_types_in_letters() -> void:
+	check_eq(MatchHud.title_reveal("BANKAI", 0), "", "nothing at first")
+	check(MatchHud.title_reveal("BANKAI", 2).length() < 6, "partial mid-way")
+	check_eq(MatchHud.title_reveal("BANKAI", 60), "BANKAI", "full once the time has passed")

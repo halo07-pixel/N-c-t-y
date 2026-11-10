@@ -21,6 +21,7 @@ const BAR_HEIGHT := 4.0
 const LETTERBOX_HEIGHT := 28.0
 const CUTIN_SLIDE_FRAMES := 10.0
 const CUTIN_FRAME := Vector2(72.0, 96.0)
+const TITLE_LETTERS_PER_FRAME := 1.2
 const PLAYER_NAMES := {1: "PLAYER 1", 2: "PLAYER 2"}
 
 var _percents: Dictionary = {}
@@ -326,7 +327,14 @@ func _draw_transform() -> void:
 	_canvas.draw_rect(Rect2(band.position.x, band.position.y, SCREEN.x, 1.5), Color(1.0, 1.0, 1.0, fade))
 	_canvas.draw_rect(Rect2(band.position.x, band.end.y - 1.5, SCREEN.x, 1.5), Color(color.r, color.g, color.b, fade))
 	if pop > 0.3:
-		_text(_transform_title, Vector2(SCREEN.x * 0.5, band.get_center().y + 7.0 + (1.0 - pop) * 12.0), 20, Color(WARM.r, WARM.g, WARM.b, fade))
+		var shown := title_reveal(_transform_title, _transform_total - _transform_frames)
+		_text(shown, Vector2(SCREEN.x * 0.5, band.get_center().y + 7.0 + (1.0 - pop) * 12.0), 20, Color(WARM.r, WARM.g, WARM.b, fade))
+
+
+## The part of a title shown `age` frames after its band appeared: letters type in left to right.
+static func title_reveal(title: String, age: int) -> String:
+	var count := int(float(maxi(age, 0)) * TITLE_LETTERS_PER_FRAME)
+	return title.substr(0, mini(count, title.length()))
 
 
 ## 0..1 slide-in progress of the cut-in `age` frames after it started.
@@ -347,7 +355,7 @@ func _draw_cinematic() -> void:
 	_canvas.draw_colored_polygon(band, Color(color.r * 0.35, color.g * 0.35, color.b * 0.35, 0.9))
 	_canvas.draw_line(band[0], band[1], WHITE, 2.0)
 	_canvas.draw_line(band[3], band[2], color, 2.0)
-	# Placeholder portrait frame (a real portrait can replace the fill later).
+	# Portrait frame: the fighter's head drawn large from their colours, with their name below.
 	var on_left := _cinematic_player == 1
 	var frame_x := 36.0 if on_left else SCREEN.x - 36.0 - CUTIN_FRAME.x
 	var frame_shift := (1.0 - slide) * (-120.0 if on_left else 120.0)
@@ -355,7 +363,12 @@ func _draw_cinematic() -> void:
 	_canvas.draw_rect(frame.grow(2.0), OUTLINE)
 	_canvas.draw_rect(frame, Color(color.r * 0.25, color.g * 0.25, color.b * 0.25, 0.95))
 	_canvas.draw_rect(frame, color, false, 2.0)
-	_text(PLAYER_NAMES.get(_cinematic_player, "P%d" % _cinematic_player), frame.get_center() + Vector2(0.0, 4.0), 12, WHITE)
+	var character := MatchConfig.character_for(_cinematic_player)
+	if character != null:
+		PortraitArt.draw_head(_canvas, frame.get_center() + Vector2(0.0, -8.0), 26.0, character)
+		_text(character.display_name.to_upper(), frame.get_center() + Vector2(0.0, 38.0), 9, WHITE)
+	else:
+		_text(PLAYER_NAMES.get(_cinematic_player, "P%d" % _cinematic_player), frame.get_center() + Vector2(0.0, 4.0), 12, WHITE)
 	var title_x := SCREEN.x * 0.5 + (60.0 if on_left else -60.0)
 	_text(_cinematic_title, Vector2(title_x + shift * 0.4, 66.0), 20, WARM)
 

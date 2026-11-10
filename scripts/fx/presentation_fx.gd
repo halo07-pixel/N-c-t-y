@@ -42,7 +42,10 @@ static func sequence(age: float, total: int) -> Dictionary:
 	if t > 0.9:
 		motif *= clampf((1.0 - t) / 0.1, 0.0, 1.0)
 	var flash := clampf(1.0 - absf(t - 0.78) / 0.07, 0.0, 1.0)
-	return {"dim": dim, "motif": motif, "flash": flash}
+	# Energy gathers into the fighter until the flash, then the speed lines burst outward.
+	var gather := clampf(t / 0.75, 0.0, 1.0) if t < 0.78 else 0.0
+	var burst := clampf((t - 0.78) / 0.15, 0.0, 1.0) if t >= 0.78 else 0.0
+	return {"dim": dim, "motif": motif, "flash": flash, "gather": gather, "burst": burst}
 
 
 func _on_transform_started(player_id: int, _title: String, frames: int) -> void:
@@ -108,6 +111,8 @@ func _on_draw() -> void:
 			_draw_snow(motif, amount)
 		&"pressure":
 			_draw_pressure(motif, amount)
+	_draw_gather(float(beat["gather"]), amount)
+	_draw_burst(float(beat["burst"]), amount)
 	var flash: float = beat["flash"]
 	if flash > 0.0:
 		_canvas.draw_rect(Rect2(Vector2.ZERO, SCREEN), Color(_accent.r, _accent.g, _accent.b, 0.22 * flash * amount))
@@ -220,3 +225,28 @@ func _draw_shadow(motif: float, amount: float) -> void:
 		var t := fposmod(_age * 0.012 + seed, 1.0)
 		var x := CENTER.x + sin(seed * 2.1) * spread
 		_canvas.draw_circle(Vector2(x, ground - t * 80.0), 1.4, Color(_color.r, _color.g, _color.b, (1.0 - t) * 0.8 * motif))
+
+
+## Motes drawn in from the edge of the screen toward the fighter while the sequence builds.
+func _draw_gather(gather: float, amount: float) -> void:
+	if gather <= 0.0:
+		return
+	for i in int(round(14.0 * amount)):
+		var angle := float(i) * 2.399 # golden angle keeps the motes evenly spread
+		var start := 150.0 + 30.0 * float(i % 3)
+		var radius := lerpf(start, 14.0, pow(gather, 1.6))
+		var tail := radius + 12.0 * (1.0 - gather)
+		var dir := Vector2.from_angle(angle)
+		_canvas.draw_line(CENTER + dir * tail, CENTER + dir * radius, Color(_accent.r, _accent.g, _accent.b, 0.7 * gather), 1.2)
+
+
+## Speed lines flung outward from the fighter in the release.
+func _draw_burst(burst: float, amount: float) -> void:
+	if burst <= 0.0 or burst >= 1.0:
+		return
+	for i in int(round(20.0 * amount)):
+		var angle := float(i) * TAU / 20.0 + 0.13 * float(i % 3)
+		var dir := Vector2.from_angle(angle)
+		var inner := 30.0 + 150.0 * burst
+		var outer := inner + 40.0 + 20.0 * float(i % 2)
+		_canvas.draw_line(CENTER + dir * inner, CENTER + dir * outer, Color(1.0, 1.0, 1.0, 0.8 * (1.0 - burst)), 1.6)
