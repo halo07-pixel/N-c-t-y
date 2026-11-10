@@ -22,6 +22,7 @@ const LETTERBOX_HEIGHT := 28.0
 const CUTIN_SLIDE_FRAMES := 10.0
 const CUTIN_FRAME := Vector2(72.0, 96.0)
 const TITLE_LETTERS_PER_FRAME := 1.2
+const RESULT_POP_FRAMES := 20.0
 const PLAYER_NAMES := {1: "PLAYER 1", 2: "PLAYER 2"}
 
 var _percents: Dictionary = {}
@@ -39,6 +40,7 @@ var _seconds_left: int = -1
 var _sudden_death: bool = false
 var _result_shown: bool = false
 var _winner_id: int = 0
+var _result_age: int = 0
 var _cinematic_frames: int = 0
 var _cinematic_title: String = ""
 var _cinematic_total: int = 0
@@ -70,6 +72,9 @@ func _ready() -> void:
 
 
 func _physics_process(_delta: float) -> void:
+	if _result_shown:
+		_result_age += 1
+		_canvas.queue_redraw()
 	if _transform_frames > 0:
 		_transform_frames -= 1
 		_canvas.queue_redraw()
@@ -110,6 +115,7 @@ func _on_sudden_death_started() -> void:
 
 func _on_match_ended(winner_id: int) -> void:
 	_result_shown = true
+	_result_age = 0
 	_winner_id = winner_id
 	_canvas.queue_redraw()
 
@@ -373,15 +379,32 @@ func _draw_cinematic() -> void:
 	_text(_cinematic_title, Vector2(title_x + shift * 0.4, 66.0), 20, WARM)
 
 
+## 0..1 pop-in progress of the result screen `age` frames after the match ended (slight overshoot).
+static func result_pop(age: int) -> float:
+	var t := clampf(float(age) / RESULT_POP_FRAMES, 0.0, 1.0)
+	return 1.0 + 2.7 * pow(t - 1.0, 3.0) + 1.7 * pow(t - 1.0, 2.0)
+
+
 func _draw_result() -> void:
-	_canvas.draw_rect(Rect2(Vector2.ZERO, SCREEN), Color(0.0, 0.0, 0.0, 0.5))
+	var pop := result_pop(_result_age)
+	var fade := clampf(float(_result_age) / 15.0, 0.0, 1.0)
+	_canvas.draw_rect(Rect2(Vector2.ZERO, SCREEN), Color(0.0, 0.0, 0.0, 0.5 * fade))
 	var headline := "DRAW" if _winner_id == 0 else "PLAYER %d WINS!" % _winner_id
 	if ArcadeRun.active:
 		headline = "YOU WIN!" if _winner_id == 1 else "YOU LOSE"
 	var headline_color: Color = PLAYER_COLORS.get(_winner_id, WHITE)
-	_text(headline, Vector2(SCREEN.x * 0.5, 130.0), 26, headline_color)
+	var band_height := 54.0 * clampf(pop, 0.0, 1.0)
+	var band := Rect2(0.0, 118.0 - band_height * 0.5, SCREEN.x, band_height)
+	_canvas.draw_rect(band, Color(headline_color.r * 0.3, headline_color.g * 0.3, headline_color.b * 0.3, 0.85 * fade))
+	_canvas.draw_rect(Rect2(0.0, band.position.y, SCREEN.x, 1.5), Color(1.0, 1.0, 1.0, fade))
+	_canvas.draw_rect(Rect2(0.0, band.end.y - 1.5, SCREEN.x, 1.5), Color(headline_color.r, headline_color.g, headline_color.b, fade))
+	var winner := MatchConfig.character_for(_winner_id) if _winner_id != 0 else null
+	if winner != null and pop > 0.3:
+		PortraitArt.draw_portrait(_canvas, Vector2(SCREEN.x * 0.5 - 150.0, 118.0), 20.0 * clampf(pop, 0.0, 1.2), winner, headline_color)
+		_text(winner.display_name.to_upper(), Vector2(SCREEN.x * 0.5 + 150.0, 122.0), 10, WHITE)
+	_text(headline, Vector2(SCREEN.x * 0.5, 126.0 + (1.0 - clampf(pop, 0.0, 1.0)) * 14.0), int(26.0 * clampf(pop, 0.6, 1.1)), headline_color)
 	var hint := "Enter: continue     Esc: quit Arcade" if ArcadeRun.active else "Enter: play again     Esc: menu"
-	_text(hint, Vector2(SCREEN.x * 0.5, 156.0), 10, WHITE)
+	_text(hint, Vector2(SCREEN.x * 0.5, 166.0), 10, Color(1.0, 1.0, 1.0, fade))
 
 
 ## Outlined text starting at `position` (left end of the baseline).

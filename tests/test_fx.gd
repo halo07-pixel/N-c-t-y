@@ -385,3 +385,9 @@ func test_title_reveal_types_in_letters() -> void:
 	check_eq(MatchHud.title_reveal("BANKAI", 0), "", "nothing at first")
 	check(MatchHud.title_reveal("BANKAI", 2).length() < 6, "partial mid-way")
 	check_eq(MatchHud.title_reveal("BANKAI", 60), "BANKAI", "full once the time has passed")
+
+
+func test_result_pop_overshoots_then_settles() -> void:
+	check_near(MatchHud.result_pop(0), 0.0, 0.01, "starts closed")
+	check(MatchHud.result_pop(14) > 1.0, "overshoots near the end")
+	check_near(MatchHud.result_pop(40), 1.0, 0.01, "settles at full size")
