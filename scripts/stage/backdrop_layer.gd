@@ -13,7 +13,17 @@ const LEFT := -1300.0
 const RIGHT := 1300.0
 
 
+## Everything a layer paints is gathered as coloured triangles and drawn as ONE mesh, so a layer
+## costs a single draw call however many stars, towers or spires it has (the order is kept, so
+## translucent shapes still stack the same way).
+var _vertices := PackedVector2Array()
+var _colors := PackedColorArray()
+var _mesh: ArrayMesh # kept: the canvas item only holds the mesh's RID, so freeing it would blank the layer
+
+
 func _draw() -> void:
+	_vertices.clear()
+	_colors.clear()
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	match kind:
@@ -28,13 +38,54 @@ func _draw() -> void:
 			_draw_mid(rng)
 		Kind.NEAR:
 			_draw_near(rng)
+	_flush()
+
+
+func _flush() -> void:
+	if _vertices.is_empty():
+		return
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = _vertices
+	arrays[Mesh.ARRAY_COLOR] = _colors
+	_mesh = ArrayMesh.new()
+	_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	draw_mesh(_mesh, null)
+
+
+func _add_triangle(a: Vector2, b: Vector2, c: Vector2, ca: Color, cb: Color, cc: Color) -> void:
+	_vertices.append_array(PackedVector2Array([a, b, c]))
+	_colors.append_array(PackedColorArray([ca, cb, cc]))
+
+
+func _fill_rect(rect: Rect2, color: Color) -> void:
+	var tl := rect.position
+	var br := rect.end
+	_add_triangle(tl, Vector2(br.x, tl.y), br, color, color, color)
+	_add_triangle(tl, br, Vector2(tl.x, br.y), color, color, color)
+
+
+func _fill_polygon(points: PackedVector2Array, color: Color) -> void:
+	var indices := Geometry2D.triangulate_polygon(points)
+	for i in range(0, indices.size(), 3):
+		_add_triangle(points[indices[i]], points[indices[i + 1]], points[indices[i + 2]], color, color, color)
+
+
+func _fill_circle(center: Vector2, radius: float, color: Color) -> void:
+	var segments := clampi(int(radius * 2.0) + 6, 8, 40)
+	for i in segments:
+		var a := Vector2.from_angle(TAU * float(i) / float(segments)) * radius
+		var b := Vector2.from_angle(TAU * float(i + 1) / float(segments)) * radius
+		_add_triangle(center, center + a, center + b, color, color, color)
 
 
 func _band(top: float, bottom: float, from: Color, to: Color) -> void:
-	draw_polygon(
-		PackedVector2Array([Vector2(LEFT, top), Vector2(RIGHT, top), Vector2(RIGHT, bottom), Vector2(LEFT, bottom)]),
-		PackedColorArray([from, from, to, to])
-	)
+	var tl := Vector2(LEFT, top)
+	var tr := Vector2(RIGHT, top)
+	var br := Vector2(RIGHT, bottom)
+	var bl := Vector2(LEFT, bottom)
+	_add_triangle(tl, tr, br, from, from, to)
+	_add_triangle(tl, br, bl, from, to, to)
 
 
 func _draw_sky() -> void:
@@ -48,17 +99,17 @@ func _draw_stars(rng: RandomNumberGenerator) -> void:
 		var at := Vector2(rng.randf_range(LEFT, RIGHT), rng.randf_range(-260.0, 60.0))
 		var fade := clampf(1.0 - (at.y + 260.0) / 340.0, 0.15, 1.0)
 		var size := rng.randf_range(0.6, 1.3)
-		draw_circle(at, size, Color(1.0, 0.97, 0.92, fade * rng.randf_range(0.5, 1.0)))
+		_fill_circle(at, size, Color(1.0, 0.97, 0.92, fade * rng.randf_range(0.5, 1.0)))
 
 
 func _draw_moon() -> void:
 	var at := Vector2(80.0, -100.0)
 	for ring in 12:
-		draw_circle(at, 20.0 + ring * 4.0, Color(StagePalette.MOON_GLOW, 0.018))
-	draw_circle(at, 20.0, StagePalette.MOON)
-	draw_circle(at + Vector2(-6.0, -4.0), 4.0, Color(0.85, 0.82, 0.7, 0.5))
-	draw_circle(at + Vector2(7.0, 5.0), 3.0, Color(0.85, 0.82, 0.7, 0.4))
-	draw_circle(at + Vector2(3.0, -9.0), 2.0, Color(0.85, 0.82, 0.7, 0.35))
+		_fill_circle(at, 20.0 + ring * 4.0, Color(StagePalette.MOON_GLOW, 0.018))
+	_fill_circle(at, 20.0, StagePalette.MOON)
+	_fill_circle(at + Vector2(-6.0, -4.0), 4.0, Color(0.85, 0.82, 0.7, 0.5))
+	_fill_circle(at + Vector2(7.0, 5.0), 3.0, Color(0.85, 0.82, 0.7, 0.4))
+	_fill_circle(at + Vector2(3.0, -9.0), 2.0, Color(0.85, 0.82, 0.7, 0.35))
 
 
 func _draw_far(rng: RandomNumberGenerator) -> void:
@@ -71,7 +122,7 @@ func _draw_far(rng: RandomNumberGenerator) -> void:
 		x += 30.0
 	points.append(Vector2(RIGHT, 420.0))
 	points.append(Vector2(LEFT, 420.0))
-	draw_colored_polygon(points, StagePalette.FAR)
+	_fill_polygon(points, StagePalette.FAR)
 	# A pale haze at the foot of the far hills.
 	_band(100.0, 190.0, Color(StagePalette.SKY_HORIZON, 0.0), Color(StagePalette.SKY_HORIZON, 0.55))
 
@@ -83,15 +134,15 @@ func _draw_mid(rng: RandomNumberGenerator) -> void:
 		var height := rng.randf_range(55.0, 150.0)
 		var top := 170.0 - height
 		var body := Rect2(x, top, width, height + 260.0)
-		draw_rect(body, StagePalette.MID)
+		_fill_rect(body, StagePalette.MID)
 		match rng.randi() % 3:
 			0: # broken, slanted top
-				draw_colored_polygon(
+				_fill_polygon(
 					PackedVector2Array([Vector2(x, top), Vector2(x + width, top), Vector2(x + width * 0.4, top - 14.0)]),
 					StagePalette.MID
 				)
 			1: # a thin spire
-				draw_colored_polygon(
+				_fill_polygon(
 					PackedVector2Array([
 						Vector2(x + width * 0.35, top), Vector2(x + width * 0.65, top), Vector2(x + width * 0.5, top - 34.0)
 					]),
@@ -100,11 +151,11 @@ func _draw_mid(rng: RandomNumberGenerator) -> void:
 			_: # crenellations
 				var tooth := width / 5.0
 				for i in 3:
-					draw_rect(Rect2(x + tooth * (i * 2.0), top - 6.0, tooth, 6.0), StagePalette.MID)
-		draw_rect(Rect2(x + width - 1.5, top, 1.5, height + 260.0), Color(StagePalette.RIM, 0.22))
+					_fill_rect(Rect2(x + tooth * (i * 2.0), top - 6.0, tooth, 6.0), StagePalette.MID)
+		_fill_rect(Rect2(x + width - 1.5, top, 1.5, height + 260.0), Color(StagePalette.RIM, 0.22))
 		for i in rng.randi_range(0, 2):
 			var window := Vector2(x + rng.randf_range(6.0, width - 10.0), top + rng.randf_range(12.0, height - 10.0))
-			draw_rect(Rect2(window, Vector2(2.0, 3.0)), Color(StagePalette.WINDOW, rng.randf_range(0.5, 0.9)))
+			_fill_rect(Rect2(window, Vector2(2.0, 3.0)), Color(StagePalette.WINDOW, rng.randf_range(0.5, 0.9)))
 		x += width + rng.randf_range(6.0, 30.0)
 
 
@@ -115,7 +166,7 @@ func _draw_near(rng: RandomNumberGenerator) -> void:
 		var width := rng.randf_range(50.0, 110.0)
 		var height := rng.randf_range(40.0, 120.0)
 		var base := 260.0
-		draw_colored_polygon(
+		_fill_polygon(
 			PackedVector2Array([
 				Vector2(x, base), Vector2(x + width * rng.randf_range(0.2, 0.5), base - height),
 				Vector2(x + width * rng.randf_range(0.6, 0.9), base - height * 0.7), Vector2(x + width, base),
@@ -123,4 +174,4 @@ func _draw_near(rng: RandomNumberGenerator) -> void:
 			StagePalette.NEAR
 		)
 		x += width * rng.randf_range(0.6, 1.0)
-	draw_rect(Rect2(LEFT, 150.0, RIGHT - LEFT, 300.0), StagePalette.NEAR)
+	_fill_rect(Rect2(LEFT, 150.0, RIGHT - LEFT, 300.0), StagePalette.NEAR)

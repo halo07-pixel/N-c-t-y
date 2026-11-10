@@ -46,3 +46,16 @@ func test_atmosphere_has_enough_particles_for_the_highest_effects_level() -> voi
 	var wanted := int(round(StageAtmosphere.DUST_COUNT * minf(GameSettings.EFFECT_AMOUNT.max(), StageAtmosphere.MAX_AMOUNT)))
 	check(atmosphere._seeds.size() >= wanted, "a seed for every dust mote at the highest level")
 	atmosphere.free()
+
+
+func test_backdrop_layers_batch_their_shapes_into_one_mesh() -> void:
+	for kind in BackdropLayer.Kind.values():
+		var layer := BackdropLayer.new()
+		layer.kind = kind
+		layer.seed_value = 7
+		tree.root.add_child(layer)
+		await wait_frames(2)
+		check(layer._mesh != null, "layer %d keeps its mesh alive (else the canvas draws nothing)" % kind)
+		check(layer._vertices.size() > 0 and layer._vertices.size() % 3 == 0, "layer %d holds whole triangles" % kind)
+		check_eq(layer._vertices.size(), layer._colors.size(), "layer %d has a colour per vertex" % kind)
+		layer.free()
