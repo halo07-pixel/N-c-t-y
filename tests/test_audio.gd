@@ -57,3 +57,34 @@ func test_sfx_bus_exists_and_follows_settings() -> void:
 	check_eq(AudioServer.get_bus_volume_db(index), -80.0, "muted")
 	GameSettings.sfx_volume = before
 	Events.settings_changed.emit()
+
+
+func test_music_tracks_loop_and_are_audible() -> void:
+	for track in MusicSynth.TRACKS:
+		var stream := MusicSynth.stream_for(track)
+		check_eq(stream.loop_mode, AudioStreamWAV.LOOP_FORWARD, "%s loops" % track)
+		check_eq(stream.loop_end, stream.data.size() / 2, "%s loops over its whole length" % track)
+		check_near(float(stream.data.size() / 2) / float(MusicSynth.MIX_RATE), MusicSynth.loop_seconds(track), 0.05, "%s length matches the score" % track)
+		var peak := 0
+		for i in range(0, stream.data.size() / 2, 11):
+			peak = maxi(peak, absi(stream.data.decode_s16(i * 2)))
+		check(peak > 1500 and peak < 32000, "%s is audible and does not clip" % track)
+
+
+func test_screens_pick_music() -> void:
+	check_eq(AudioBus.track_for_screen(&"versus_match"), &"fight", "match screens")
+	check_eq(AudioBus.track_for_screen(&"training_match"), &"fight", "training")
+	check_eq(AudioBus.track_for_screen(&"main_menu"), &"menu", "menus")
+
+
+func test_music_switches_with_screens_and_matches() -> void:
+	var bus := tree.root.get_node("AudioBus")
+	bus.current_track = &""
+	tree.root.get_node("ScreenRouter").enabled = false
+	Events.screen_requested.emit(&"main_menu")
+	check_eq(bus.current_track, &"menu", "menu music on the menu")
+	Events.match_started.emit()
+	check_eq(bus.current_track, &"fight", "fight music when a match starts")
+	Events.match_ended.emit(1)
+	check_eq(bus.current_track, &"menu", "back to menu music after the match")
+	tree.root.get_node("ScreenRouter").enabled = true
