@@ -22,6 +22,7 @@ GameSettings="*res://scripts/autoload/game_settings.gd"
 MatchConfig="*res://scripts/autoload/match_config.gd"
 ScreenRouter="*res://scripts/autoload/screen_router.gd"
 ArcadeRun="*res://scripts/autoload/arcade_run.gd"
+AudioBus="*res://scripts/autoload/audio_bus.gd"
 
 [display]
 
