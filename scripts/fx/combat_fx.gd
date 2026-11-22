@@ -9,6 +9,8 @@ func _ready() -> void:
 	Events.attack_swing.connect(_on_attack_swing)
 	Events.dust_puff.connect(_on_dust_puff)
 	Events.fighter_guarded.connect(_on_guarded)
+	Events.fighter_guard_broken.connect(_on_guard_broken)
+	Events.fighter_launched.connect(_on_launched)
 	Events.fighter_dashed.connect(_on_dashed)
 	Events.fighter_gauge_cancelled.connect(_on_gauge_cancelled)
 	Events.projectile_flash.connect(_on_projectile_flash)
@@ -34,6 +36,13 @@ func _on_hit_impact(
 		spark.color = MatchHud.PLAYER_COLORS.get(attacker_id, Color.WHITE).lerp(Color.WHITE, 0.5)
 		spark.amount = GameSettings.effect_amount()
 	FxBudget.spawn(self, spark)
+	if ShockwaveFx.wants_ring(spark.power):
+		var ring := ShockwaveFx.new()
+		ring.position = hit_position
+		ring.power = spark.power
+		ring.color = spark.color
+		ring.amount = GameSettings.effect_amount()
+		FxBudget.spawn(self, ring)
 	if profile != null:
 		var shake := hit_shake(damage, profile.spark_scale)
 		if shake > 0.0:
@@ -100,6 +109,12 @@ func _on_guarded(_victim: int, _attacker: int, parried: bool, spot: Vector2) -> 
 		var ring := ParryFx.new()
 		ring.position = spot
 		FxBudget.spawn(self, ring)
+		var wave := ShockwaveFx.new()
+		wave.position = spot
+		wave.power = 0.8
+		wave.color = Color(1.0, 0.92, 0.55)
+		wave.amount = GameSettings.effect_amount()
+		FxBudget.spawn(self, wave)
 	var spark := HitSpark.new()
 	spark.position = spot
 	spark.power = 0.9 if parried else 0.25
@@ -148,3 +163,50 @@ func _on_projectile_flash(flash_position: Vector2, direction: Vector2, color: Co
 	spark.style = &"shards" if dissolve else &"slash"
 	spark.amount = GameSettings.effect_amount() * 0.55
 	FxBudget.spawn(self, spark)
+
+
+## A guard break: a cold shockwave and a burst of shield shards where the fighter stood.
+func _on_guard_broken(player_id: int) -> void:
+	if not GameSettings.screen_effects:
+		return
+	var fighter := _fighter_of(player_id)
+	if fighter == null:
+		return
+	var spot := fighter.global_position + Vector2(0.0, -14.0)
+	var wave := ShockwaveFx.new()
+	wave.position = spot
+	wave.power = 1.0
+	wave.color = Color(0.45, 0.8, 1.0)
+	wave.amount = GameSettings.effect_amount()
+	FxBudget.spawn(self, wave)
+	var shards := HitSpark.new()
+	shards.position = spot
+	shards.power = 0.85
+	shards.color = Color(0.5, 0.85, 1.0)
+	shards.accent = Color.WHITE
+	shards.style = &"shards"
+	shards.amount = GameSettings.effect_amount()
+	FxBudget.spawn(self, shards)
+
+
+## A hard launch leaves a streak behind the victim, in the attacker-independent colour of the victim.
+func _on_launched(victim_id: int, speed: float, _direction: Vector2) -> void:
+	if not GameSettings.screen_effects or not AfterimageTrail.wants_trail(speed):
+		return
+	var fighter := _fighter_of(victim_id)
+	if fighter == null:
+		return
+	var trail := AfterimageTrail.new()
+	var profile := _profile_for(victim_id)
+	trail.color = profile.accent if profile != null else Color.WHITE
+	trail.amount = GameSettings.effect_amount()
+	trail.follow(fighter)
+	FxBudget.spawn(self, trail)
+
+
+func _fighter_of(player_id: int) -> Fighter:
+	for node in get_tree().get_nodes_in_group(Fighter.FIGHTER_GROUP):
+		var fighter := node as Fighter
+		if fighter != null and fighter.player_id == player_id:
+			return fighter
+	return null

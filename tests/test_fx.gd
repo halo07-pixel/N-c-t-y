@@ -391,3 +391,56 @@ func test_result_pop_overshoots_then_settles() -> void:
 	check_near(MatchHud.result_pop(0), 0.0, 0.01, "starts closed")
 	check(MatchHud.result_pop(14) > 1.0, "overshoots near the end")
 	check_near(MatchHud.result_pop(40), 1.0, 0.01, "settles at full size")
+
+
+func test_shockwave_only_for_heavy_hits_and_expands() -> void:
+	check(not ShockwaveFx.wants_ring(0.5), "a solid hit has no ring")
+	check(ShockwaveFx.wants_ring(0.9), "a heavy hit has a ring")
+	check(ShockwaveFx.radius_at(0.5, 1.0) > ShockwaveFx.radius_at(0.1, 1.0), "the ring grows")
+	check(ShockwaveFx.radius_at(0.5, 1.0) > ShockwaveFx.radius_at(0.5, 0.7), "harder hits reach further")
+
+
+func test_heavy_hit_and_parry_add_rings_to_the_effects() -> void:
+	var before := GameSettings.screen_effects
+	var level := GameSettings.effects_level
+	GameSettings.effects_level = 3
+	GameSettings.screen_effects = true
+	FxBudget.reset()
+	var fx := CombatFx.new()
+	tree.root.add_child(fx)
+	Events.hit_impact.emit(Vector2.ZERO, Vector2.RIGHT, 25.0, 900.0, 1)
+	var rings := 0
+	for child in fx.get_children():
+		if child is ShockwaveFx:
+			rings += 1
+	check_eq(rings, 1, "a heavy hit spawns one ring")
+	Events.fighter_guarded.emit(1, 2, true, Vector2.ZERO)
+	var waves := 0
+	for child in fx.get_children():
+		if child is ShockwaveFx:
+			waves += 1
+	check_eq(waves, 2, "a parry adds a ring too")
+	fx.queue_free()
+	FxBudget.reset()
+	GameSettings.screen_effects = before
+	GameSettings.effects_level = level
+
+
+func test_afterimage_only_for_hard_launches_and_fades_with_age() -> void:
+	check(not AfterimageTrail.wants_trail(300.0), "a soft launch leaves no trail")
+	check(AfterimageTrail.wants_trail(900.0), "a hard launch does")
+	check(AfterimageTrail.segment_alpha(0, 10) < AfterimageTrail.segment_alpha(9, 10), "older segments are fainter")
+
+
+func test_afterimage_follows_the_target_and_frees_itself() -> void:
+	var target := Node2D.new()
+	tree.root.add_child(target)
+	var trail := AfterimageTrail.new()
+	trail.follow(target)
+	tree.root.add_child(trail)
+	target.global_position = Vector2(50.0, 0.0)
+	await wait_frames(3)
+	check(trail._points.size() >= 2, "it records the path")
+	target.free()
+	await wait_frames(2)
+	check(not is_instance_valid(trail) or trail.is_queued_for_deletion(), "it frees itself when the fighter is gone")
