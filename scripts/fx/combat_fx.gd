@@ -163,6 +163,13 @@ func _on_projectile_flash(flash_position: Vector2, direction: Vector2, color: Co
 	spark.style = &"shards" if dissolve else &"slash"
 	spark.amount = GameSettings.effect_amount() * 0.55
 	FxBudget.spawn(self, spark)
+	if dissolve:
+		var glow := ResidueFx.new()
+		glow.position = flash_position
+		glow.color = color
+		glow.kind = ResidueFx.kind_for(color)
+		glow.amount = GameSettings.effect_amount()
+		FxBudget.spawn(self, glow)
 
 
 ## A guard break: a cold shockwave and a burst of shield shards where the fighter stood.

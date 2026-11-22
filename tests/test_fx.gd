@@ -444,3 +444,37 @@ func test_afterimage_follows_the_target_and_frees_itself() -> void:
 	target.free()
 	await wait_frames(2)
 	check(not is_instance_valid(trail) or trail.is_queued_for_deletion(), "it frees itself when the fighter is gone")
+
+
+func test_residue_kind_follows_the_spell_colour() -> void:
+	check_eq(ResidueFx.kind_for(Color(0.3, 0.85, 1.0)), &"frost", "cold colours glint")
+	check_eq(ResidueFx.kind_for(Color(1.0, 0.35, 0.7)), &"petal", "pink petals fall")
+	check_eq(ResidueFx.kind_for(Color(1.0, 0.2, 0.1)), &"ember", "red embers rise")
+	check(ResidueFx.drift(&"ember", 1.0) < 0.0 and ResidueFx.drift(&"petal", 1.0) > 0.0, "embers rise, petals fall")
+	check_eq(ResidueFx.drift(&"frost", 1.0), 0.0, "frost hangs")
+	check(ResidueFx.motes_for(0.5) < ResidueFx.motes_for(1.0), "lower effects, fewer motes")
+
+
+func test_a_dissolving_shot_leaves_an_afterglow_but_a_new_one_does_not() -> void:
+	var before := GameSettings.screen_effects
+	var level := GameSettings.effects_level
+	GameSettings.effects_level = 3
+	GameSettings.screen_effects = true
+	FxBudget.reset()
+	var fx := CombatFx.new()
+	tree.root.add_child(fx)
+	Events.projectile_flash.emit(Vector2.ZERO, Vector2.RIGHT, Color(1.0, 0.2, 0.1), false)
+	var glows := 0
+	for child in fx.get_children():
+		if child is ResidueFx:
+			glows += 1
+	check_eq(glows, 0, "no afterglow when a shot appears")
+	Events.projectile_flash.emit(Vector2.ZERO, Vector2.RIGHT, Color(1.0, 0.2, 0.1), true)
+	for child in fx.get_children():
+		if child is ResidueFx:
+			glows += 1
+	check_eq(glows, 1, "an afterglow when it ends")
+	fx.queue_free()
+	FxBudget.reset()
+	GameSettings.screen_effects = before
+	GameSettings.effects_level = level
